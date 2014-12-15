@@ -718,6 +718,10 @@ NSString *const emptyStringSha256 = @"e3b0c44298fc1c149afbf4c8996fb92427ae41e464
 
 - (void)close {
 	[self.stream close];
+    // HACK to avoid data leaking on iOS 7.x
+    if (([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)) {
+        self.stream = nil;
+    }
 }
 
 - (void)setDelegate:(id)delegate {
