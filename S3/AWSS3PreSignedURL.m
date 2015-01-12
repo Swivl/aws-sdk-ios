@@ -59,7 +59,7 @@ NSString *const AWSS3PresignedURLErrorDomain = @"com.amazonaws.AWSS3PresignedURL
     return self;
 }
 
-- (BFTask *)getPreSignedURL:(AWSS3GetPreSignedURLRequest *)getPreSignedURLRequest {
+- (BFTask *)getPreSignedURL:(AWSS3GetPreSignedURLRequest *)getPreSignedURLRequest query:(NSString *)query {
     
     return [[BFTask taskWithResult:nil] continueWithBlock:^id(BFTask *task) {
     
@@ -187,10 +187,13 @@ NSString *const AWSS3PresignedURLErrorDomain = @"com.amazonaws.AWSS3PresignedURL
     } else {
         host = endpoint.hostName;
     }
-
+        
     //generate queryString
     NSMutableString *queryString = [NSMutableString stringWithCapacity:512];
-
+    if (query) {
+        [queryString appendFormat:@"%@&", query];
+    }
+        
     //security Token
     if ([credentialProvider respondsToSelector:@selector(sessionKey)] && [credentialProvider.sessionKey length] > 0) {
         [queryString appendFormat:@"%@=%@&", @"x-amz-security-token", [credentialProvider.sessionKey aws_stringWithURLEncoding]];
@@ -245,6 +248,10 @@ NSString *const AWSS3PresignedURLErrorDomain = @"com.amazonaws.AWSS3PresignedURL
     }
     else {
         canonicalizedResource = [NSString stringWithFormat:@"/%@/%@", bucketName, [keyName aws_stringWithURLEncodingPath]];
+    }
+        
+    if (query) {
+        canonicalizedResource = [canonicalizedResource stringByAppendingFormat:@"?%@", query];
     }
 
     NSString *stringToSign = [NSString stringWithFormat:@"%@\n%@\n%@\n%d\n%@%@",

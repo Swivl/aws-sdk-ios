@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, AWSS3PresignedURLErrorType) {
  * @return A pre-signed NSURL for the resource. return nil if any errors occured.
  * @see AWSS3GetPreSignedURLRequest
  */
-- (BFTask *)getPreSignedURL:(AWSS3GetPreSignedURLRequest *)getPreSignedURLRequest;
+- (BFTask *)getPreSignedURL:(AWSS3GetPreSignedURLRequest *)getPreSignedURLRequest query:(NSString *)query;
 
 @end
 

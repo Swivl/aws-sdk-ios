@@ -228,33 +228,16 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
             return [BFTask taskWithResult:nil];
         }
     }] continueWithSuccessBlock:^id(BFTask *task) {
-        switch (delegate.taskType) {
-            case AWSURLSessionTaskTypeData:
-                delegate.request.task = [self.session dataTaskWithRequest:mutableRequest];
-                break;
-                
-            case AWSURLSessionTaskTypeDownload:
-                delegate.request.task = [self.session downloadTaskWithRequest:mutableRequest];
-                break;
-                
-            case AWSURLSessionTaskTypeUpload:
-                delegate.request.task = [self.session uploadTaskWithRequest:mutableRequest
-                                                                   fromFile:delegate.uploadingFileURL];
-                break;
-                
-            default:
-                break;
-        }
-        
-        if (delegate.request.task) {
-            [self.sessionManagerDelegates setObject:delegate
-                                             forKey:@(((NSURLSessionTask *)delegate.request.task).taskIdentifier)];
-            [delegate.request.task resume];
-        } else {
-            AWSLogError(@"Invalid AWSURLSessionTaskType.");
+
+        // >>>>>>>>
+        if (delegate.dataTaskCompletionHandler) {
+            AWSNetworkingCompletionHandlerBlock completionHandler = delegate.dataTaskCompletionHandler;
+            completionHandler(mutableRequest, nil);
         }
         
         return nil;
+        // <<<<<<<<
+        
     }] continueWithBlock:^id(BFTask *task) {
         if (task.error) {
             if (delegate.dataTaskCompletionHandler) {
