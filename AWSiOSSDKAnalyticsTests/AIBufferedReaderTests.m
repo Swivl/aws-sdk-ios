@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -135,6 +135,42 @@
     
     // any calls after this are errors
     [self readFromReader:reader andVerifySuccessWith:NO andVerifyLineWith:nil andVerifyErrorCode:[NSNumber numberWithInt:AWSBufferedReaderErrorCode_IOStreamClosed]];
+}
+
+-(void)testReadingFromInputStream_largeMultibytesCharacters {
+    
+    //create a string with multi bytes characters in it (e.g. Chinese Characters)
+    NSString *chineseString = @"𐍈今天是个好天气€";
+    
+    NSMutableString* longChineseString = [NSMutableString stringWithCapacity:100000];
+    for(int i = 0; i < 100000; i++)
+    {
+        [longChineseString appendString:chineseString];
+        [longChineseString appendString:@"\n"];
+        
+    }
+    
+    NSData* mockInput = [longChineseString dataUsingEncoding:NSUTF8StringEncoding];
+    NSInputStream* inputStream = [NSInputStream inputStreamWithData:mockInput];
+    [inputStream open];
+    
+    
+    AWSMobileAnalyticsBufferedReader* reader = [AWSMobileAnalyticsBufferedReader readerWithInputStream:inputStream];
+    
+    for(int i = 0; i < 100000; i++)
+    {
+        [self readFromReader:reader andVerifySuccessWith:YES andVerifyLineWith:chineseString andVerifyErrorCode:nil];
+    }
+    
+    // no more data, so we should get a successful call with a nil string to signal end of stream
+    [self readFromReader:reader andVerifySuccessWith:YES andVerifyLineWith:nil andVerifyErrorCode:nil];
+    
+    // now that the buffer is at end, we need to close the object
+    [reader close];
+    
+    // any calls after this are errors
+    [self readFromReader:reader andVerifySuccessWith:NO andVerifyLineWith:nil andVerifyErrorCode:[NSNumber numberWithInt:AWSBufferedReaderErrorCode_IOStreamClosed]];
+    
 }
 
 -(void)testReadingFromInputStream_largeStream

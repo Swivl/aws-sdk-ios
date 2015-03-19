@@ -9,7 +9,7 @@ function cleanup
 }
 
 
-VERSION="2.0.13"
+VERSION="2.0.17"
 if [ -n $1 ] && [ "$1" == "clean" ];
 then
 	cleanup

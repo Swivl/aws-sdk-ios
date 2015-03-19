@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -75,6 +75,11 @@
     double testTimeAmz = [testDateAmz timeIntervalSince1970];
 
     XCTAssertEqualWithAccuracy(testTimeAmz, expectedTime, 10, "Failed to create a proper date from string usingAWSDateAmzDateFormat");
+}
+
+- (void)testNumberFormatt {
+    XCTAssertEqualObjects([NSNumber aws_numberFromString:@"12345.67"], @12345.67);
+    XCTAssertNil([NSNumber aws_numberFromString:@"12345,67"]);
 }
 
 - (void)testUrlEncode {
