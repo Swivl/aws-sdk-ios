@@ -1,38 +1,78 @@
 #!/bin/sh
+set -u
 
-#==================== build AWSiOSSDK framework ====================#
-xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" ONLY_ACTIVE_ARCH=NO -configuration Debug -project "Pods/Pods.xcodeproj" -target "Pods" -sdk iphonesimulator SYMROOT=$(PWD)/build clean build
-xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" ONLY_ACTIVE_ARCH=NO -configuration Release -project "Pods/Pods.xcodeproj" -target "Pods" -sdk iphoneos SYMROOT=$(PWD)/build clean build
+# Helper function to exit on nonzero code
+function exitOnFailureCode() {
+    if [ $1 -ne 0 ] 
+    then
+    	echo "Error occurred, abort"
+        exit $1
+    fi
+}
 
-# Remove libPods.a from linked libraries
-sed -i'.bak' '/libPods.a in Frameworks/d' AWSiOSSDKv2.xcodeproj/project.pbxproj
+#############################################
+#############################################
 
-xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" ONLY_ACTIVE_ARCH=NO -configuration Debug -project "AWSiOSSDKv2.xcodeproj" -target "AWSiOSSDKv2" -sdk iphonesimulator SYMROOT=$(PWD)/build clean build
-xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" ONLY_ACTIVE_ARCH=NO -configuration Release -project "AWSiOSSDKv2.xcodeproj" -target "AWSiOSSDKv2" -sdk iphoneos SYMROOT=$(PWD)/build clean build
+if [ $# -eq 0 ]
+  then
+    echo "No argument supplied, need to specified the name of the project. e.g. Sdkpackage.sh S3"
+    exit 1
+fi
 
-# Add libPods.a back to linked libraries
-mv AWSiOSSDKv2.xcodeproj/project.pbxproj.bak AWSiOSSDKv2.xcodeproj/project.pbxproj
+project_name=$1
 
-#====================================================================#
+# Define these to suit your nefarious purposes
 CURR_DIR=$(PWD)
-
-FRAMEWORK_NAME=AWSiOSSDKv2
+FRAMEWORK_NAME="${project_name}"
 FRAMEWORK_VERSION=A
 
-# build path
-FRAMEWORK_BUILD_PATH="build/frameworks"
 
+# Where we'll put the build framework.
+# The script presumes we're in the project root
+# directory. Xcode builds in "build" by default
+FRAMEWORK_BUILD_PATH="builtFramework/framework"
+
+
+# Clean any existing framework that might be there
+# already
 echo "Framework: Cleaning framework..."
 if [ -d "$FRAMEWORK_BUILD_PATH" ]
 then
-	rm -rf "$FRAMEWORK_BUILD_PATH/${FRAMEWORK_NAME}.framework"
+	rm -rf "$FRAMEWORK_BUILD_PATH/$FRAMEWORK_NAME.framework"
 fi
 
-# This is the full name of the framework 
-FRAMEWORK_DIR=$FRAMEWORK_BUILD_PATH/${FRAMEWORK_NAME}.framework
+# Build .a files
+xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" \
+	ONLY_ACTIVE_ARCH=NO \
+	-configuration Debug \
+    -project "${project_name}.xcodeproj" \
+    -target "${project_name}" \
+    -sdk iphonesimulator \
+    SYMROOT=$(PWD)/builtFramework \
+    clean build
 
+exitOnFailureCode $?
+
+xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" \
+	ONLY_ACTIVE_ARCH=NO \
+	-configuration Release \
+    -project "${project_name}.xcodeproj" \
+    -target "${project_name}" \
+    -sdk iphoneos \
+    SYMROOT=$(PWD)/builtFramework \
+    clean build
+
+exitOnFailureCode $?
+
+# This is the full name of the framework we'll
+# build
+FRAMEWORK_DIR=$FRAMEWORK_BUILD_PATH/$FRAMEWORK_NAME.framework
+
+# clean up old framework directory if exists
 rm -rf $FRAMEWORK_DIR
 
+# Build the canonical Framework bundle directory
+# structure
 echo "Framework: Setting up directories..."
 mkdir -p $FRAMEWORK_DIR
 mkdir -p $FRAMEWORK_DIR/Versions
@@ -46,7 +86,6 @@ ln -s Versions/Current/Headers $FRAMEWORK_DIR/Headers
 ln -s Versions/Current/Resources $FRAMEWORK_DIR/Resources
 ln -s Versions/Current/$FRAMEWORK_NAME $FRAMEWORK_DIR/$FRAMEWORK_NAME
 
-
 # The trick for creating a fully usable library is
 # to use lipo to glue the different library
 # versions together into one file. When an
@@ -56,106 +95,22 @@ ln -s Versions/Current/$FRAMEWORK_NAME $FRAMEWORK_DIR/$FRAMEWORK_NAME
 # The library file is given the same name as the
 # framework with no .a extension.
 echo "Framework: Creating library..."
-lipo -create "build/Debug-iphonesimulator/libAWSiOSSDKv2.a" "build/Release-iphoneos/libAWSiOSSDKv2.a" -o "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
+lipo -create \
+    "builtFramework/Debug-iphonesimulator/lib${project_name}.a" \
+    "builtFramework/Release-iphoneos/lib${project_name}.a" \
+    -o "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
 
-# Now copy headerfile
-echo "Framework: Copying assets into current version..."
-# cp -a AmazonCore/*.h $FRAMEWORK_DIR/Headers/
-# cp -a AmazonCore/Logging/*.h $FRAMEWORK_DIR/Headers/
-# cp -a AmazonCore/Networking/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/Utility/*.h $FRAMEWORK_DIR/Headers/
+exitOnFailureCode $?
 
-cp -a AWSCore/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/Authentication/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/CognitoIdentity/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/MobileAnalyticsERS/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/MobileAnalytics/AZCommon/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/MobileAnalytics/include/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/MobileAnalytics/include/monetization/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/Networking/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/Serialization/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/Service/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/STS/*.h $FRAMEWORK_DIR/Headers/
-cp -a AWSCore/XMLWriter/*.h $FRAMEWORK_DIR/Headers/
-
-cp -a AutoScaling/*.h $FRAMEWORK_DIR/Headers/
-cp -a CloudWatch/*.h $FRAMEWORK_DIR/Headers/
-cp -a DynamoDB/*.h $FRAMEWORK_DIR/Headers/
-cp -a EC2/*.h $FRAMEWORK_DIR/Headers/
-cp -a ElasticLoadBalancing/*.h $FRAMEWORK_DIR/Headers/
-cp -a Kinesis/*.h $FRAMEWORK_DIR/Headers/
-cp -a S3/*.h $FRAMEWORK_DIR/Headers/
-cp -a SES/*.h $FRAMEWORK_DIR/Headers/
-cp -a SimpleDB/*.h $FRAMEWORK_DIR/Headers/
-cp -a SNS/*.h $FRAMEWORK_DIR/Headers/
-cp -a SQS/*.h $FRAMEWORK_DIR/Headers/
+# Now copy the final assets over: your library
+# header files and service definition json files
+echo "Framework: Copying public headers into current version..."
+#those headers are declared in xcode's building phase: Headers
+cp -a builtFramework/Release-iphoneos/include/${project_name}/*.h $FRAMEWORK_DIR/Headers/
+exitOnFailureCode $?
 
 # copy service definition json files
-mkdir -p 'build/service-definitions'
-find . -name "*.json" -not -path "./*Tests/*" -not -path './build/*' -exec cp {} 'build/service-definitions/' \;
-
-# correct the way to import framework's header
-(cd $FRAMEWORK_DIR/Headers; ${CURR_DIR}/Scripts/SdkHeader.sh)
-
-# validate framework
-echo "Framework: Validating..."
-isValidate=true
-
-if  grep -qF "BFTask.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains Bolts 3rd party libraries"
-isValidate=false
-fi
-
-if  grep -qF "FMDatabase.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains FMDB 3rd party libraries"
-isValidate=false
-fi
-
-if  grep -qF "GZIP.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains GZIP 3rd party libraries"
-isValidate=false
-fi
-
-if  grep -qF "MTLModel.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains Mantle 3rd party libraries"
-isValidate=false
-fi
-
-if  grep -qF "Reachability.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains Reachability 3rd party libraries"
-isValidate=false
-fi
-
-if  grep -qF "TMCache.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains TMCache 3rd party libraries"
-isValidate=false
-fi
-
-if  grep -qF "UICKeyChainStore.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains UICKeyChainStore 3rd party libraries"
-isValidate=false
-fi
-
-if  grep -qF "XMLDictionary.o" "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-then
-echo "Framework: framework contains XMLDictionary 3rd party libraries"
-isValidate=false
-fi
-
-if [ "$isValidate" = false ]
-then
-echo "Framework: Validation Failed, abort."
-exit 1
-else
-echo "Validation Succeed."
-fi
-
-
-
+echo "Copying service definition files into current build directory..."
+mkdir -p 'builtFramework/service-definitions'
+find . -name "*.json" -not -path "./*Tests/*" -not -path './builtFramework/*' -exec cp {} 'builtFramework/service-definitions/' \;
+exitOnFailureCode $?

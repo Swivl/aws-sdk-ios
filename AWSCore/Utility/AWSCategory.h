@@ -1,16 +1,16 @@
 /*
- * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License").
+ You may not use this file except in compliance with the License.
+ A copy of the License is located at
+
+ http://aws.amazon.com/apache2.0
+
+ or in the "license" file accompanying this file. This file is distributed
+ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ express or implied. See the License for the specific language governing
+ permissions and limitations under the License.
  */
 
 #import <Foundation/Foundation.h>
@@ -22,6 +22,8 @@ FOUNDATION_EXPORT NSString *const AWSDateISO8601DateFormat3;
 FOUNDATION_EXPORT NSString *const AWSDateShortDateFormat1;
 
 @interface NSDate (AWS)
+
++ (NSDate *)aws_clockSkewFixedDate;
 
 + (NSDate *)aws_dateFromString:(NSString *)string;
 + (NSDate *)aws_dateFromString:(NSString *)string format:(NSString *)dateFormat;
@@ -42,14 +44,20 @@ FOUNDATION_EXPORT NSString *const AWSDateShortDateFormat1;
  */
 + (NSTimeInterval)aws_getRuntimeClockSkew;
 
-+ (NSDate *)aws_getDateFromMessageBody:(NSString *)messageBody;
-
 @end
 
 @interface NSDictionary (AWS)
 
 - (NSDictionary *)aws_removeNullValues;
 - (id)aws_objectForCaseInsensitiveKey:(id)aKey;
+
+@end
+
+@interface NSJSONSerialization (AWS)
+
++ (NSData *)aws_dataWithJSONObject:(id)obj
+                           options:(NSJSONWritingOptions)opt
+                             error:(NSError **)error;
 
 @end
 
@@ -62,24 +70,28 @@ FOUNDATION_EXPORT NSString *const AWSDateShortDateFormat1;
 @interface NSObject (AWS)
 
 - (NSDictionary *)aws_properties;
-
 - (void)aws_copyPropertiesFromObject:(NSObject *)object;
-- (BOOL)aws_isDNSBucketName:(NSString *)theBucketName;
-- (BOOL)aws_isVirtualHostedStyleCompliant:(NSString *)theBucketName;
 
 @end
 
 @interface NSString (AWS)
 
++ (NSString *)aws_base64md5FromData:(NSData *)data;
 - (BOOL)aws_isBase64Data;
 - (NSString *)aws_stringWithURLEncoding;
 - (NSString *)aws_stringWithURLEncodingPath;
+- (NSString *)aws_stringWithURLEncodingPathWithoutPriorDecoding;
 - (NSString *)aws_md5String;
+- (NSString *)aws_md5StringLittleEndian;
+- (BOOL)aws_isVirtualHostedStyleCompliant;
 
 @end
 
-@interface NSURL (AWS)
+@interface NSFileManager (AWS)
 
-- (NSURL *)aws_URLByAppendingQuery:(NSDictionary *)query;
+- (BOOL)aws_atomicallyCopyItemAtURL:(NSURL *)sourceURL
+                              toURL:(NSURL *)destinationURL
+                     backupItemName:(NSString *)backupItemName
+                              error:(NSError **)outError;
 
 @end

@@ -1,27 +1,28 @@
 /*
- * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License").
+ You may not use this file except in compliance with the License.
+ A copy of the License is located at
+
+ http://aws.amazon.com/apache2.0
+
+ or in the "license" file accompanying this file. This file is distributed
+ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ express or implied. See the License for the specific language governing
+ permissions and limitations under the License.
  */
 
 #import "AWSNetworking.h"
 #import <UIKit/UIKit.h>
-#import "Bolts.h"
+#import "AWSBolts.h"
 #import "AWSCategory.h"
 #import "AWSModel.h"
 #import "AWSURLSessionManager.h"
+#import "AWSService.h"
 
 NSString *const AWSNetworkingErrorDomain = @"com.amazonaws.AWSNetworkingErrorDomain";
-NSString *const AWSiOSSDKVersion = @"2.0.17";
+NSString *const AWSiOSSDKVersion = @"2.2.1";
 
 #pragma mark - AWSHTTPMethod
 
@@ -68,35 +69,32 @@ NSString *const AWSiOSSDKVersion = @"2.0.17";
 
 @implementation AWSNetworking
 
+- (void)dealloc
+{
+    //networkManager will never be dealloc'ed if session had not been invalidated.
+    NSURLSession * session = [_networkManager valueForKey:@"session"];
+    if ([session isKindOfClass:[NSURLSession class]]) {
+        [session finishTasksAndInvalidate];
+    }
+}
+
 - (instancetype)init {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:@"`- init` is not a valid initializer. Use `- initWithConfiguration` instead."
+                                 userInfo:nil];
+    return nil;
+}
+
+- (instancetype)initWithConfiguration:(AWSNetworkingConfiguration *)configuration {
     if (self = [super init]) {
-        AWSURLSessionManager *sessionManager = [AWSURLSessionManager new];
-        self.networkManager = sessionManager;
+        _networkManager = [[AWSURLSessionManager alloc] initWithConfiguration:configuration];
     }
 
     return self;
 }
 
-+ (instancetype)standardNetworking {
-    static AWSNetworking *_standardNetworking = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        AWSNetworkingConfiguration *configuration = [AWSNetworkingConfiguration new];
-        _standardNetworking = [AWSNetworking networking:configuration];
-    });
-
-    return _standardNetworking;
-}
-
-+ (instancetype)networking:(AWSNetworkingConfiguration *)configuration {
-    AWSNetworking *networking = [AWSNetworking new];
-    networking.networkManager.configuration = configuration;
-
-    return networking;
-}
-
-- (BFTask *)sendRequest:(AWSNetworkingRequest *)request {
-    BFTaskCompletionSource *taskCompletionSource = [BFTaskCompletionSource taskCompletionSource];
+- (AWSTask *)sendRequest:(AWSNetworkingRequest *)request {
+    AWSTaskCompletionSource *taskCompletionSource = [AWSTaskCompletionSource taskCompletionSource];
     [self.networkManager dataTaskWithRequest:request
                            completionHandler:^(id responseObject, NSError *error) {
                                if (!error) {
@@ -108,123 +106,30 @@ NSString *const AWSiOSSDKVersion = @"2.0.17";
 
     return taskCompletionSource.task;
 }
-
-- (BFTask *)sendDownloadRequest:(AWSNetworkingRequest *)request {
-    BFTaskCompletionSource *taskCompletionSource = [BFTaskCompletionSource taskCompletionSource];
-    [self.networkManager downloadTaskWithRequest:request
-                               completionHandler:^(id responseObject, NSError *error) {
-                                   if (!error) {
-                                       taskCompletionSource.result = responseObject;
-                                   } else {
-                                       taskCompletionSource.error = error;
-                                   }
-                               }];
-
-    return taskCompletionSource.task;
-}
-
-- (BFTask *)sendUploadRequest:(AWSNetworkingRequest *)request {
-    BFTaskCompletionSource *taskCompletionSource = [BFTaskCompletionSource taskCompletionSource];
-    [self.networkManager uploadTaskWithRequest:request
-                             completionHandler:^(id responseObject, NSError *error) {
-                                 if (!error) {
-                                     taskCompletionSource.result = responseObject;
-                                 } else {
-                                     taskCompletionSource.error = error;
-                                 }
-                             }];
-
-    return taskCompletionSource.task;
-}
-
-- (BFTask *)GET:(NSString *)URLString parameters:(NSDictionary *)parameters {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest requestForDataTask:AWSHTTPMethodGET
-                                                                 URLString:URLString];
-    request.parameters = parameters;
-    return [self sendRequest:request];
-}
-
-- (BFTask *)HEAD:(NSString *)URLString parameters:(NSDictionary *)parameters {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest requestForDataTask:AWSHTTPMethodHEAD
-                                                                 URLString:URLString];
-    request.parameters = parameters;
-    return [self sendRequest:request];
-}
-
-- (BFTask *)POST:(NSString *)URLString parameters:(NSDictionary *)parameters {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest requestForDataTask:AWSHTTPMethodPOST
-                                                                 URLString:URLString];
-    request.parameters = parameters;
-    return [self sendRequest:request];
-}
-
-- (BFTask *)PUT:(NSString *)URLString parameters:(NSDictionary *)parameters {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest requestForDataTask:AWSHTTPMethodPUT
-                                                                 URLString:URLString];
-    request.parameters = parameters;
-    return [self sendRequest:request];
-}
-
-- (BFTask *)PATCH:(NSString *)URLString parameters:(NSDictionary *)parameters {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest requestForDataTask:AWSHTTPMethodPATCH
-                                                                 URLString:URLString];
-    request.parameters = parameters;
-    return [self sendRequest:request];
-}
-
-- (BFTask *)DELETE:(NSString *)URLString parameters:(NSDictionary *)parameters {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest requestForDataTask:AWSHTTPMethodDELETE
-                                                                 URLString:URLString];
-    request.parameters = parameters;
-    return [self sendRequest:request];
-}
-
-@end
-
-#pragma mark - AWSURLRequestSerializer
-
-@implementation AWSURLRequestSerializer
-
-- (BFTask *)validateRequest:(NSURLRequest *)request {
-    return [BFTask taskWithResult:nil];
-}
-
-- (BFTask *)serializeRequest:(NSMutableURLRequest *)request
-                     headers:(NSDictionary *)header
-                  parameters:(NSDictionary *)parameters {
-    if ([request.HTTPMethod isEqualToString:@"GET"]) {
-        NSMutableString *URLparameters = [NSMutableString new];
-        for (id o in parameters) {
-            if ([URLparameters length] > 0) {
-                [URLparameters appendString:@"&"];
-            }
-
-            [URLparameters appendFormat:@"%@=%@", o, [parameters objectForKey:o]];
-        }
-
-        NSString *escapedURLParameters = [[URLparameters stringByRemovingPercentEncoding] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        request.URL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@%@",
-                                            [request.URL absoluteString],
-                                            request.URL.query ? @"&" : @"?",
-                                            escapedURLParameters]];
-    }
-    return [BFTask taskWithResult:nil];
-}
-
 @end
 
 #pragma mark - AWSNetworkingConfiguration
 
 @implementation AWSNetworkingConfiguration
 
-+ (instancetype)defaultConfiguration {
-    AWSNetworkingConfiguration *configuration = [AWSNetworkingConfiguration new];
-    configuration.requestSerializer = [AWSURLRequestSerializer new];
-
-    return configuration;
+- (instancetype)init {
+    if (self = [super init]) {
+        _maxRetryCount = 3;
+    }
+    return self;
 }
 
 - (NSURL *)URL {
+    // You can overwrite the URL by providing a full URL in URLString.
+    NSURL *fullURL = [NSURL URLWithString:self.URLString];
+    if ([fullURL.scheme isEqualToString:@"http"]
+        || [fullURL.scheme isEqualToString:@"https"]) {
+        NSMutableDictionary *headers = [self.headers mutableCopy];
+        headers[@"Host"] = [fullURL host];
+        self.headers = headers;
+        return fullURL;
+    }
+
     if (!self.URLString) {
         return self.baseURL;
     }
@@ -233,8 +138,24 @@ NSString *const AWSiOSSDKVersion = @"2.0.17";
                   relativeToURL:self.baseURL];
 }
 
+- (void)setMaxRetryCount:(uint32_t)maxRetryCount {
+    // the max maxRetryCount is 10. If set to higher than that, it becomes 10.
+    if (maxRetryCount > 10) {
+        _maxRetryCount = 10;
+    } else {
+        _maxRetryCount = maxRetryCount;
+    }
+}
+
 - (id)copyWithZone:(NSZone *)zone {
-    AWSNetworkingConfiguration *configuration = [[[self class] allocWithZone:zone] init];
+    
+    AWSNetworkingConfiguration *configuration = nil;
+    if ([self isMemberOfClass:[AWSServiceConfiguration class]]) {
+        configuration = [[AWSServiceConfiguration allocWithZone:zone] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    } else {
+        configuration = [[[self class] allocWithZone:zone] init];
+    }
+    
     configuration.baseURL = [self.baseURL copy];
     configuration.URLString = [self.URLString copy];
     configuration.HTTPMethod = self.HTTPMethod;
@@ -260,37 +181,6 @@ NSString *const AWSiOSSDKVersion = @"2.0.17";
 @end
 
 @implementation AWSNetworkingRequest
-
-+ (instancetype)requestForDataTask:(AWSHTTPMethod)HTTPMethod
-                         URLString:(NSString *)URLString {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest new];
-    request.HTTPMethod = HTTPMethod;
-    request.URLString = URLString;
-
-    return request;
-}
-
-+ (instancetype)requestForDownloadTask:(AWSHTTPMethod)HTTPMethod
-                             URLString:(NSString *)URLString
-                    downloadingFileURL:(NSURL *)downloadingFileURL {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest new];
-    request.HTTPMethod = HTTPMethod;
-    request.URLString = URLString;
-    request.downloadingFileURL = downloadingFileURL;
-
-    return request;
-}
-
-+ (instancetype)requestForUploadTask:(AWSHTTPMethod)HTTPMethod
-                           URLString:(NSString *)URLString
-                    uploadingFileURL:(NSURL *)uploadingFileURL {
-    AWSNetworkingRequest *request = [AWSNetworkingRequest new];
-    request.HTTPMethod = HTTPMethod;
-    request.URLString = URLString;
-    request.uploadingFileURL = uploadingFileURL;
-
-    return request;
-}
 
 - (void)assignProperties:(AWSNetworkingConfiguration *)configuration {
     if (!self.baseURL) {
@@ -396,14 +286,14 @@ NSString *const AWSiOSSDKVersion = @"2.0.17";
     return [self.internalRequest isCancelled];
 }
 
-- (BFTask *)cancel {
+- (AWSTask *)cancel {
     [self.internalRequest cancel];
-    return [BFTask taskWithResult:nil];
+    return [AWSTask taskWithResult:nil];
 }
 
-- (BFTask *)pause {
+- (AWSTask *)pause {
     [self.internalRequest pause];
-    return [BFTask taskWithResult:nil];
+    return [AWSTask taskWithResult:nil];
 }
 
 - (NSDictionary *)dictionaryValue {
@@ -440,13 +330,14 @@ NSString *const AWSiOSSDKVersion = @"2.0.17";
     return _userAgent;
 }
 
-- (BFTask *)interceptRequest:(NSMutableURLRequest *)request {
-    [request setValue:[[NSDate date] aws_stringValue:AWSDateISO8601DateFormat2] forHTTPHeaderField:@"X-Amz-Date"];
+- (AWSTask *)interceptRequest:(NSMutableURLRequest *)request {
+    [request setValue:[[NSDate aws_clockSkewFixedDate] aws_stringValue:AWSDateISO8601DateFormat2]
+   forHTTPHeaderField:@"X-Amz-Date"];
 
     NSString *userAgent = [self userAgent];
     [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
-
-    return [BFTask taskWithResult:nil];
+    
+    return [AWSTask taskWithResult:nil];
 }
 
 @end

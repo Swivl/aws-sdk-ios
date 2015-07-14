@@ -1,16 +1,16 @@
 /*
- * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License").
+ You may not use this file except in compliance with the License.
+ A copy of the License is located at
+
+ http://aws.amazon.com/apache2.0
+
+ or in the "license" file accompanying this file. This file is distributed
+ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ express or implied. See the License for the specific language governing
+ permissions and limitations under the License.
  */
 
 #import "AWSModel.h"
@@ -45,7 +45,7 @@
         if ([arrayElementType isEqualToString:@"map"]) {
             [mutableDictionary setObject:[AWSModelUtility mapMTLArrayFromJSONArray:JSONArrayDictionary[key] withModelClass:modelClass] forKey:key];
         } else if  ([arrayElementType isEqualToString:@"structure"]) {
-            NSValueTransformer *valueFransformer =  [NSValueTransformer mtl_JSONArrayTransformerWithModelClass:[modelClass class]];
+            NSValueTransformer *valueFransformer =  [NSValueTransformer awsmtl_JSONArrayTransformerWithModelClass:[modelClass class]];
             [mutableDictionary setObject:[valueFransformer transformedValue:JSONArrayDictionary[key]] forKey:key];
         }
     }
@@ -58,7 +58,7 @@
         if ([arrayElementType isEqualToString:@"map"]) {
             [mutableDictionary setObject:[AWSModelUtility JSONArrayFromMapMTLArray:mapMTLDictionary[key]] forKey:key];
         } else if ([arrayElementType isEqualToString:@"structure"]) {
-            NSValueTransformer *valueFransformer = [NSValueTransformer mtl_JSONArrayTransformerWithModelClass:[AWSModel class]];
+            NSValueTransformer *valueFransformer = [NSValueTransformer awsmtl_JSONArrayTransformerWithModelClass:[AWSModel class]];
             [mutableDictionary setObject:[valueFransformer reverseTransformedValue:mapMTLDictionary[key]] forKey:key];
         }
     }
@@ -90,7 +90,7 @@
 
     NSMutableDictionary *mutableDictionary = [NSMutableDictionary new];
     for (NSString *key in [JSONDictionary allKeys]) {
-        [mutableDictionary setObject:[MTLJSONAdapter modelOfClass:modelClass fromJSONDictionary:JSONDictionary[key] error:nil] forKey:key];
+        [mutableDictionary setObject:[AWSMTLJSONAdapter modelOfClass:modelClass fromJSONDictionary:JSONDictionary[key] error:nil] forKey:key];
     }
     return mutableDictionary;
 }
@@ -100,7 +100,7 @@
 
     NSMutableDictionary *mutableDictionary = [NSMutableDictionary new];
     for (NSString *key in [mapMTLDictionary allKeys]) {
-        [mutableDictionary setObject:[MTLJSONAdapter JSONDictionaryFromModel:[mapMTLDictionary objectForKey:key]]
+        [mutableDictionary setObject:[AWSMTLJSONAdapter JSONDictionaryFromModel:[mapMTLDictionary objectForKey:key]]
                               forKey:key];
     }
     return mutableDictionary;

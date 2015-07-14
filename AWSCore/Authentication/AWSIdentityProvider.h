@@ -1,16 +1,16 @@
 /*
- * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License").
+ You may not use this file except in compliance with the License.
+ A copy of the License is located at
+
+ http://aws.amazon.com/apache2.0
+
+ or in the "license" file accompanying this file. This file is distributed
+ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ express or implied. See the License for the specific language governing
+ permissions and limitations under the License.
  */
 
 #import <Foundation/Foundation.h>
@@ -32,7 +32,7 @@ typedef NS_ENUM(NSInteger, AWSCognitoIdentityProviderErrorType) {
     AWSCognitoIdentityProviderErrorIdentityIsNil,
 };
 
-@class BFTask;
+@class AWSTask;
 
 /**
  * AWSIdentityProvider provides an interface for acquiring an identity token from a provider.
@@ -47,7 +47,7 @@ typedef NS_ENUM(NSInteger, AWSCognitoIdentityProviderErrorType) {
 /**
  * Refresh the token associated with this provider.
  */
-- (BFTask *)refresh;
+- (AWSTask *)refresh;
 
 @end
 
@@ -77,11 +77,11 @@ typedef NS_ENUM(NSInteger, AWSCognitoIdentityProviderErrorType) {
 
 /**
  * Get/retrieve the identity id for this provider. If an identity id is already set on this
- * provider, no remote call is made and the identity will be returned as a result of the BFTask 
+ * provider, no remote call is made and the identity will be returned as a result of the AWSTask 
  * (the identityId is also available as a property). 
  * If no identityId is set on this provider, one will be retrieved from the service.
  */
-- (BFTask *)getIdentityId;
+- (AWSTask *)getIdentityId;
 
 /**
  * Is this provider considered 'authenticated'. By default, only returns YES if logins is set.
