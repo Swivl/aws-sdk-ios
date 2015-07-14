@@ -29,3 +29,4 @@
 #import "AWSCognitoIdentity.h"
 
 #import "AWSBolts.h"
+#import "AWSGZIP.h"
