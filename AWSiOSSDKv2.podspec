@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.subspec 'AWSCore' do |aws|
-    aws.dependency 'AWSCore', '2.2.1'
+    aws.dependency 'AWSCore', '2.2.1.BT'
   end
 
   s.subspec 'AutoScaling' do |autoscaling|
@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'S3' do |s3|
-  	s3.dependency 'AWSS3', '2.2.1'
+  	s3.dependency 'AWSS3', '2.2.1.BT'
   end
 
   s.subspec 'SES' do |ses|
