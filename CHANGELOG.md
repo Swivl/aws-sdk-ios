@@ -1,10 +1,59 @@
 # AWSiOSSDKv2 CHANGELOG
 
+## 2.2.0
+
+### New Features
+* **Service model updates** - The service models are updated for Amazon Cognito Identity, Amazon Cognito Sync, Amazon DynamoDB, Amazon EC2, and AWS Lambda.
+
+### Resolved Issues
+* **AWS Lambda** - Fixed an issue where the SDK does not properly serialize the response object when it contains `message` as a key.
+
+### Misc Changes
+* **SDK Core**
+    * All third-party libraries are prefixed with `AWS` to avoid any conflicts with different versions of the third-party libraries. Please update all use of `BFTask` to `AWSTask`.
+    * Removed the AWS service JSON files and imported them as source files to simplify the initial SDK installation.
+* **Amazon Mobile Analytics** - Amazon Mobile Analytics is now provided as an independent service, and not a part of the AWS Core anymore. To use Amazon Mobile Analytics, please import `AWSMobileAnalytics.framework` or add `pod 'AWSMobileAnalytics'` to your `Podfile`. You need to update `#import <AWSCore/AWSCore.h>` to `#import <AWSMobileAnalytics/AWSMobileAnalytics.h>`.
+
+## 2.1.2
+
+### Resolved Issues
+* **SDK Core** - Fixed an issue where the SDK does not return any response under certain situations.
+* **Amazon Mobile Analytics** - Resolved an issue where `client_id` may be inadvertently changed.
+* **Amazon S3**
+    * Resolved an issue where the SDK cannot remove multiple objects.
+    * Addressed an issue where concurrently downloading the same object to the same `filePath` may corrupt the data.
+
+## 2.1.1
+
+### New Features
+* **AWS Lambda** - Added support for AWS Lambda.
+* **Amazon Machine Learning** - Added support for Amazon Machine Learning.
+
+### Resolved Issues
+* **Amazon S3** - Fixed two memory issues:
+    * When the request object is retained, `request.internalRequest` is not properly released after the operation completes.
+    * The memory is not property released until all tasks finish when an app continuously downloads many files.
+
+## 2.1.0
+
+### Misc Changes
+* **SDK Core**
+    * Added `- initWithRegionType:identityPoolId:` to `AWSCognitoCredentialsProvider`. See `AWSCredentialsProvider.h` for further details.
+    * Deprecated all `+ credentialsWith*` factory methods in `AWSCognitoCredentialsProvider`.
+    * Added `+ registerSERVICEWithConfiguration:forKey:`, `+ SERVICEForKey:`, and `+ removeSERVICEForKey:` to each service client. See the service client headers for further details.
+    * Deprecated `- initWithConfiguration:` in all service clients.
+    * Deprecated `- serviceForKey:`, `- setService:forKey:`, and `- removeServiceForKey:` in `AWSServiceManager`.
+    * Split the framework into per service frameworks.
+    * Updated the SDK structure to support CocoaPods 0.36.0 with the `use_framework!` option.
+
+### Resolved Issues
+* **Amazon S3 Transfer Manager** - Fixed a bug where resume does not work as intended if the app restarts. 
+
 ## 2.0.17
 
 ### Resolved Issues
 * **Amazon DynamoDB Object Mapper** - Fixed a number format issue relating to the device locale setting.
-* **Amazon Mobile Analytics** - Fixed an issue in AWSMobileAnalyticsBufferedReader that generated application errors if the underlying inputStream contained multi-byte characters.
+* **Amazon Mobile Analytics** - Fixed an issue in `AWSMobileAnalyticsBufferedReader` that generated application errors if the underlying inputStream contained multi-byte characters.
 
 ## 2.0.16
 

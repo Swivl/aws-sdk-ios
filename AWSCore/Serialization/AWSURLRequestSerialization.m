@@ -1,27 +1,28 @@
 /*
- * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License").
+ You may not use this file except in compliance with the License.
+ A copy of the License is located at
+
+ http://aws.amazon.com/apache2.0
+
+ or in the "license" file accompanying this file. This file is distributed
+ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ express or implied. See the License for the specific language governing
+ permissions and limitations under the License.
  */
 
 #import "AWSURLRequestSerialization.h"
 
+#import "AWSGZIP.h"
+#import "AWSBolts.h"
 #import "AWSNetworking.h"
 #import "AWSValidation.h"
 #import "AWSSerialization.h"
 #import "AWSCategory.h"
 #import "AWSLogging.h"
-#import "GZIP.h"
-#import "Bolts.h"
+#import "AWSClientContext.h"
 
 @interface AWSJSONRequestSerializer()
 
@@ -32,29 +33,22 @@
 
 @implementation AWSJSONRequestSerializer
 
-+ (instancetype)serializerWithResource:(NSString *)resource
+- (instancetype)initWithJSONDefinition:(NSDictionary *)JSONDefinition
                             actionName:(NSString *)actionName {
-    AWSJSONRequestSerializer *serializer = [self new];
-    NSError *error = nil;
-    NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:resource ofType:@"json"];
-    if (filePath == nil) {
-        AWSLogError(@"can not find %@.json file in the project",resource);
-    } else {
-        serializer.serviceDefinitionJSON = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:filePath]
-                                                                           options:kNilOptions
-                                                                             error:&error];
-    }
-    if (error) {
-        AWSLogError(@"Error: [%@]", error);
+    if (self = [super init]) {
+        
+        _serviceDefinitionJSON = JSONDefinition;
+        if (_serviceDefinitionJSON == nil) {
+            AWSLogError(@"serviceDefinitionJSON of is nil.");
+            return nil;
+        }
+        _actionName = actionName;
     }
 
-    serializer.actionName = actionName;
-
-    return serializer;
+    return self;
 }
 
-
-- (BFTask *)serializeRequest:(NSMutableURLRequest *)request
+- (AWSTask *)serializeRequest:(NSMutableURLRequest *)request
                      headers:(NSDictionary *)headers
                   parameters:(NSDictionary *)parameters {
     request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
@@ -62,51 +56,50 @@
     //If parameters contains clientContext key, move it to http header. This is a sepcial case
     if ([parameters objectForKey:@"clientContext"]) {
         [request setValue:[[[parameters objectForKey:@"clientContext"] dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:kNilOptions]
-       forHTTPHeaderField:@"x-amz-Client-Context"];
+       forHTTPHeaderField:AWSClientContextHeader];
         [request setValue:@"base64"
-       forHTTPHeaderField:@"x-amz-Client-Context-Encoding"];
+       forHTTPHeaderField:AWSClientContextHeaderEncoding];
         NSMutableDictionary *mutableParameters = [parameters mutableCopy];
         [mutableParameters removeObjectForKey:@"clientContext"];
         parameters = mutableParameters;
     }
 
     NSDictionary *actionRules = [[self.serviceDefinitionJSON objectForKey:@"operations"] objectForKey:self.actionName];
-    NSString *inputName = [[actionRules objectForKey:@"input"] objectForKey:@"shape"];
-    NSDictionary *inputRules = [[[self.serviceDefinitionJSON objectForKey:@"shapes"] objectForKey:inputName] objectForKey: @"members" ];
-
-
-    NSMutableDictionary *mutableParameters = [parameters mutableCopy];
-    for (NSString* memberName in inputRules) {
-        NSDictionary* membersRules = [inputRules objectForKey:memberName];
-        if([parameters objectForKey:memberName] && [[membersRules objectForKey: @"location"] isEqualToString: @"header"]){
-
-            [request setValue: [parameters objectForKey:memberName] forHTTPHeaderField: [membersRules objectForKey:@"locationName"]];
-            [mutableParameters removeObjectForKey:memberName];
-            parameters = mutableParameters;
-        }
-    }
-
+    NSDictionary *shapeRules = [self.serviceDefinitionJSON objectForKey:@"shapes"];
+    AWSJSONDictionary *inputRules = [[AWSJSONDictionary alloc] initWithDictionary:[actionRules objectForKey:@"input"] JSONDefinitionRule:shapeRules];
+    
+    NSDictionary *actionHTTPRule = [actionRules objectForKey:@"http"];
+    NSString *ruleURIStr = [actionHTTPRule objectForKey:@"requestUri"];
+    
     NSError *error = nil;
-    if (parameters) {
-        if ([request.HTTPMethod isEqualToString:@"GET"]) {
-            request.URL = [request.URL aws_URLByAppendingQuery:parameters];
-        } else {
-            NSData *bodyData = [AWSJSONBuilder jsonDataForDictionary:parameters actionName:self.actionName serviceDefinitionRule:self.serviceDefinitionJSON error:&error];
-
-            if (!error) {
-
-                if (headers[@"Content-Encoding"] && [headers[@"Content-Encoding"] rangeOfString:@"gzip"].location != NSNotFound) {
-                    //gzip the body
-                    request.HTTPBody = [bodyData gzippedData];
-                } else {
-                    request.HTTPBody = bodyData;
-                }
-
+    
+    [AWSXMLRequestSerializer constructURIandHeadersAndBody:request
+                                                     rules:inputRules
+                                                parameters:parameters
+                                                 uriSchema:ruleURIStr
+                                                     error:&error];
+    if (error) {
+        return [AWSTask taskWithError:error];
+    }
+    
+    //construct HTTPBody only if HTTPBodyStream is nil
+    if (!request.HTTPBodyStream) {
+        NSData *bodyData = [AWSJSONBuilder jsonDataForDictionary:parameters actionName:self.actionName serviceDefinitionRule:self.serviceDefinitionJSON error:&error];
+        if (!error) {
+            if ([request.HTTPMethod isEqualToString:@"GET"]) {
+                //GET request should be have any body. aws lambda server will close connection if that is the case.
+                bodyData = nil;
             }
-
-
+            if (headers[@"Content-Encoding"] && [headers[@"Content-Encoding"] rangeOfString:@"gzip"].location != NSNotFound) {
+                //gzip the body
+                request.HTTPBody = [bodyData awsgzip_gzippedData];
+            } else {
+                request.HTTPBody = bodyData;
+            }
         }
     }
+    
+
     AWSLogVerbose(@"Request body: [%@]", [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]);
 
     if (!error) {
@@ -114,14 +107,14 @@
             [request setValue:[headers objectForKey:key] forHTTPHeaderField:key];
         }
 
-        return [BFTask taskWithResult:nil];
+        return [AWSTask taskWithResult:nil];
     }
 
-    return [BFTask taskWithError:error];
+    return [AWSTask taskWithError:error];
 }
 
-- (BFTask *)validateRequest:(NSURLRequest *)request {
-    return [BFTask taskWithResult:nil];
+- (AWSTask *)validateRequest:(NSURLRequest *)request {
+    return [AWSTask taskWithResult:nil];
 
 }
 
@@ -136,29 +129,23 @@
 
 @implementation AWSXMLRequestSerializer
 
-+ (instancetype)serializerWithResource:(NSString *)resource actionName:(NSString *)actionName {
-
-    AWSXMLRequestSerializer *serializer = [self new];
-    NSError *error = nil;
-    NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:resource ofType:@"json"];
-    if (filePath == nil) {
-        AWSLogError(@"can not find %@.json file in the project",resource);
-    } else {
-        serializer.serviceDefinitionJSON = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:filePath]
-                                                                           options:kNilOptions
-                                                                             error:&error];
-    }
-    if (error) {
-        AWSLogError(@"Error: [%@]", error);
+- (instancetype)initWithJSONDefinition:(NSDictionary *)JSONDefinition
+                            actionName:(NSString *)actionName {
+    if (self = [super init]) {
+        
+        _serviceDefinitionJSON = JSONDefinition;
+        if (_serviceDefinitionJSON == nil) {
+            AWSLogError(@"serviceDefinitionJSON of is nil.");
+            return nil;
+        }
+        _actionName = actionName;
     }
 
-    serializer.actionName = actionName;
-
-    return serializer;
+    return self;
 }
 
 /* need to overwrite this method to do serialization for self.parameter */
-- (BFTask *)serializeRequest:(NSMutableURLRequest *)request
+- (AWSTask *)serializeRequest:(NSMutableURLRequest *)request
                      headers:(NSDictionary *)headers
                   parameters:(NSDictionary *)parameters {
     request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
@@ -206,18 +193,19 @@
     }
 
     if (error) {
-        return [BFTask taskWithError:error];
+        return [AWSTask taskWithError:error];
     } else {
-        return [BFTask taskWithResult:nil];
+        return [AWSTask taskWithResult:nil];
     }
 }
 
-- (BFTask *)validateRequest:(NSURLRequest *)request {
-    return [BFTask taskWithResult:nil];
+- (AWSTask *)validateRequest:(NSURLRequest *)request {
+    return [AWSTask taskWithResult:nil];
 }
 
 + (BOOL)constructURIandHeadersAndBody:(NSMutableURLRequest *)request
-                                rules:(AWSJSONDictionary *)rules parameters:(NSDictionary *)params
+                                rules:(AWSJSONDictionary *)rules
+                           parameters:(NSDictionary *)params
                             uriSchema:(NSString *)uriSchema
                                 error:(NSError *__autoreleasing *)error {
     //If no rule just return
@@ -229,7 +217,7 @@
 
     rules = rules[@"members"] ? rules[@"members"] : @{};
 
-    __block NSString *rawURI = uriSchema;
+    __block NSString *rawURI = uriSchema?uriSchema:@"";
     __block BOOL isValid = YES;
     __block NSError *blockErr = nil;
     [rules enumerateKeysAndObjectsUsingBlock:^(NSString *memberName, id memberRules, BOOL *stop) {
@@ -246,17 +234,34 @@
         if (value && value != [NSNull null] && [memberRules isKindOfClass:[NSDictionary class]]) {
 
             NSString *rulesType = memberRules[@"type"];
-            NSString *valueStr = nil;
+            NSString *valueStr = @"";
 
             if ([rulesType isEqualToString:@"integer"] || [rulesType isEqualToString:@"long"] || [rulesType isEqualToString:@"float"] || [rulesType isEqualToString:@"double"]) {
-                valueStr = [value stringValue];
-
+                if ([value isKindOfClass:[NSNumber class]]) {
+                    valueStr = [value stringValue];
+                }
+                
             } else if ([rulesType isEqualToString:@"boolean"]) {
-                valueStr = [value boolValue]?@"true":@"false";
+                if ([value isKindOfClass:[NSNumber class]]) {
+                    valueStr = [value boolValue]?@"true":@"false";
+                }
             } else if ([rulesType isEqualToString:@"string"]) {
-                valueStr = value;
+                if ([value isKindOfClass:[NSString class]]) {
+                    valueStr = value;
+                }
             } else if ([rulesType isEqualToString:@"timestamp"]) {
-                valueStr = value; //timestamp will be treated as string here.
+                if ([value isKindOfClass:[NSNumber class]]) {
+                    //if it is for header, we should convert to RFC822 format
+                    if ([memberRules[@"location"] isEqualToString:@"header"]) {
+                        NSDate *timeStampDate = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
+                        valueStr = [timeStampDate aws_stringValue:AWSDateRFC822DateFormat1];
+                    } else {
+                        valueStr = [value stringValue];
+                    }
+                    
+                } else if ([value isKindOfClass:[NSString class]]) {
+                    valueStr = value; //timestamp will be treated as string here.
+                }
             } else {
                 valueStr = @"";
             }
@@ -298,7 +303,7 @@
             }
 
             //If it is "Body" Type and streaming Type, contructBody
-            if ([xmlElementName isEqualToString:@"Body"] && [memberRules[@"streaming"] boolValue]) {
+            if (([xmlElementName isEqualToString:@"Body"] || [xmlElementName isEqualToString:@"body"]) && [memberRules[@"streaming"] boolValue]) {
                 if ([value isKindOfClass:[NSURL class]]) {
                     if ([value checkResourceIsReachableAndReturnError:&blockErr]) {
                         request.HTTPBodyStream = [NSInputStream inputStreamWithURL:value];
@@ -309,7 +314,12 @@
                     }
 
                 } else {
-                    request.HTTPBodyStream = [NSInputStream inputStreamWithData:value];
+                    if ([value isKindOfClass:[NSString class]]) {
+                        value = [value dataUsingEncoding:NSUTF8StringEncoding];
+                    }
+                    if ([value isKindOfClass:[NSData class]]) {
+                        request.HTTPBodyStream = [NSInputStream inputStreamWithData:value];
+                    }
 
                 }
 
@@ -396,28 +406,22 @@
 
 @implementation AWSQueryStringRequestSerializer
 
-+ (instancetype)serializerWithResource:(NSString *)resource
+- (instancetype)initWithJSONDefinition:(NSDictionary *)JSONDefinition
                             actionName:(NSString *)actionName {
-
-    AWSQueryStringRequestSerializer *serializer = [self new];
-    NSError *error = nil;
-    NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:resource ofType:@"json"];
-    if (filePath == nil) {
-        AWSLogError(@"can not find %@.json file in the project",resource);
-    } else {
-        serializer.serviceDefinitionJSON = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:filePath]
-                                                                           options:kNilOptions
-                                                                             error:&error];
-    }
-    if (error) {
-        AWSLogError(@"Error: [%@]", error);
+    if (self = [super init]) {
+        
+        _serviceDefinitionJSON = JSONDefinition;
+        if (_serviceDefinitionJSON == nil) {
+            AWSLogError(@"serviceDefinitionJSON of is nil.");
+            return nil;
+        }
+        _actionName = actionName;
     }
 
-    serializer.actionName = actionName;
-
-    return serializer;
+    return self;
 
 }
+
 - (void)processParameters:(NSDictionary *)parameters queryString:(NSMutableString *)queryString {
     for (NSString *key in parameters) {
         id obj = parameters[key];
@@ -439,10 +443,6 @@
                 [queryString appendString:[key aws_stringWithURLEncoding]];
                 [queryString appendString:@"="];
                 [queryString appendString:[[obj stringValue] aws_stringWithURLEncoding]];
-            } else if ([obj isKindOfClass:[NSDate class]]) {
-                [queryString appendString:[key aws_stringWithURLEncoding]];
-                [queryString appendString:@"="];
-                [queryString appendString:[[obj aws_stringValue:self.dateFormat] aws_stringWithURLEncoding]];
             } else {
                 AWSLogError(@"key[%@] is invalid.", key);
                 [queryString appendString:[key aws_stringWithURLEncoding]];
@@ -454,7 +454,7 @@
 
 }
 
-- (BFTask *)serializeRequest:(NSMutableURLRequest *)request
+- (AWSTask *)serializeRequest:(NSMutableURLRequest *)request
                      headers:(NSDictionary *)headers
                   parameters:(NSDictionary *)parameters {
     request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
@@ -470,7 +470,7 @@
                                                                     actionName:self.actionName
                                                          serviceDefinitionRule:self.serviceDefinitionJSON error:&error];
     if (error) {
-        return [BFTask taskWithError:error];
+        return [AWSTask taskWithError:error];
     }
 
     NSMutableString *queryString = [NSMutableString new];
@@ -494,11 +494,11 @@
        forHTTPHeaderField:@"Content-Type"];
     }
 
-    return [BFTask taskWithResult:nil];
+    return [AWSTask taskWithResult:nil];
 }
 
-- (BFTask *)validateRequest:(NSURLRequest *)request {
-    return [BFTask taskWithResult:nil];
+- (AWSTask *)validateRequest:(NSURLRequest *)request {
+    return [AWSTask taskWithResult:nil];
 }
 
 @end
@@ -506,7 +506,7 @@
 @implementation AWSEC2RequestSerializer
 
 //overwrite serializeRequest method for EC2
-- (BFTask *)serializeRequest:(NSMutableURLRequest *)request
+- (AWSTask *)serializeRequest:(NSMutableURLRequest *)request
                      headers:(NSDictionary *)headers
                   parameters:(NSDictionary *)parameters {
     request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
@@ -522,7 +522,7 @@
                                                                   actionName:self.actionName
                                                        serviceDefinitionRule:self.serviceDefinitionJSON error:&error];
     if (error) {
-        return [BFTask taskWithError:error];
+        return [AWSTask taskWithError:error];
     }
 
     NSMutableString *queryString = [NSMutableString new];
@@ -546,8 +546,7 @@
        forHTTPHeaderField:@"Content-Type"];
     }
     
-    return [BFTask taskWithResult:nil];
+    return [AWSTask taskWithResult:nil];
 }
-
 
 @end

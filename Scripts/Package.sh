@@ -1,31 +1,43 @@
 #!/bin/sh
+set -e
+# Helper function to exit on nonzero code
+function exitOnFailureCode() {
+    if [ $1 -ne 0 ] 
+    then
+    	echo "Error occurred, abort"
+    	git checkout .
+        exit $1
+    fi
+}
 
 # clean 
 if [ -n $1 ] && [ "$1" == "clean" ];
 then
-	rm -rf build
+	rm -rf builtFramework
 	echo "Cleaning Completed"
 	exit 0
 fi
 
-if [ -e "Scripts/objc-fix.patch" ]; then
-	echo "Applying a patch"
-	patch -p1 < Scripts/objc-fix.patch
-fi
+set -u
 
 if [ -x "Scripts/SdkPackage.sh" ]; then
-    Scripts/SdkPackage.sh || { echo "Scripts/SdkPackage.sh failed."; git checkout .; exit 1; }
-fi
 
-if [ -x "Scripts/PodFramework.sh" ]; then
-	Scripts/PodFramework.sh Bolts
-	Scripts/PodFramework.sh Mantle
-	Scripts/PodFramework.sh TMCache
-	Scripts/PodFramework.sh XMLDictionary
-	Scripts/PodFramework.sh UICKeyChainStore
-	Scripts/PodFramework.sh Reachability
-	Scripts/PodFramework.sh GZIP
-	Scripts/PodFramework.sh FMDB
+    Scripts/SdkPackage.sh AWSCore
+    Scripts/SdkPackage.sh AWSAutoScaling
+    Scripts/SdkPackage.sh AWSCloudWatch
+    Scripts/SdkPackage.sh AWSDynamoDB
+    Scripts/SdkPackage.sh AWSEC2
+    Scripts/SdkPackage.sh AWSElasticLoadBalancing
+    Scripts/SdkPackage.sh AWSKinesis
+    Scripts/SdkPackage.sh AWSLambda
+    Scripts/SdkPackage.sh AWSMachineLearning
+    Scripts/SdkPackage.sh AWSMobileAnalytics
+    Scripts/SdkPackage.sh AWSS3
+    Scripts/SdkPackage.sh AWSSES
+    Scripts/SdkPackage.sh AWSSimpleDB
+    Scripts/SdkPackage.sh AWSSNS
+    Scripts/SdkPackage.sh AWSSQS
+
 fi
 
 git checkout .

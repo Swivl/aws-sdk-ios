@@ -2,9 +2,51 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:AWSiOSSDKv2.xcodeproj">
+      location = "group:AWSCore.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Pods/Pods.xcodeproj">
+      location = "group:AWSAPIGateway.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSAutoScaling.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSCloudWatch.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSDynamoDB.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSEC2.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSElasticLoadBalancing.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSKinesis.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSLambda.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSMachineLearning.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSMobileAnalytics.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSS3.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSSES.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSSimpleDB.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSSNS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:AWSSQS.xcodeproj">
    </FileRef>
 </Workspace>
