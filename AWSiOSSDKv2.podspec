@@ -10,12 +10,12 @@ Pod::Spec.new do |s|
   s.license      = 'Apache License, Version 2.0'
   s.author       = { 'Amazon Web Services' => 'amazonwebservices' }
   s.platform     = :ios, '7.0'
-  s.source       = { :git => 'https://github.com/aws/aws-sdk-ios.git',
+  s.source       = { :git => 'https://github.com/vGubriienko/aws-sdk-ios.git',
                      :tag => s.version}
   s.requires_arc = true
 
   s.subspec 'AWSCore' do |aws|
-    aws.dependency 'AWSCore', '2.2.1.BT'
+    aws.dependency 'AWSCore', :git => 'https://github.com/vGubriienko/aws-sdk-ios.git', :tag => s.version
   end
 
   s.subspec 'AutoScaling' do |autoscaling|
@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'S3' do |s3|
-  	s3.dependency 'AWSS3', '2.2.1.BT'
+  	s3.dependency 'AWSS3', :git => 'https://github.com/vGubriienko/aws-sdk-ios.git', :tag => s.version
   end
 
   s.subspec 'SES' do |ses|
