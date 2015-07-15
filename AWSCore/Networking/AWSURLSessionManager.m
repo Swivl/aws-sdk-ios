@@ -222,7 +222,7 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
         } else {
             return [AWSTask taskWithResult:nil];
         }
-    }] continueWithSuccessBlock:^id(BFTask *task) {
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
 
         // >>>>>>>>
         if (delegate.dataTaskCompletionHandler) {
@@ -233,7 +233,7 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
         return nil;
         // <<<<<<<<
         
-    }] continueWithBlock:^id(BFTask *task) {
+    }] continueWithBlock:^id(AWSTask *task) {
         if (task.error) {
             if (delegate.dataTaskCompletionHandler) {
                 AWSNetworkingCompletionHandlerBlock completionHandler = delegate.dataTaskCompletionHandler;
