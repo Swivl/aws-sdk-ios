@@ -279,7 +279,12 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                                                                                             actionName:operationName
                                                                                            outputClass:outputClass];
         return [[self.networking sendRequest:networkingRequest] continueWithBlock:^id(AWSTask *task) {
-            request.internalRequest = nil;
+            
+            //>>>>>>
+            // internalRequest will be nilled in a user code on later stage
+            //request.internalRequest = nil;
+            //<<<<<<
+            
             return task;
         }];
     }
