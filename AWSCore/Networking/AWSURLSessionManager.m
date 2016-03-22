@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import "AWSURLSessionManager.h"
 
@@ -98,8 +98,6 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
     if (self = [super init]) {
         _configuration = configuration;
 
-        NSOperationQueue *operationQueue = [NSOperationQueue new];
-        operationQueue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount;
 
         NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
         sessionConfiguration.URLCache = nil;
@@ -109,10 +107,11 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
         if (configuration.timeoutIntervalForResource > 0) {
             sessionConfiguration.timeoutIntervalForResource = configuration.timeoutIntervalForResource;
         }
+        sessionConfiguration.allowsCellularAccess = configuration.allowsCellularAccess;
 
         _session = [NSURLSession sessionWithConfiguration:sessionConfiguration
                                                  delegate:self
-                                            delegateQueue:operationQueue];
+                                            delegateQueue:nil];
         _sessionManagerDelegates = [AWSSynchronizedMutableDictionary new];
     }
 
@@ -213,7 +212,7 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
                 }];
             }
         }
-        
+
         return task;
     }] continueWithSuccessBlock:^id(AWSTask *task) {
         AWSNetworkingRequest *request = delegate.request;
@@ -247,6 +246,10 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
 #pragma mark - NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)sessionTask didCompleteWithError:(NSError *)error {
+    if (error) {
+        AWSLogError(@"Session task failed with error: %@", error);
+    }
+    
     [[[AWSTask taskWithResult:nil] continueWithSuccessBlock:^id(AWSTask *task) {
         AWSURLSessionManagerDelegate *delegate = [self.sessionManagerDelegates objectForKey:@(sessionTask.taskIdentifier)];
         

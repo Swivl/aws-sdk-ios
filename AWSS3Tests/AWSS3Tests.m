@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <XCTest/XCTest.h>
 #import "AWSS3.h"
@@ -27,6 +27,9 @@ NSUInteger const AWSS3Test256KB = 1024 * 256;
 NSUInteger const AWSS3TestsTransferManagerMinimumPartSize = 5 * 1024 * 1024;
 NSString *const AWSS3TestBucketNamePrefix = @"ios-v2-test-";
 
+static NSURL *tempLargeURL = nil;
+static NSURL *tempSmallURL = nil;
+
 static NSString *testBucketNameGeneral = nil;
 
 + (void)setUp {
@@ -39,6 +42,59 @@ static NSString *testBucketNameGeneral = nil;
     testBucketNameGeneral = [NSString stringWithFormat:@"%@%lld", AWSS3TestBucketNamePrefix, (int64_t)timeIntervalSinceReferenceDate];
 
     [AWSS3Tests createBucketWithName:testBucketNameGeneral];
+    
+    
+    //Create a large temporary file for uploading & downloading test
+    tempLargeURL = [NSURL fileURLWithPath:[[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-s3tmTestTempLarge",testBucketNameGeneral]]];
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] createFileAtPath:tempLargeURL.path contents:nil attributes:nil]) {
+        AWSLogError(@"Error: Can not create file with file path:%@",tempLargeURL.path);
+    }
+    error = nil;
+    NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingToURL:tempLargeURL error:&error];
+    if (error) {
+        AWSLogError(@"Error: [%@]", error);
+    }
+    
+    @autoreleasepool {
+        
+        NSMutableString *tempBaseString = [NSMutableString string];
+        for (int32_t i = 0; i < 800000; i++) { //800000 = 4.68MB
+            [tempBaseString appendFormat:@"%d", i];
+        }
+        
+        int multiplier;
+#if AWS_TEST_BJS_INSTEAD
+        multiplier = 5;
+#else
+        multiplier = 5;
+#endif
+        for (int32_t j = 0; j < multiplier; j++) {
+            @autoreleasepool {
+                [fileHandle writeData:[tempBaseString dataUsingEncoding:NSUTF8StringEncoding]];
+            }
+        }
+        [fileHandle closeFile];
+        
+        if (true) {
+            //Create a smal temporary file for uploading & downloading test
+            tempSmallURL = [NSURL fileURLWithPath:[[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-s3tmTestTempSmall",testBucketNameGeneral]]];
+            NSError *error = nil;
+            if (![[NSFileManager defaultManager] createFileAtPath:tempSmallURL.path contents:nil attributes:nil]) {
+                AWSLogError(@"Error: Can not create file with file path:%@",tempSmallURL.path);
+            }
+            error = nil;
+            NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingToURL:tempSmallURL error:&error];
+            if (error) {
+                AWSLogError(@"Error: [%@]", error);
+            }
+            
+            [fileHandle writeData:[tempBaseString dataUsingEncoding:NSUTF8StringEncoding]]; //baseString 800000 = 4.68MB
+            
+            [fileHandle closeFile];
+        }
+        
+    }
 }
 
 - (void)setUp {
@@ -48,6 +104,15 @@ static NSString *testBucketNameGeneral = nil;
 + (void)tearDown {
     //Delete Bucket
     [AWSS3Tests deleteBucketWithName:testBucketNameGeneral];
+    
+    //Delete Temp files
+    if (tempLargeURL) {
+        [[NSFileManager defaultManager] removeItemAtURL:tempLargeURL error:nil];
+    }
+    if (tempSmallURL) {
+        [[NSFileManager defaultManager] removeItemAtURL:tempSmallURL error:nil];
+    }
+
 }
 
 - (void)tearDown {
@@ -85,6 +150,33 @@ static NSString *testBucketNameGeneral = nil;
 + (BOOL)deleteBucketWithName:(NSString *)bucketName {
     AWSS3 *s3 = [AWSS3 defaultS3];
 
+    AWSS3ListObjectVersionsRequest *listObjectVersionsRequest = [AWSS3ListObjectVersionsRequest new];
+    listObjectVersionsRequest.bucket = bucketName;
+
+    [[[s3 listObjectVersions:listObjectVersionsRequest] continueWithSuccessBlock:^id(AWSTask *task) {
+        NSMutableArray *tasks = [NSMutableArray new];
+
+        AWSS3ListObjectVersionsOutput *listObjectVersionsOutput = task.result;
+        for (AWSS3ObjectVersion *version in listObjectVersionsOutput.versions) {
+            AWSS3DeleteObjectRequest *deleteObjectRequest = [AWSS3DeleteObjectRequest new];
+            deleteObjectRequest.bucket = bucketName;
+            deleteObjectRequest.key = version.key;
+            deleteObjectRequest.versionId = version.versionId;
+            AWSTask *task = [s3 deleteObject:deleteObjectRequest];
+            [tasks addObject:task];
+        }
+        for (AWSS3DeleteMarkerEntry *deleteMarker in listObjectVersionsOutput.deleteMarkers) {
+            AWSS3DeleteObjectRequest *deleteObjectRequest = [AWSS3DeleteObjectRequest new];
+            deleteObjectRequest.bucket = bucketName;
+            deleteObjectRequest.key = deleteMarker.key;
+            deleteObjectRequest.versionId = deleteMarker.versionId;
+            AWSTask *task = [s3 deleteObject:deleteObjectRequest];
+            [tasks addObject:task];
+        }
+
+        return [AWSTask taskForCompletionOfAllTasks:tasks];
+    }] waitUntilFinished];
+
     AWSS3DeleteBucketRequest *deleteBucketReq = [AWSS3DeleteBucketRequest new];
     deleteBucketReq.bucket = bucketName;
 
@@ -108,6 +200,35 @@ static NSString *testBucketNameGeneral = nil;
     return NO;
 }
 
+-(void)testCreateEmptyFolder {
+    
+    
+    AWSS3 *s3 = [AWSS3 defaultS3];
+    
+    AWSS3PutObjectRequest *putObjectRequest = [AWSS3PutObjectRequest new];
+    
+    putObjectRequest.key = @"test/";
+    putObjectRequest.bucket = testBucketNameGeneral;
+    putObjectRequest.body = nil;
+    
+    [[[s3 putObject:putObjectRequest] continueWithBlock:^id(AWSTask *task)
+     {
+         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
+         return nil;
+     }] waitUntilFinished];
+    
+    AWSS3DeleteObjectRequest *deleteObjectRequest = [AWSS3DeleteObjectRequest new];
+    deleteObjectRequest.bucket = testBucketNameGeneral;
+    deleteObjectRequest.key = @"test/";
+    
+    [[[s3 deleteObject:deleteObjectRequest] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3DeleteObjectOutput class]],@"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3DeleteObjectOutput class]),[task.result description]);
+        return nil;
+    }] waitUntilFinished];
+    
+    
+}
 - (void)testClockSkewS3 {
     [AWSTestUtility setupSwizzling];
 
@@ -117,7 +238,7 @@ static NSString *testBucketNameGeneral = nil;
     AWSS3 *s3 = [AWSS3 defaultS3];
     XCTAssertNotNil(s3);
 
-    [[[s3 listBuckets:nil] continueWithBlock:^id(AWSTask *task) {
+    [[[s3 listBuckets:[AWSRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
         XCTAssertTrue([task.result isKindOfClass:[AWSS3ListBucketsOutput class]],@"The response object is not a class of [%@]", NSStringFromClass([AWSS3ListBucketsOutput class]));
 
@@ -131,7 +252,7 @@ static NSString *testBucketNameGeneral = nil;
     AWSS3 *s3 = [AWSS3 defaultS3];
     XCTAssertNotNil(s3);
 
-    [[[s3 listBuckets:nil] continueWithBlock:^id(AWSTask *task) {
+    [[[s3 listBuckets:[AWSRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
         XCTAssertTrue([task.result isKindOfClass:[AWSS3ListBucketsOutput class]],@"The response object is not a class of [%@]", NSStringFromClass([AWSS3ListBucketsOutput class]));
 
@@ -160,7 +281,7 @@ static NSString *testBucketNameGeneral = nil;
     [[[[[[s3 createBucket:createBucketReq] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
-        return [s3 listBuckets:nil];
+        return [s3 listBuckets:[AWSRequest new]];
     }] continueWithBlock:^id(AWSTask *task) {
         //Check if bucket are there.
         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
@@ -176,7 +297,7 @@ static NSString *testBucketNameGeneral = nil;
     }] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
-        return [s3 listBuckets:nil];
+        return [s3 listBuckets:[AWSRequest new]];
     }] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
         XCTAssertTrue([task.result isKindOfClass:[AWSS3ListBucketsOutput class]],@"The response object is not a class of [%@]", NSStringFromClass([AWSS3ListBucketsOutput class]));
@@ -245,7 +366,6 @@ static NSString *testBucketNameGeneral = nil;
         XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
         XCTAssertTrue([task.result isKindOfClass:[AWSS3ListObjectsOutput class]],@"The response object is not a class of [%@]", NSStringFromClass([AWSS3ListObjectsOutput class]));
         AWSS3ListObjectsOutput *listObjectsOutput = task.result;
-        //        XCTAssertEqualObjects(listObjectsOutput.name, @"ios-test-listobjects");
 
         for (AWSS3Object *s3Object in listObjectsOutput.contents) {
             XCTAssertTrue([s3Object.lastModified isKindOfClass:[NSDate class]], @"listObject doesn't contain LastModified(NSDate)");
@@ -396,6 +516,187 @@ static NSString *testBucketNameGeneral = nil;
     }] waitUntilFinished];
 }
 
+- (void)testPutHeadGetAndDeleteObjectServiceAwsKmsEncryption {
+    NSString *testObjectStr = @"a test object string.";
+    NSString *keyName = @"ios-test-put-get-and-delete-obj";
+    NSData *testObjectData = [testObjectStr dataUsingEncoding:NSUTF8StringEncoding];
+    
+    AWSS3 *s3 = [AWSS3 defaultS3];
+    XCTAssertNotNil(s3);
+    
+    AWSS3PutObjectRequest *putObjectRequest = [AWSS3PutObjectRequest new];
+    putObjectRequest.bucket = testBucketNameGeneral;
+    putObjectRequest.key = keyName;
+    putObjectRequest.body = testObjectData;
+    putObjectRequest.contentLength = [NSNumber numberWithUnsignedInteger:[testObjectData length]];
+    putObjectRequest.contentType = @"video/mpeg";
+    
+    putObjectRequest.serverSideEncryption = AWSS3ServerSideEncryptionAwsKms;
+    
+    //Add User Metadata
+    NSDictionary *userMetaData = @{@"user-data-1": @"user-metadata-value1",
+                                   @"user-data-2": @"user-metadata-value2"};
+    
+    
+    putObjectRequest.metadata = userMetaData;
+    
+    [[[[[[[s3 putObject:putObjectRequest] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3PutObjectOutput class]], @"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3PutObjectOutput class]), [task.result description]);
+        AWSS3PutObjectOutput *putObjectOutput = task.result;
+        XCTAssertNotNil(putObjectOutput.ETag);
+        XCTAssertEqual(putObjectOutput.serverSideEncryption, AWSS3ServerSideEncryptionAwsKms);
+        XCTAssertNotNil(putObjectOutput.SSEKMSKeyId);
+        
+        AWSS3HeadObjectRequest *headObjectRequest = [AWSS3HeadObjectRequest new];
+        headObjectRequest.bucket = testBucketNameGeneral;
+        headObjectRequest.key = keyName;
+        
+        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:15]];
+        return [s3 headObject:headObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3HeadObjectOutput class]], @"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3HeadObjectOutput class]), [task.result description]);
+        AWSS3HeadObjectOutput *headObjectOutput = task.result;
+        XCTAssertTrue([headObjectOutput.contentLength intValue] > 0, @"Content Length is 0: [%@]", headObjectOutput.contentLength);
+        XCTAssertEqual(headObjectOutput.serverSideEncryption, AWSS3ServerSideEncryptionAwsKms);
+        XCTAssertNotNil(headObjectOutput.SSEKMSKeyId);
+        
+        XCTAssertEqualObjects(userMetaData, headObjectOutput.metadata, @"headObjectOutput doesn't contains the metadata we expected");
+        
+        AWSS3GetObjectRequest *getObjectRequest = [AWSS3GetObjectRequest new];
+        getObjectRequest.bucket = testBucketNameGeneral;
+        getObjectRequest.key = keyName;
+        
+        return [s3 getObject:getObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3GetObjectOutput class]],@"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3GetObjectOutput class]),[task.result description]);
+        AWSS3GetObjectOutput *getObjectOutput = task.result;
+        
+        XCTAssertEqual(getObjectOutput.serverSideEncryption, AWSS3ServerSideEncryptionAwsKms);
+        XCTAssertNotNil(getObjectOutput.SSEKMSKeyId);
+        
+        
+        NSData *receivedBody = getObjectOutput.body;
+        XCTAssertEqualObjects(testObjectData,receivedBody, @"received object is different from sent object, expect:%@ but got:%@",[[NSString alloc] initWithData:testObjectData encoding:NSUTF8StringEncoding],[[NSString alloc] initWithData:receivedBody encoding:NSUTF8StringEncoding]);
+        
+        XCTAssertEqualObjects(userMetaData, getObjectOutput.metadata, @"getObjectOutput doesn't contains the metadata we expected");
+        
+        AWSS3DeleteObjectRequest *deleteObjectRequest = [AWSS3DeleteObjectRequest new];
+        deleteObjectRequest.bucket = testBucketNameGeneral;
+        deleteObjectRequest.key = keyName;
+        
+        return [s3 deleteObject:deleteObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3DeleteObjectOutput class]],@"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3DeleteObjectOutput class]),[task.result description]);
+        return nil;
+    }] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertNil(task.error, @"Error: [%@]", task.error);
+        return nil;
+    }] waitUntilFinished];
+}
+
+- (void)testPutHeadGetAndDeleteObjectServiceCustomEncryption {
+    NSString *keyName = @"ios-test-put-get-and-delete-obj";
+    
+    NSString *getObjectFilePath = tempLargeURL.path;
+    XCTAssertNotNil(getObjectFilePath);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:getObjectFilePath]);
+    unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:getObjectFilePath error:nil] fileSize];
+
+    
+    AWSS3 *s3 = [AWSS3 defaultS3];
+    XCTAssertNotNil(s3);
+    
+    AWSS3PutObjectRequest *putObjectRequest = [AWSS3PutObjectRequest new];
+    putObjectRequest.bucket = testBucketNameGeneral;
+    putObjectRequest.key = keyName;
+    putObjectRequest.body = [NSURL fileURLWithPath:getObjectFilePath];;
+    putObjectRequest.contentLength = [NSNumber numberWithUnsignedLongLong:fileSize];
+    putObjectRequest.contentType = @"video/mpeg";
+    
+    //Custom SSE
+    NSString *base64Key = @"sBldqVP3dNJ9OLh4Fi0+HYAgIZsToOLQxiX3jM7TbHw=";
+    NSData *nsdataFromBase64String = [[NSData alloc]
+                                      initWithBase64EncodedString:base64Key options:kNilOptions];
+    NSString *base64KeyMD5 = [NSString aws_base64md5FromData:nsdataFromBase64String];
+    
+    putObjectRequest.SSECustomerAlgorithm = @"AES256";
+    putObjectRequest.SSECustomerKey = base64Key;
+    putObjectRequest.SSECustomerKeyMD5 = base64KeyMD5;
+    
+    //Add User Metadata
+    NSDictionary *userMetaData = @{@"user-data-1": @"user-metadata-value1",
+                                   @"user-data-2": @"user-metadata-value2"};
+    
+    
+    putObjectRequest.metadata = userMetaData;
+    
+    [[[[[[[s3 putObject:putObjectRequest] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3PutObjectOutput class]], @"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3PutObjectOutput class]), [task.result description]);
+        AWSS3PutObjectOutput *putObjectOutput = task.result;
+        XCTAssertNotNil(putObjectOutput.ETag);
+        XCTAssertEqualObjects(putObjectOutput.SSECustomerAlgorithm, @"AES256");
+        XCTAssertEqualObjects(putObjectOutput.SSECustomerKeyMD5, base64KeyMD5);
+        
+        AWSS3HeadObjectRequest *headObjectRequest = [AWSS3HeadObjectRequest new];
+        headObjectRequest.bucket = testBucketNameGeneral;
+        headObjectRequest.key = keyName;
+        
+        headObjectRequest.SSECustomerAlgorithm = @"AES256";
+        headObjectRequest.SSECustomerKey = base64Key;
+        headObjectRequest.SSECustomerKeyMD5 = base64KeyMD5;
+        
+        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:15]];
+        return [s3 headObject:headObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3HeadObjectOutput class]], @"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3HeadObjectOutput class]), [task.result description]);
+        AWSS3HeadObjectOutput *headObjectOutput = task.result;
+        XCTAssertTrue([headObjectOutput.contentLength intValue] > 0, @"Content Length is 0: [%@]", headObjectOutput.contentLength);
+        XCTAssertEqualObjects(headObjectOutput.SSECustomerAlgorithm, @"AES256");
+        XCTAssertEqualObjects(headObjectOutput.SSECustomerKeyMD5, base64KeyMD5);
+        
+        XCTAssertEqualObjects(userMetaData, headObjectOutput.metadata, @"headObjectOutput doesn't contains the metadata we expected");
+        
+        AWSS3GetObjectRequest *getObjectRequest = [AWSS3GetObjectRequest new];
+        getObjectRequest.bucket = testBucketNameGeneral;
+        getObjectRequest.key = keyName;
+        
+        getObjectRequest.SSECustomerAlgorithm = @"AES256";
+        getObjectRequest.SSECustomerKey = base64Key;
+        getObjectRequest.SSECustomerKeyMD5 = base64KeyMD5;
+        
+        return [s3 getObject:getObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3GetObjectOutput class]],@"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3GetObjectOutput class]),[task.result description]);
+        AWSS3GetObjectOutput *getObjectOutput = task.result;
+        
+        XCTAssertEqualObjects(getObjectOutput.SSECustomerAlgorithm, @"AES256");
+        XCTAssertEqualObjects(getObjectOutput.SSECustomerKeyMD5, base64KeyMD5);
+        
+        
+        NSData *responseData = getObjectOutput.body;
+        
+        //read file content
+        NSData *testObjectData = [NSData dataWithContentsOfFile:getObjectFilePath];
+        XCTAssertEqualObjects(testObjectData, responseData, @"received object is different from sent object.");
+        
+        
+        XCTAssertEqualObjects(userMetaData, getObjectOutput.metadata, @"getObjectOutput doesn't contains the metadata we expected");
+        
+        AWSS3DeleteObjectRequest *deleteObjectRequest = [AWSS3DeleteObjectRequest new];
+        deleteObjectRequest.bucket = testBucketNameGeneral;
+        deleteObjectRequest.key = keyName;
+        
+        return [s3 deleteObject:deleteObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3DeleteObjectOutput class]],@"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3DeleteObjectOutput class]),[task.result description]);
+        return nil;
+    }] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertNil(task.error, @"Error: [%@]", task.error);
+        return nil;
+    }] waitUntilFinished];
+}
+
+
 -(void)testGetByFilePathFailed {
     NSString *keyName = @"ios-test-get-non-existed-key";
     AWSS3 *s3 = [AWSS3 defaultS3];
@@ -440,8 +741,14 @@ static NSString *testBucketNameGeneral = nil;
     AWSTask *getObjTask = [[s3 getObject:getObjectRequest] continueWithBlock:^id(AWSTask *task) {
         //Should return Cancelled Task Error
         XCTAssertNotNil(task.error,@"Expect got 'Cancelled' Error, but got nil");
-        XCTAssertEqualObjects(NSURLErrorDomain, task.error.domain);
-        XCTAssertEqual(NSURLErrorCancelled, task.error.code);
+        if ([NSURLErrorDomain isEqualToString:task.error.domain]) {
+            XCTAssertEqualObjects(NSURLErrorDomain, task.error.domain);
+            XCTAssertEqual(NSURLErrorCancelled, task.error.code);
+        } else {
+            XCTAssertEqualObjects(AWSNetworkingErrorDomain, task.error.domain);
+            XCTAssertEqual(AWSNetworkingErrorCancelled, task.error.code);
+        }
+
         return nil;
     }];
     
@@ -457,8 +764,9 @@ static NSString *testBucketNameGeneral = nil;
 }
 - (void)testPutGetAndDeleteObjectByFilePathWithProgressFeedback {
     NSString *keyName = @"ios-test-put-get-and-delete-obj";
-    NSString *getObjectFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"credentials" ofType:@"json"];
+    NSString *getObjectFilePath = tempSmallURL.path;
     XCTAssertNotNil(getObjectFilePath);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:getObjectFilePath]);
     unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:getObjectFilePath error:nil] fileSize];
 
     AWSS3 *s3 = [AWSS3 defaultS3];
@@ -553,10 +861,23 @@ static NSString *testBucketNameGeneral = nil;
     AWSS3PutBucketVersioningRequest *versionRequest =  [AWSS3PutBucketVersioningRequest new];
     versionRequest.bucket = testBucketNameGeneral;
     versionRequest.versioningConfiguration = conf;
-    NSLog(@"Config %@",versionRequest);
-    
+
     [[[s3 putBucketVersioning:versionRequest] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNil(task.error);
+        XCTAssertNil(task.exception);
+        return nil;
+    }] waitUntilFinished];
+
+    conf = [AWSS3VersioningConfiguration new];
+    conf.status = AWSS3BucketVersioningStatusSuspended;
+
+    versionRequest =  [AWSS3PutBucketVersioningRequest new];
+    versionRequest.bucket = testBucketNameGeneral;
+    versionRequest.versioningConfiguration = conf;
+
+    [[[s3 putBucketVersioning:versionRequest] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertNil(task.error);
+        XCTAssertNil(task.exception);
         return nil;
     }] waitUntilFinished];
 }
@@ -986,6 +1307,21 @@ static NSString *testBucketNameGeneral = nil;
 #else
         XCTAssertEqual(getBucketLocationOutput.locationConstraint, AWSS3BucketLocationConstraintBlank);
 #endif
+        return nil;
+    }] waitUntilFinished];
+}
+
+- (void)testHeadNonExistingKey {
+    AWSS3 *s3 = [AWSS3 defaultS3];
+
+    AWSS3HeadObjectRequest *headObjectRequest = [AWSS3HeadObjectRequest new];
+    headObjectRequest.bucket = testBucketNameGeneral;
+    headObjectRequest.key = @"some-non-existing-key";
+
+    [[[s3 headObject:headObjectRequest] continueWithBlock:^id _Nullable(AWSTask<AWSS3HeadObjectOutput *> * _Nonnull task) {
+        XCTAssertNotNil(task.error);
+        XCTAssertNil(task.exception);
+        XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
 }

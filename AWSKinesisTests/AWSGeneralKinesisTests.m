@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
@@ -59,13 +59,14 @@ static id mockNetworking = nil;
 
 - (void)testAddTagsToStream {
     NSString *key = @"testAddTagsToStream";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] addTagsToStream:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] addTagsToStream:[AWSKinesisAddTagsToStreamInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -81,13 +82,14 @@ static id mockNetworking = nil;
 
 - (void)testCreateStream {
     NSString *key = @"testCreateStream";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] createStream:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] createStream:[AWSKinesisCreateStreamInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -103,13 +105,14 @@ static id mockNetworking = nil;
 
 - (void)testDeleteStream {
     NSString *key = @"testDeleteStream";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] deleteStream:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] deleteStream:[AWSKinesisDeleteStreamInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -125,13 +128,14 @@ static id mockNetworking = nil;
 
 - (void)testDescribeStream {
     NSString *key = @"testDescribeStream";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] describeStream:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] describeStream:[AWSKinesisDescribeStreamInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -147,13 +151,14 @@ static id mockNetworking = nil;
 
 - (void)testGetRecords {
     NSString *key = @"testGetRecords";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] getRecords:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] getRecords:[AWSKinesisGetRecordsInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -169,13 +174,14 @@ static id mockNetworking = nil;
 
 - (void)testGetShardIterator {
     NSString *key = @"testGetShardIterator";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] getShardIterator:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] getShardIterator:[AWSKinesisGetShardIteratorInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -191,13 +197,14 @@ static id mockNetworking = nil;
 
 - (void)testListStreams {
     NSString *key = @"testListStreams";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] listStreams:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] listStreams:[AWSKinesisListStreamsInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -213,13 +220,14 @@ static id mockNetworking = nil;
 
 - (void)testListTagsForStream {
     NSString *key = @"testListTagsForStream";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] listTagsForStream:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] listTagsForStream:[AWSKinesisListTagsForStreamInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -235,13 +243,14 @@ static id mockNetworking = nil;
 
 - (void)testMergeShards {
     NSString *key = @"testMergeShards";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] mergeShards:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] mergeShards:[AWSKinesisMergeShardsInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -257,13 +266,14 @@ static id mockNetworking = nil;
 
 - (void)testPutRecord {
     NSString *key = @"testPutRecord";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] putRecord:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] putRecord:[AWSKinesisPutRecordInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -279,13 +289,14 @@ static id mockNetworking = nil;
 
 - (void)testPutRecords {
     NSString *key = @"testPutRecords";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] putRecords:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] putRecords:[AWSKinesisPutRecordsInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -301,13 +312,14 @@ static id mockNetworking = nil;
 
 - (void)testRemoveTagsFromStream {
     NSString *key = @"testRemoveTagsFromStream";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] removeTagsFromStream:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] removeTagsFromStream:[AWSKinesisRemoveTagsFromStreamInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -323,13 +335,14 @@ static id mockNetworking = nil;
 
 - (void)testSplitShard {
     NSString *key = @"testSplitShard";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSKinesis registerKinesisWithConfiguration:configuration forKey:key];
 
     AWSKinesis *awsClient = [AWSKinesis KinesisForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSKinesis KinesisForKey:key] splitShard:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSKinesis KinesisForKey:key] splitShard:[AWSKinesisSplitShardInput new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);

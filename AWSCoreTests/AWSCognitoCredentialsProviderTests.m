@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #if !AWS_TEST_BJS_INSTEAD
 
@@ -644,10 +644,19 @@ BOOL _identityChanged;
     // Add a new test user, the result contains an access key we can use to test assume role
     NSString *addUserURI = [NSString stringWithFormat:@"https://graph.facebook.com/%@/accounts/test-users?installed=true&name=Foo%%20Bar&locale=en_US&permissions=read_stream&method=post&access_token=%@", AWSCognitoCredentialsProviderTestsFacebookAppID, _facebookAppToken];
 
-    NSString *newUser = [NSString stringWithContentsOfURL:[NSURL URLWithString:addUserURI] encoding:NSASCIIStringEncoding error:nil];
-    NSDictionary *user = [NSJSONSerialization JSONObjectWithData: [newUser dataUsingEncoding:NSUTF8StringEncoding]
-                                                         options: NSJSONReadingMutableContainers
-                                                           error: nil];
+    NSError *error = nil;
+    NSString *newUser = [NSString stringWithContentsOfURL:[NSURL URLWithString:addUserURI]
+                                                 encoding:NSASCIIStringEncoding
+                                                    error:&error];
+    if (!newUser) {
+        NSLog(@"Error: %@", error);
+    }
+    NSDictionary *user = [NSJSONSerialization JSONObjectWithData:[newUser dataUsingEncoding:NSUTF8StringEncoding]
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:&error];
+    if (!user) {
+        NSLog(@"Error: %@", error);
+    }
 
     _facebookToken = [user objectForKey:@"access_token"];
     _facebookId = [user objectForKey:@"id"];

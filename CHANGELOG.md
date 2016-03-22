@@ -1,9 +1,161 @@
-# AWSiOSSDKv2 CHANGELOG
+# AWS Mobile SDK for iOS CHANGELOG
+
+## 2.3.6
+
+### New Features
+* **SDK Core**
+    * Allows setting of `allowsCellularAccess` via `AWSNetworkingConfiguration`.
+* **AWS Lambda**
+    * Added `invoke` methods with completion handlers to `AWSLambdaInvoker`.
+
+### Resolved Issues
+* **SDK Core**
+    * Fixed an issue that SDK does not return an error object for certain 4xx and 5xx exceptions.
+    * Updated the API documentation to reflect the correct nullability annotations for some constructors.
+    * Fixed an issue so that Twitter Fabric can properly initialize the AWS Mobile SDK for iOS.
+
+## 2.3.5
+
+### New Features
+* **AWS Lambda**
+    * Updated `AWSLambda` to add support for VPC.
+
+### Resolved Issues
+* **Amazon Cognito Sync**
+    * Fixed a bug that `- registerDeviceInternal:` may not return a valid data type object.
+* **SDK Core**
+    * Updated podspecs to avoid conflicts with other projects that embed Mantle, libextobjc, and Fabric.
+
+## 2.3.4
+
+### New Features
+* **AWS IoT**
+    * Added support for MQTT over WebSocket connections to AWS IoT. WebSocket connections allow applications to connect, publish, and subscribe to topics on AWS IoT using the standard secure web port 443 without requiring a client certificate and private key.
+* **SDK Core**
+    * Added generics annotations to all low-level clients and `AWSS3TransferUtility`, `AWSS3PreSignedURLBuilder`, and `AWSLambdaInvoker`.
+    * Added service call APIs with completion handlers to all low-level clients.
+
+### Resolved Issues
+* **Amazon Cognito Sync**
+    * Fixed bug in `AWSCognito` `- subscribeAll` and `- unsubscribeAll` that caused `NSInvalidArgumentException` exception.
+* **Amazon Mobile Analytics**
+    * Addressed an issue that may cause an app to crash under certain situations.
+* **SDK Core**
+    * Fixed the build settings to fully enable bitcode support.
+
+## 2.3.3
+
+### New Features
+* **Amazon Kinesis Firehose**
+    * Added Amazon Kinesis Firehose support.
+* **Asia Pacific (Seoul) Region**
+    * Added Asia Pacific (Seoul) Region support. See `AWSServiceEnum.h` for more details.
+* **Amazon S3**
+    * Updated the Amazon S3 client model to the latest version.
+
+## 2.3.2
+
+### New Features
+* **AWS IoT**
+    * Added AWS IoT platform APIs.
+    * Supports publishing and subscribing to MQTT topics with certificate-based authentication.
+    * Supports device shadows via AWS IoT REST API.
+
+### Resolved Issues
+* **SDK Core**
+    * Fixed the STS endpoint for the GovCloud region.
+    * Fixed an issue where module map does not contain appropriate headers.
+    * Suppressed the erroneous nullability warning.
+* **Amazon API Gateway**
+    * Resolved an issue where the SDK sometimes does not generate the URL path correctly.
+* **Amazon Kinesis Recorder**
+    * Resolved an issue where the SQLite vacuum may fail when there are many concurrent requests.
+    * Improved the handling of concurrent `DELETE` requests to the SQLite database.
+
+## 2.3.1
+
+### New Features
+* **Low-level Clients**
+    * Added nullability annotations for the low-level service clients.
+* **Frameworks**
+    * The framework now includes the module map.
+* **Twitter Fabric**
+    * Added Twitter Fabric support for Amazon Cognito.
+
+### Resolved Issues
+* **SDK Core**
+    * Updated the SDK so that the compiler no longer emits the deprecation warnings when the Base SDK is set to iOS 9.
+    * Updated the following embedded third-party libraries: `Bolts`, `FMDB`, `TMCache`, and `UIKeyChainStore`.
+
+## 2.3.0
+
+### New Features
+* **SDK Core**
+    * The frameworks now include `bitcode` so that you can use them with Xcode 7 without modifying the project configuration. Please note the AWS Mobile SDK for iOS 2.3.0 supports Xcode 7 and above.
+    * Added extra validation to ensure HTTP body is `nil` when HTTP method is either `GET` or `DELETE`.
+
+## 2.2.7
+
+### New Features
+* **AWS Lambda**
+    * Added support for AWS Lambda function versioning.
+
+## 2.2.6
+
+### New Features
+* **Amazon DynamoDB**
+ 	* Added support for Expressions syntax in DynamoDB Object Mapper.
+* **Amazon S3**
+ 	* Added support for Key Management Service (kms) in S3.
+
+### Resolved Issues
+* **Amazon S3**
+    * [S3] Fixed an issue that failed large file uploads while using customer-provided encryption keys.
+
+
+## 2.2.5
+
+### Resolved Issues
+* **Amazon S3 PresignedURL**
+* 	*  Fixed an issue in which `getPreSignedURL` may incorrectly returns credentials error under certain circumstance.
+* 	**Amazon S3 Transfer Utility**
+* 	* Fixed an issue in which `AWSS3TransferUtility` does not execute a completion handler when an expression is not provided.
+
+## 2.2.4
+
+### New Features
+* **Amazon S3 Transfer Utility**
+    * Added support for Amazon S3 Transfer Utility to simplify the data transfer between your iOS app and Amazon S3 in the background.
+* **Amazon DynamoDB Object Mapper**
+    * Added support for `ignoreAttributes` of the `AWSDynamoDBModeling` protocol. 
+
+### Resolved Issues
+* **Amazon API Gateway**
+    * Resolved a bug where an error object may not be serialized correctly.
+* **Amazon Mobile Analytics**
+    * Fixed an issue where the Amazon Mobile Analytics client overwrites the default configuration object and prevents other service clients from functioning properly.
+
+## 2.2.3
+
+### New Features
+* **SDK Core**
+    * Added AWS GovCloud (US) Region support.
+* **Amazon S3**
+    * Updated `AWSS3PreSignedURLBuilder` to use AWS Signature Version 4 for generating the pre-signed URLs.
+    * Updated `AWSS3PreSignedURLBuilder` to accept additional request parameters to be included in pre-signed URLs.
+* **Amazon DynamoDB Object Mapper**
+	* Added support for Secondary Index Scan.
+	
+### Resolved Issues
+* **Amazon S3**
+    * Fixed an issue where an empty directory cannot be created.
 
 ## 2.2.2
 
 ### New Features
-* **Amazon Mobile Analytics** - Updated the Amazon Mobile Analytics client APIs so that the developer needs to write fewer lines of code to initialize it.
+* **Amazon Mobile Analytics**
+	*  Updated the Amazon Mobile Analytics client APIs so that the developer needs to write fewer lines of code to initialize it.
+	*  Defaulted the SDK to send events over WAN.
 
 ### Resolved Issues
 * **Amazon S3**

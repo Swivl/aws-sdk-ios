@@ -5,19 +5,19 @@
 function cleanup
 {
     rm -rf docs
-    rm -rf Documentation   
+    rm -rf Documentation
 }
 
 
-VERSION="2.2.2"
+VERSION="2.3.6"
 if [ -n $1 ] && [ "$1" == "clean" ];
 then
 	cleanup
 	exit 0
 else
 	cd "$SOURCE_ROOT"
-    
-    if [ -d docs ]; 
+
+    if [ -d docs ];
     then
         cleanup
     fi
@@ -33,6 +33,7 @@ else
     cp -r AWSDynamoDB ./docs_tmp/AWSDynamoDB
     cp -r AWSEC2 ./docs_tmp/AWSEC2
     cp -r AWSElasticLoadBalancing ./docs_tmp/AWSElasticLoadBalancing
+    cp -r AWSIoT ./docs_tmp/AWSIoT
     cp -r AWSKinesis ./docs_tmp/AWSKinesis
     cp -r AWSLambda ./docs_tmp/AWSLambda
     cp -r AWSMachineLearning ./docs_tmp/AWSMachineLearning
@@ -53,12 +54,13 @@ else
     rm -rf ./docs_tmp/AWSCore/XMLDictionary
     rm -rf ./docs_tmp/AWSCore/XMLWriter
     rm -rf ./docs_tmp/AWSMobileAnalytics/Internal
-
+    rm -rf ./docs_tmp/AWSIoT/Internal
 
     if [ -d ./AWSiOSSDKCognitoSync ]
-    then 
+    then
     	cp -r ./AWSiOSSDKCognitoSync/Cognito ./docs_tmp/Cognito
         rm -rf ./docs_tmp/Cognito/Internal
+        rm -rf ./docs_tmp/Cognito/Fabric
     	cp -r ./AWSiOSSDKCognitoSync/CognitoSync ./docs_tmp/CognitoSync
     fi
 
@@ -73,7 +75,7 @@ else
                             --docset-install-path ../docs \
                             --docset-bundle-filename com.amazon.aws.ios.docset \
                             --company-id aws.amazon.com \
-                            --project-name "AWS SDK for iOS v${VERSION}" \
+                            --project-name "AWS Mobile SDK for iOS v${VERSION}" \
                             --project-version "${VERSION}" \
                             --project-company "Amazon Web Services, Inc." \
                             --create-html \
@@ -81,13 +83,13 @@ else
                             --keep-intermediate-files \
                             --index-desc ../aws-sdk-for-ios.markdown \
                             ./
-    
+
     # get command execution result
     result=$?
-    
+
     if [ $result != 0 ];
     then
-        echo "Building the AWS iOS SDK document FAILED!"
+        echo "Building the AWS Mobile SDK for iOS documentation FAILED!"
         cleanup;
         exit 1;
     fi

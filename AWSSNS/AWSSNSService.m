@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import "AWSSNS.h"
 
@@ -25,9 +25,6 @@
 #import "AWSURLRequestRetryHandler.h"
 #import "AWSSynchronizedMutableDictionary.h"
 #import "AWSSNSResources.h"
-
-NSString *const AWSSNSDefinitionFileName = @"sns-2010-03-31";
-
 
 @interface AWSSNSResponseSerializer : AWSXMLResponseSerializer
 
@@ -86,7 +83,15 @@ static NSDictionary *errorCodeDictionary = nil;
                 return responseObject;
             }
         }
+    }
 
+    if (!*error && response.statusCode/100 != 2) {
+        *error = [NSError errorWithDomain:AWSSNSErrorDomain
+                                     code:AWSSNSErrorUnknown
+                                 userInfo:nil];
+    }
+
+    if (!*error && [responseObject isKindOfClass:[NSDictionary class]]) {
         if (self.outputClass) {
             responseObject = [AWSMTLJSONAdapter modelOfClass:self.outputClass
                                           fromJSONDictionary:responseObject
@@ -168,7 +173,9 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
 + (instancetype)defaultSNS {
     if (![AWSServiceManager defaultServiceManager].defaultServiceConfiguration) {
-        return nil;
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"`defaultServiceConfiguration` is `nil`. You need to set it before using this method."
+                                     userInfo:nil];
     }
 
     static AWSSNS *_defaultSNS = nil;
@@ -218,16 +225,17 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                                                               service:AWSServiceSNS
                                                          useUnsafeURL:NO];
 
-        AWSSignatureV4Signer *signer = [AWSSignatureV4Signer signerWithCredentialsProvider:_configuration.credentialsProvider
-                                                                                  endpoint:_configuration.endpoint];
+        AWSSignatureV4Signer *signer = [[AWSSignatureV4Signer alloc] initWithCredentialsProvider:_configuration.credentialsProvider
+                                                                                        endpoint:_configuration.endpoint];
+        AWSNetworkingRequestInterceptor *baseInterceptor = [[AWSNetworkingRequestInterceptor alloc] initWithUserAgent:_configuration.userAgent];
+        _configuration.requestInterceptors = @[baseInterceptor, signer];
 
         _configuration.baseURL = _configuration.endpoint.URL;
-        _configuration.requestInterceptors = @[[AWSNetworkingRequestInterceptor new], signer];
         _configuration.retryHandler = [[AWSSNSRequestRetryHandler alloc] initWithMaximumRetryCount:_configuration.maxRetryCount];
 
         _networking = [[AWSNetworking alloc] initWithConfiguration:_configuration];
     }
-
+    
     return self;
 }
 
@@ -270,7 +278,25 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
-- (AWSTask *)confirmSubscription:(AWSSNSConfirmSubscriptionInput *)request {
+- (void)addPermission:(AWSSNSAddPermissionInput *)request
+    completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self addPermission:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSConfirmSubscriptionResponse *> *)confirmSubscription:(AWSSNSConfirmSubscriptionInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -279,7 +305,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSConfirmSubscriptionResponse class]];
 }
 
-- (AWSTask *)createPlatformApplication:(AWSSNSCreatePlatformApplicationInput *)request {
+- (void)confirmSubscription:(AWSSNSConfirmSubscriptionInput *)request
+          completionHandler:(void (^)(AWSSNSConfirmSubscriptionResponse *response, NSError *error))completionHandler {
+    [[self confirmSubscription:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSConfirmSubscriptionResponse *> * _Nonnull task) {
+        AWSSNSConfirmSubscriptionResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSCreatePlatformApplicationResponse *> *)createPlatformApplication:(AWSSNSCreatePlatformApplicationInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -288,7 +333,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSCreatePlatformApplicationResponse class]];
 }
 
-- (AWSTask *)createPlatformEndpoint:(AWSSNSCreatePlatformEndpointInput *)request {
+- (void)createPlatformApplication:(AWSSNSCreatePlatformApplicationInput *)request
+                completionHandler:(void (^)(AWSSNSCreatePlatformApplicationResponse *response, NSError *error))completionHandler {
+    [[self createPlatformApplication:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSCreatePlatformApplicationResponse *> * _Nonnull task) {
+        AWSSNSCreatePlatformApplicationResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSCreateEndpointResponse *> *)createPlatformEndpoint:(AWSSNSCreatePlatformEndpointInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -297,13 +361,51 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSCreateEndpointResponse class]];
 }
 
-- (AWSTask *)createTopic:(AWSSNSCreateTopicInput *)request {
+- (void)createPlatformEndpoint:(AWSSNSCreatePlatformEndpointInput *)request
+             completionHandler:(void (^)(AWSSNSCreateEndpointResponse *response, NSError *error))completionHandler {
+    [[self createPlatformEndpoint:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSCreateEndpointResponse *> * _Nonnull task) {
+        AWSSNSCreateEndpointResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSCreateTopicResponse *> *)createTopic:(AWSSNSCreateTopicInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
                   targetPrefix:@""
                  operationName:@"CreateTopic"
                    outputClass:[AWSSNSCreateTopicResponse class]];
+}
+
+- (void)createTopic:(AWSSNSCreateTopicInput *)request
+  completionHandler:(void (^)(AWSSNSCreateTopicResponse *response, NSError *error))completionHandler {
+    [[self createTopic:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSCreateTopicResponse *> * _Nonnull task) {
+        AWSSNSCreateTopicResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)deleteEndpoint:(AWSSNSDeleteEndpointInput *)request {
@@ -315,6 +417,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
+- (void)deleteEndpoint:(AWSSNSDeleteEndpointInput *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteEndpoint:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)deletePlatformApplication:(AWSSNSDeletePlatformApplicationInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -322,6 +442,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                   targetPrefix:@""
                  operationName:@"DeletePlatformApplication"
                    outputClass:nil];
+}
+
+- (void)deletePlatformApplication:(AWSSNSDeletePlatformApplicationInput *)request
+                completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deletePlatformApplication:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)deleteTopic:(AWSSNSDeleteTopicInput *)request {
@@ -333,7 +471,25 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
-- (AWSTask *)getEndpointAttributes:(AWSSNSGetEndpointAttributesInput *)request {
+- (void)deleteTopic:(AWSSNSDeleteTopicInput *)request
+  completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteTopic:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSGetEndpointAttributesResponse *> *)getEndpointAttributes:(AWSSNSGetEndpointAttributesInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -342,7 +498,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSGetEndpointAttributesResponse class]];
 }
 
-- (AWSTask *)getPlatformApplicationAttributes:(AWSSNSGetPlatformApplicationAttributesInput *)request {
+- (void)getEndpointAttributes:(AWSSNSGetEndpointAttributesInput *)request
+            completionHandler:(void (^)(AWSSNSGetEndpointAttributesResponse *response, NSError *error))completionHandler {
+    [[self getEndpointAttributes:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSGetEndpointAttributesResponse *> * _Nonnull task) {
+        AWSSNSGetEndpointAttributesResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSGetPlatformApplicationAttributesResponse *> *)getPlatformApplicationAttributes:(AWSSNSGetPlatformApplicationAttributesInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -351,7 +526,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSGetPlatformApplicationAttributesResponse class]];
 }
 
-- (AWSTask *)getSubscriptionAttributes:(AWSSNSGetSubscriptionAttributesInput *)request {
+- (void)getPlatformApplicationAttributes:(AWSSNSGetPlatformApplicationAttributesInput *)request
+                       completionHandler:(void (^)(AWSSNSGetPlatformApplicationAttributesResponse *response, NSError *error))completionHandler {
+    [[self getPlatformApplicationAttributes:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSGetPlatformApplicationAttributesResponse *> * _Nonnull task) {
+        AWSSNSGetPlatformApplicationAttributesResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSGetSubscriptionAttributesResponse *> *)getSubscriptionAttributes:(AWSSNSGetSubscriptionAttributesInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -360,7 +554,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSGetSubscriptionAttributesResponse class]];
 }
 
-- (AWSTask *)getTopicAttributes:(AWSSNSGetTopicAttributesInput *)request {
+- (void)getSubscriptionAttributes:(AWSSNSGetSubscriptionAttributesInput *)request
+                completionHandler:(void (^)(AWSSNSGetSubscriptionAttributesResponse *response, NSError *error))completionHandler {
+    [[self getSubscriptionAttributes:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSGetSubscriptionAttributesResponse *> * _Nonnull task) {
+        AWSSNSGetSubscriptionAttributesResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSGetTopicAttributesResponse *> *)getTopicAttributes:(AWSSNSGetTopicAttributesInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -369,7 +582,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSGetTopicAttributesResponse class]];
 }
 
-- (AWSTask *)listEndpointsByPlatformApplication:(AWSSNSListEndpointsByPlatformApplicationInput *)request {
+- (void)getTopicAttributes:(AWSSNSGetTopicAttributesInput *)request
+         completionHandler:(void (^)(AWSSNSGetTopicAttributesResponse *response, NSError *error))completionHandler {
+    [[self getTopicAttributes:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSGetTopicAttributesResponse *> * _Nonnull task) {
+        AWSSNSGetTopicAttributesResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSListEndpointsByPlatformApplicationResponse *> *)listEndpointsByPlatformApplication:(AWSSNSListEndpointsByPlatformApplicationInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -378,7 +610,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSListEndpointsByPlatformApplicationResponse class]];
 }
 
-- (AWSTask *)listPlatformApplications:(AWSSNSListPlatformApplicationsInput *)request {
+- (void)listEndpointsByPlatformApplication:(AWSSNSListEndpointsByPlatformApplicationInput *)request
+                         completionHandler:(void (^)(AWSSNSListEndpointsByPlatformApplicationResponse *response, NSError *error))completionHandler {
+    [[self listEndpointsByPlatformApplication:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSListEndpointsByPlatformApplicationResponse *> * _Nonnull task) {
+        AWSSNSListEndpointsByPlatformApplicationResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSListPlatformApplicationsResponse *> *)listPlatformApplications:(AWSSNSListPlatformApplicationsInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -387,7 +638,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSListPlatformApplicationsResponse class]];
 }
 
-- (AWSTask *)listSubscriptions:(AWSSNSListSubscriptionsInput *)request {
+- (void)listPlatformApplications:(AWSSNSListPlatformApplicationsInput *)request
+               completionHandler:(void (^)(AWSSNSListPlatformApplicationsResponse *response, NSError *error))completionHandler {
+    [[self listPlatformApplications:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSListPlatformApplicationsResponse *> * _Nonnull task) {
+        AWSSNSListPlatformApplicationsResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSListSubscriptionsResponse *> *)listSubscriptions:(AWSSNSListSubscriptionsInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -396,7 +666,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSListSubscriptionsResponse class]];
 }
 
-- (AWSTask *)listSubscriptionsByTopic:(AWSSNSListSubscriptionsByTopicInput *)request {
+- (void)listSubscriptions:(AWSSNSListSubscriptionsInput *)request
+        completionHandler:(void (^)(AWSSNSListSubscriptionsResponse *response, NSError *error))completionHandler {
+    [[self listSubscriptions:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSListSubscriptionsResponse *> * _Nonnull task) {
+        AWSSNSListSubscriptionsResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSListSubscriptionsByTopicResponse *> *)listSubscriptionsByTopic:(AWSSNSListSubscriptionsByTopicInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -405,7 +694,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSListSubscriptionsByTopicResponse class]];
 }
 
-- (AWSTask *)listTopics:(AWSSNSListTopicsInput *)request {
+- (void)listSubscriptionsByTopic:(AWSSNSListSubscriptionsByTopicInput *)request
+               completionHandler:(void (^)(AWSSNSListSubscriptionsByTopicResponse *response, NSError *error))completionHandler {
+    [[self listSubscriptionsByTopic:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSListSubscriptionsByTopicResponse *> * _Nonnull task) {
+        AWSSNSListSubscriptionsByTopicResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSListTopicsResponse *> *)listTopics:(AWSSNSListTopicsInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -414,13 +722,51 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSNSListTopicsResponse class]];
 }
 
-- (AWSTask *)publish:(AWSSNSPublishInput *)request {
+- (void)listTopics:(AWSSNSListTopicsInput *)request
+ completionHandler:(void (^)(AWSSNSListTopicsResponse *response, NSError *error))completionHandler {
+    [[self listTopics:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSListTopicsResponse *> * _Nonnull task) {
+        AWSSNSListTopicsResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSPublishResponse *> *)publish:(AWSSNSPublishInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
                   targetPrefix:@""
                  operationName:@"Publish"
                    outputClass:[AWSSNSPublishResponse class]];
+}
+
+- (void)publish:(AWSSNSPublishInput *)request
+completionHandler:(void (^)(AWSSNSPublishResponse *response, NSError *error))completionHandler {
+    [[self publish:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSPublishResponse *> * _Nonnull task) {
+        AWSSNSPublishResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)removePermission:(AWSSNSRemovePermissionInput *)request {
@@ -432,6 +778,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
+- (void)removePermission:(AWSSNSRemovePermissionInput *)request
+       completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self removePermission:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)setEndpointAttributes:(AWSSNSSetEndpointAttributesInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -439,6 +803,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                   targetPrefix:@""
                  operationName:@"SetEndpointAttributes"
                    outputClass:nil];
+}
+
+- (void)setEndpointAttributes:(AWSSNSSetEndpointAttributesInput *)request
+            completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self setEndpointAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)setPlatformApplicationAttributes:(AWSSNSSetPlatformApplicationAttributesInput *)request {
@@ -450,6 +832,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
+- (void)setPlatformApplicationAttributes:(AWSSNSSetPlatformApplicationAttributesInput *)request
+                       completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self setPlatformApplicationAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)setSubscriptionAttributes:(AWSSNSSetSubscriptionAttributesInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -457,6 +857,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                   targetPrefix:@""
                  operationName:@"SetSubscriptionAttributes"
                    outputClass:nil];
+}
+
+- (void)setSubscriptionAttributes:(AWSSNSSetSubscriptionAttributesInput *)request
+                completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self setSubscriptionAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)setTopicAttributes:(AWSSNSSetTopicAttributesInput *)request {
@@ -468,13 +886,50 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
-- (AWSTask *)subscribe:(AWSSNSSubscribeInput *)request {
+- (void)setTopicAttributes:(AWSSNSSetTopicAttributesInput *)request
+         completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self setTopicAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSNSSubscribeResponse *> *)subscribe:(AWSSNSSubscribeInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
                   targetPrefix:@""
                  operationName:@"Subscribe"
                    outputClass:[AWSSNSSubscribeResponse class]];
+}
+
+- (void)subscribe:(AWSSNSSubscribeInput *)request
+completionHandler:(void (^)(AWSSNSSubscribeResponse *response, NSError *error))completionHandler {
+    [[self subscribe:request] continueWithBlock:^id _Nullable(AWSTask<AWSSNSSubscribeResponse *> * _Nonnull task) {
+        AWSSNSSubscribeResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)unsubscribe:(AWSSNSUnsubscribeInput *)request {
@@ -484,6 +939,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                   targetPrefix:@""
                  operationName:@"Unsubscribe"
                    outputClass:nil];
+}
+
+- (void)unsubscribe:(AWSSNSUnsubscribeInput *)request
+  completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self unsubscribe:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+        
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+        
+        if (completionHandler) {
+            completionHandler(error);
+        }
+        
+        return nil;
+    }];
 }
 
 @end

@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
@@ -115,22 +115,22 @@
     XCTAssertFalse(endpoint.useUnsafeURL);
 
     endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionUSWest2
-                                           service:AWSServiceCognitoIdentityBroker
+                                           service:AWSServiceCognitoIdentity
                                       useUnsafeURL:NO];
     XCTAssertEqual(endpoint.regionType, AWSRegionUSWest2);
     XCTAssertEqualObjects(endpoint.regionName, @"us-west-2");
-    XCTAssertEqual(endpoint.serviceType, AWSServiceCognitoIdentityBroker);
+    XCTAssertEqual(endpoint.serviceType, AWSServiceCognitoIdentity);
     XCTAssertEqualObjects(endpoint.serviceName, @"cognito-identity");
     XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://cognito-identity.us-west-2.amazonaws.com"]);
     XCTAssertEqualObjects(endpoint.hostName, @"cognito-identity.us-west-2.amazonaws.com");
     XCTAssertFalse(endpoint.useUnsafeURL);
 
     endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionEUWest1
-                                           service:AWSServiceCognitoService
+                                           service:AWSServiceCognitoSync
                                       useUnsafeURL:NO];
     XCTAssertEqual(endpoint.regionType, AWSRegionEUWest1);
     XCTAssertEqualObjects(endpoint.regionName, @"eu-west-1");
-    XCTAssertEqual(endpoint.serviceType, AWSServiceCognitoService);
+    XCTAssertEqual(endpoint.serviceType, AWSServiceCognitoSync);
     XCTAssertEqualObjects(endpoint.serviceName, @"cognito-sync");
     XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://cognito-sync.eu-west-1.amazonaws.com"]);
     XCTAssertEqualObjects(endpoint.hostName, @"cognito-sync.eu-west-1.amazonaws.com");
@@ -167,6 +167,17 @@
     XCTAssertEqualObjects(endpoint.serviceName, @"elasticloadbalancing");
     XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://elasticloadbalancing.ap-northeast-1.amazonaws.com"]);
     XCTAssertEqualObjects(endpoint.hostName, @"elasticloadbalancing.ap-northeast-1.amazonaws.com");
+    XCTAssertFalse(endpoint.useUnsafeURL);
+
+    endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionAPNortheast2
+                                           service:AWSServiceElasticLoadBalancing
+                                      useUnsafeURL:NO];
+    XCTAssertEqual(endpoint.regionType, AWSRegionAPNortheast2);
+    XCTAssertEqualObjects(endpoint.regionName, @"ap-northeast-2");
+    XCTAssertEqual(endpoint.serviceType, AWSServiceElasticLoadBalancing);
+    XCTAssertEqualObjects(endpoint.serviceName, @"elasticloadbalancing");
+    XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://elasticloadbalancing.ap-northeast-2.amazonaws.com"]);
+    XCTAssertEqualObjects(endpoint.hostName, @"elasticloadbalancing.ap-northeast-2.amazonaws.com");
     XCTAssertFalse(endpoint.useUnsafeURL);
 
     endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionAPSoutheast2
@@ -246,7 +257,7 @@
     XCTAssertEqualObjects(endpoint.hostName, @"sqs.us-east-1.amazonaws.com");
     XCTAssertFalse(endpoint.useUnsafeURL);
 
-    // Special cases
+    // ===== Special cases =====
     endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionUSEast1
                                            service:AWSServiceSTS
                                       useUnsafeURL:NO];
@@ -267,6 +278,17 @@
     XCTAssertEqualObjects(endpoint.serviceName, @"sts");
     XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://sts.cn-north-1.amazonaws.com.cn"]);
     XCTAssertEqualObjects(endpoint.hostName, @"sts.cn-north-1.amazonaws.com.cn");
+    XCTAssertFalse(endpoint.useUnsafeURL);
+
+    endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionUSGovWest1
+                                           service:AWSServiceSTS
+                                      useUnsafeURL:NO];
+    XCTAssertEqual(endpoint.regionType, AWSRegionUSGovWest1);
+    XCTAssertEqualObjects(endpoint.regionName, @"us-gov-west-1");
+    XCTAssertEqual(endpoint.serviceType, AWSServiceSTS);
+    XCTAssertEqualObjects(endpoint.serviceName, @"sts");
+    XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://sts.us-gov-west-1.amazonaws.com"]);
+    XCTAssertEqualObjects(endpoint.hostName, @"sts.us-gov-west-1.amazonaws.com");
     XCTAssertFalse(endpoint.useUnsafeURL);
 
     endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionUSEast1
@@ -324,16 +346,29 @@
     XCTAssertEqualObjects(endpoint.hostName, @"s3-us-west-2.amazonaws.com");
     XCTAssertTrue(endpoint.useUnsafeURL);
 
-    endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionUnknown
-                                           service:AWSServiceUnknown
+    endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionUSGovWest1
+                                           service:AWSServiceS3
                                       useUnsafeURL:NO];
-    XCTAssertEqual(endpoint.regionType, AWSRegionUnknown);
-    XCTAssertNil(endpoint.regionName);
-    XCTAssertEqual(endpoint.serviceType, AWSServiceUnknown);
-    XCTAssertNil(endpoint.serviceName);
-    XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://(null).(null).amazonaws.com"]);
-    XCTAssertEqualObjects(endpoint.hostName, @"(null).(null).amazonaws.com");
+    XCTAssertEqual(endpoint.regionType, AWSRegionUSGovWest1);
+    XCTAssertEqualObjects(endpoint.regionName, @"us-gov-west-1");
+    XCTAssertEqual(endpoint.serviceType, AWSServiceS3);
+    XCTAssertEqualObjects(endpoint.serviceName, @"s3");
+    XCTAssertEqualObjects(endpoint.URL, [NSURL URLWithString:@"https://s3-us-gov-west-1.amazonaws.com"]);
+    XCTAssertEqualObjects(endpoint.hostName, @"s3-us-gov-west-1.amazonaws.com");
     XCTAssertFalse(endpoint.useUnsafeURL);
+
+    __block BOOL didThrowException = NO;
+    @try {
+        endpoint = [[AWSEndpoint alloc] initWithRegion:AWSRegionUnknown
+                                               service:AWSServiceUnknown
+                                          useUnsafeURL:NO];
+    }
+    @catch (NSException *exception) {
+        didThrowException = YES;
+    }
+    @finally {
+        XCTAssertTrue(didThrowException);
+    }
 }
 
 - (void)testServiceManager {

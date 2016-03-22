@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import "AWSMachineLearning.h"
 
@@ -25,8 +25,6 @@
 #import "AWSURLRequestRetryHandler.h"
 #import "AWSSynchronizedMutableDictionary.h"
 #import "AWSMachineLearningResources.h"
-
-NSString *const AWSMachineLearningDefinitionFileName = @"machinelearning-2014-12-12";
 
 @interface AWSMachineLearningResponseSerializer : AWSJSONResponseSerializer
 
@@ -78,7 +76,15 @@ static NSDictionary *errorCodeDictionary = nil;
             }
             return responseObject;
         }
+    }
 
+    if (!*error && response.statusCode/100 != 2) {
+        *error = [NSError errorWithDomain:AWSMachineLearningErrorDomain
+                                     code:AWSMachineLearningErrorUnknown
+                                 userInfo:nil];
+    }
+
+    if (!*error && [responseObject isKindOfClass:[NSDictionary class]]) {
         if (self.outputClass) {
             responseObject = [AWSMTLJSONAdapter modelOfClass:self.outputClass
                                           fromJSONDictionary:responseObject
@@ -150,7 +156,9 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
 + (instancetype)defaultMachineLearning {
     if (![AWSServiceManager defaultServiceManager].defaultServiceConfiguration) {
-        return nil;
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"`defaultServiceConfiguration` is `nil`. You need to set it before using this method."
+                                     userInfo:nil];
     }
 
     static AWSMachineLearning *_defaultMachineLearning = nil;
@@ -200,11 +208,12 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                                                               service:AWSServiceMachineLearning
                                                          useUnsafeURL:NO];
 
-        AWSSignatureV4Signer *signer = [AWSSignatureV4Signer signerWithCredentialsProvider:_configuration.credentialsProvider
-                                                                                  endpoint:_configuration.endpoint];
+        AWSSignatureV4Signer *signer = [[AWSSignatureV4Signer alloc] initWithCredentialsProvider:_configuration.credentialsProvider
+                                                                                        endpoint:_configuration.endpoint];
+        AWSNetworkingRequestInterceptor *baseInterceptor = [[AWSNetworkingRequestInterceptor alloc] initWithUserAgent:_configuration.userAgent];
+        _configuration.requestInterceptors = @[baseInterceptor, signer];
 
         _configuration.baseURL = _configuration.endpoint.URL;
-        _configuration.requestInterceptors = @[[AWSNetworkingRequestInterceptor new], signer];
         _configuration.retryHandler = [[AWSMachineLearningRequestRetryHandler alloc] initWithMaximumRetryCount:_configuration.maxRetryCount];
         _configuration.headers = @{@"Content-Type" : @"application/x-amz-json-1.1"};
 
@@ -215,7 +224,7 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 }
 
 - (AWSTask *)invokeRequest:(AWSRequest *)request
-               HTTPMethod:(AWSHTTPMethod)HTTPMethod
+                HTTPMethod:(AWSHTTPMethod)HTTPMethod
                 URLString:(NSString *) URLString
              targetPrefix:(NSString *)targetPrefix
             operationName:(NSString *)operationName
@@ -249,7 +258,7 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
 #pragma mark - Service method
 
-- (AWSTask *)getMLModel:(AWSMachineLearningGetMLModelInput *)request {
+- (AWSTask<AWSMachineLearningGetMLModelOutput *> *)getMLModel:(AWSMachineLearningGetMLModelInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -258,13 +267,51 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSMachineLearningGetMLModelOutput class]];
 }
 
-- (AWSTask *)predict:(AWSMachineLearningPredictInput *)request {
+- (void)getMLModel:(AWSMachineLearningGetMLModelInput *)request
+ completionHandler:(void (^)(AWSMachineLearningGetMLModelOutput *response, NSError *error))completionHandler {
+    [[self getMLModel:request] continueWithBlock:^id _Nullable(AWSTask<AWSMachineLearningGetMLModelOutput *> * _Nonnull task) {
+        AWSMachineLearningGetMLModelOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSMachineLearningPredictOutput *> *)predict:(AWSMachineLearningPredictInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:request.predictEndpoint
                   targetPrefix:@"AmazonML_20141212"
                  operationName:@"Predict"
                    outputClass:[AWSMachineLearningPredictOutput class]];
+}
+
+- (void)predict:(AWSMachineLearningPredictInput *)request
+completionHandler:(void (^)(AWSMachineLearningPredictOutput *response, NSError *error))completionHandler {
+    [[self predict:request] continueWithBlock:^id _Nullable(AWSTask<AWSMachineLearningPredictOutput *> * _Nonnull task) {
+        AWSMachineLearningPredictOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+        
+        return nil;
+    }];
 }
 
 @end

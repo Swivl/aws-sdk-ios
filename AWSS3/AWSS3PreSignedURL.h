@@ -1,19 +1,30 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
+#import <AWSCore/AWSCore.h>
 
- http://aws.amazon.com/apache2.0
+NS_ASSUME_NONNULL_BEGIN
 
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+static NSString *const AWSS3PresignedURLVersionID = @"versionId";
+static NSString *const AWSS3PresignedURLTorrent = @"torrent";
 
-#import <AWSCore/AWSService.h>
+static NSString *const AWSS3PresignedURLServerSideEncryption = @"x-amz-server-side-encryption";
+static NSString *const AWSS3PresignedURLServerSideEncryptionCustomerAlgorithm = @"x-amz-server-side-encryption-customer-algorithm";
+static NSString *const AWSS3PresignedURLServerSideEncryptionCustomerKey = @"x-amz-server-side-encryption-customer-key";
+static NSString *const AWSS3PresignedURLServerSdieEncryptionCustomerKeyMD5 = @"x-amz-server-side-encryption-customer-key-MD5";
+
 
 FOUNDATION_EXPORT NSString *const AWSS3PresignedURLErrorDomain;
 typedef NS_ENUM(NSInteger, AWSS3PresignedURLErrorType) {
@@ -27,6 +38,8 @@ typedef NS_ENUM(NSInteger, AWSS3PresignedURLErrorType) {
     AWSS3PresignedURLErrorEndpointIsNil,
     AWSS3PresignedURLErrorInvalidServiceType,
     AWSS3PreSignedURLErrorCredentialProviderIsNil,
+    AWSS3PreSignedURLErrorInternalError,
+    AWSS3PresignedURLErrorInvalidRequestParameters
 };
 
 @class AWSS3GetPreSignedURLRequest;
@@ -120,7 +133,7 @@ typedef NS_ENUM(NSInteger, AWSS3PresignedURLErrorType) {
 + (void)registerS3PreSignedURLBuilderWithConfiguration:(AWSServiceConfiguration *)configuration forKey:(NSString *)key;
 
 /**
- Retrieves the service client associated with the key. You need to call `+ registerS3PreSignedURLBuilderWithConfiguration:forKey:` before invoking this method. If `+ registerS3PreSignedURLBuilderWithConfiguration:forKey:` has not been called in advance or the key does not exist, this method returns `nil`.
+ Retrieves the service client associated with the key. You need to call `+ registerS3PreSignedURLBuilderWithConfiguration:forKey:` before invoking this method.
 
  For example, set the default service configuration in `- application:didFinishLaunchingWithOptions:`
 
@@ -186,11 +199,10 @@ typedef NS_ENUM(NSInteger, AWSS3PresignedURLErrorType) {
  Build a time-limited pre-signed URL to get object from S3, return nil if build process failed.
 
  @param preSignedURLRequest The AWSS3PreSignedURLRequest that defines the parameters of the operation.
- @param query The query object that must be used in signing process.
  @return A pre-signed NSURL for the resource. return nil if any errors occured.
  @see AWSS3GetPreSignedURLRequest
  */
-- (AWSTask *)getPreSignedURL:(AWSS3GetPreSignedURLRequest *)getPreSignedURLRequest query:(NSString *)query;
+- (AWSTask<NSURL *> *)getPreSignedURL:(AWSS3GetPreSignedURLRequest *)getPreSignedURLRequest;
 
 @end
 
@@ -222,18 +234,43 @@ typedef NS_ENUM(NSInteger, AWSS3PresignedURLErrorType) {
 @property (nonatomic, strong) NSDate *expires;
 
 /**
- (Optional) AWSS3GetPreSignedURLRequest will automatically refresh temporary credential if expiration duration in less than minimumCredentialsExpirationInterval. Only applied for credential provider using temporary token (e.g. CognitoIdentityProvider). Default value is 3000 seconds.
+ AWSS3GetPreSignedURLRequest will automatically refresh temporary credential if expiration duration in less than minimumCredentialsExpirationInterval. Only applied for credential provider using temporary token (e.g. CognitoIdentityProvider). Default value is 3000 seconds.
  */
 @property (nonatomic, assign) NSTimeInterval minimumCredentialsExpirationInterval;
 
 /**
- (Optional) VersionId used in the pre signed URL. Default is nil.
+ Expected content-type of the request. If set, the content-type will be included in the signature and future requests must include the same content-type header value to access the presigned URL. This parameter is ignored unless AWSHTTPMethod is equal to AWSHTTPMethodPUT. Default is nil.
  */
-@property (nonatomic, strong) NSString *versionId;
+@property (nonatomic, strong) NSString * _Nullable contentType;
 
 /**
- (Optional) A standard MIME type describing the format of the object data. only apply when AWSHTTPMethod property is AWSHTTPMethodPUT.
+ Expected content-md5 header of the request. If set, this header value will be included when calculating the signature and future requests must include the same content-md5 header value to access the presigned URL. This parameter is ignored unless HTTPMethod is equal to AWSHTTPMethodPUT. Default is nil.
  */
-@property (nonatomic, strong) NSString *contentType;
+@property (nonatomic, strong) NSString * _Nullable contentMD5;
+
+/**
+ VersionId used in the pre signed URL. Default is nil.
+ 
+ @warning This method has been deprecated. Use `additionalParameters` to set versionId instead. If both has been set, this property will be overwritten by the value in `additionalParameters`.
+ 
+ @see additionalParameters
+ */
+@property (nonatomic, strong) NSString * _Nullable versionId __attribute__ ((deprecated("Use 'additionalParameters' instead to set versionId.")));
+
+/**
+ This NSDictionary can contains additional request parameters to be included in the pre-signed URL. Adding additional request parameters enables more advanced pre-signed URLs, such as accessing Amazon S3's torrent resource for an object, or for specifying a version ID when accessing an object. Default is emtpy.
+ */
+@property (nonatomic, readonly, strong) NSDictionary<NSString *, NSString *> *requestParameters;
+
+/**
+ Set an additional request parameter to be included in the pre-signed URL. Adding additional request parameters enables more advanced pre-signed URLs, such as accessing Amazon S3's torrent resource for an object, or for specifying a version ID when accessing an object.
+ 
+ @param value The value of the request parameter being added. Set to nil if parameter doesn't contains value.
+ @param requestParameter The name of the request parameter, as it appears in the URL's query string (e.g. AWSS3PresignedURLVersionID).
+
+ */
+- (void)setValue:(NSString * _Nullable)value forRequestParameter:(NSString *)requestParameter;
 
 @end
+
+NS_ASSUME_NONNULL_END

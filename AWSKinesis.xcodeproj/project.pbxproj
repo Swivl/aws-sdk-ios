@@ -33,6 +33,32 @@
 		BDF559E11AB376A50067F4F1 /* AWSKinesisRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = BDF559D91AB376A50067F4F1 /* AWSKinesisRecorder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BDF559E21AB376A50067F4F1 /* AWSKinesisRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = BDF559DA1AB376A50067F4F1 /* AWSKinesisRecorder.m */; };
 		CE14DF8D1B02DEBC00EF6D09 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CE14DF8C1B02DEBC00EF6D09 /* libsqlite3.dylib */; };
+		CE27CB5C1BF1885700B22AB3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE27CB5B1BF1885700B22AB3 /* UIKit.framework */; };
+		CE27CB5D1BF1885C00B22AB3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE27CB5B1BF1885700B22AB3 /* UIKit.framework */; };
+		CE2D37471C6E656700834EE7 /* AWSFirehose.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE3038231C3F37EF00008F26 /* AWSFirehose.h */; };
+		CE2D37481C6E656700834EE7 /* AWSFirehoseModel.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CEBA35371C24D4140003237B /* AWSFirehoseModel.h */; };
+		CE2D37491C6E656700834EE7 /* AWSFirehoseRecorder.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CEBA35391C24D4140003237B /* AWSFirehoseRecorder.h */; };
+		CE2D374A1C6E656700834EE7 /* AWSFirehoseService.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CEBA353D1C24D4140003237B /* AWSFirehoseService.h */; };
+		CE2EDE981BF3DF2F00B9F26B /* module.modulemap in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE6552361BEC363600DACBC2 /* module.modulemap */; };
+		CE3038241C3F37EF00008F26 /* AWSFirehose.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3038231C3F37EF00008F26 /* AWSFirehose.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CE6A6DB71C03E50F006F986B /* AWSAbstractKinesisRecorder.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CEDEC21A1BFD640100BE16EA /* AWSAbstractKinesisRecorder.h */; };
+		CEB3802B1C177F19008B520C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB3802A1C177F19008B520C /* SystemConfiguration.framework */; };
+		CEB380411C177FA3008B520C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB3802A1C177F19008B520C /* SystemConfiguration.framework */; };
+		CEB380611C1780A5008B520C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB380601C1780A5008B520C /* Security.framework */; };
+		CEB380621C1780A9008B520C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB380601C1780A5008B520C /* Security.framework */; };
+		CEBA353F1C24D4140003237B /* AWSFirehoseModel.h in Headers */ = {isa = PBXBuildFile; fileRef = CEBA35371C24D4140003237B /* AWSFirehoseModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CEBA35401C24D4140003237B /* AWSFirehoseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBA35381C24D4140003237B /* AWSFirehoseModel.m */; };
+		CEBA35411C24D4140003237B /* AWSFirehoseRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = CEBA35391C24D4140003237B /* AWSFirehoseRecorder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CEBA35421C24D4140003237B /* AWSFirehoseRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBA353A1C24D4140003237B /* AWSFirehoseRecorder.m */; };
+		CEBA35431C24D4140003237B /* AWSFirehoseResources.h in Headers */ = {isa = PBXBuildFile; fileRef = CEBA353B1C24D4140003237B /* AWSFirehoseResources.h */; };
+		CEBA35441C24D4140003237B /* AWSFirehoseResources.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBA353C1C24D4140003237B /* AWSFirehoseResources.m */; };
+		CEBA35451C24D4140003237B /* AWSFirehoseService.h in Headers */ = {isa = PBXBuildFile; fileRef = CEBA353D1C24D4140003237B /* AWSFirehoseService.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CEBA35461C24D4140003237B /* AWSFirehoseService.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBA353E1C24D4140003237B /* AWSFirehoseService.m */; };
+		CEBA354A1C24D4280003237B /* AWSFirehoseRecorderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBA35471C24D4280003237B /* AWSFirehoseRecorderTests.m */; };
+		CEBA354B1C24D4280003237B /* AWSFirehoseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBA35481C24D4280003237B /* AWSFirehoseTests.m */; };
+		CEBA354D1C24D4390003237B /* AWSGeneralFirehoseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBA35491C24D4280003237B /* AWSGeneralFirehoseTests.m */; };
+		CEDEC21C1BFD640100BE16EA /* AWSAbstractKinesisRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = CEDEC21A1BFD640100BE16EA /* AWSAbstractKinesisRecorder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CEDEC21D1BFD640100BE16EA /* AWSAbstractKinesisRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = CEDEC21B1BFD640100BE16EA /* AWSAbstractKinesisRecorder.m */; };
 		CEE532661B03D3B2002CED62 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CEE532651B03D3B2002CED62 /* libz.dylib */; };
 		CEE7DE711AC1E1AF0095C4B7 /* AWSKinesisService.h in Headers */ = {isa = PBXBuildFile; fileRef = CEE7DE701AC1E1AF0095C4B7 /* AWSKinesisService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
@@ -61,10 +87,25 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				CE2D37471C6E656700834EE7 /* AWSFirehose.h in CopyFiles */,
+				CE2D37481C6E656700834EE7 /* AWSFirehoseModel.h in CopyFiles */,
+				CE2D37491C6E656700834EE7 /* AWSFirehoseRecorder.h in CopyFiles */,
+				CE2D374A1C6E656700834EE7 /* AWSFirehoseService.h in CopyFiles */,
+				CE6A6DB71C03E50F006F986B /* AWSAbstractKinesisRecorder.h in CopyFiles */,
 				BD9D97621AC1EEAE00CEEE08 /* AWSKinesisService.h in CopyFiles */,
 				BDC91C4D1ABBA0C600F74D49 /* AWSKinesis.h in CopyFiles */,
 				BDC91C4E1ABBA0C600F74D49 /* AWSKinesisModel.h in CopyFiles */,
 				BDC91C4F1ABBA0C600F74D49 /* AWSKinesisRecorder.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE2EDE971BF3DF2900B9F26B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "modules/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				CE2EDE981BF3DF2F00B9F26B /* module.modulemap in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,12 +127,30 @@
 		BDF559C41AB376720067F4F1 /* AWSKinesisTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AWSKinesisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDF559CA1AB376720067F4F1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../AWSKinesisTests/Info.plist; sourceTree = "<group>"; };
 		BDF559D51AB376A50067F4F1 /* AWSKinesis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSKinesis.h; sourceTree = "<group>"; };
-		BDF559D61AB376A50067F4F1 /* AWSKinesisService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSKinesisService.m; sourceTree = "<group>"; };
+		BDF559D61AB376A50067F4F1 /* AWSKinesisService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AWSKinesisService.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BDF559D71AB376A50067F4F1 /* AWSKinesisModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSKinesisModel.h; sourceTree = "<group>"; };
 		BDF559D81AB376A50067F4F1 /* AWSKinesisModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSKinesisModel.m; sourceTree = "<group>"; };
 		BDF559D91AB376A50067F4F1 /* AWSKinesisRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AWSKinesisRecorder.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		BDF559DA1AB376A50067F4F1 /* AWSKinesisRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSKinesisRecorder.m; sourceTree = "<group>"; };
+		BDF559DA1AB376A50067F4F1 /* AWSKinesisRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AWSKinesisRecorder.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		CE14DF8C1B02DEBC00EF6D09 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		CE27CB5B1BF1885700B22AB3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		CE3038231C3F37EF00008F26 /* AWSFirehose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSFirehose.h; sourceTree = "<group>"; };
+		CE6552361BEC363600DACBC2 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		CEB3802A1C177F19008B520C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		CEB380601C1780A5008B520C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		CEBA35371C24D4140003237B /* AWSFirehoseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSFirehoseModel.h; sourceTree = "<group>"; };
+		CEBA35381C24D4140003237B /* AWSFirehoseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSFirehoseModel.m; sourceTree = "<group>"; };
+		CEBA35391C24D4140003237B /* AWSFirehoseRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSFirehoseRecorder.h; sourceTree = "<group>"; };
+		CEBA353A1C24D4140003237B /* AWSFirehoseRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSFirehoseRecorder.m; sourceTree = "<group>"; };
+		CEBA353B1C24D4140003237B /* AWSFirehoseResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSFirehoseResources.h; sourceTree = "<group>"; };
+		CEBA353C1C24D4140003237B /* AWSFirehoseResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSFirehoseResources.m; sourceTree = "<group>"; };
+		CEBA353D1C24D4140003237B /* AWSFirehoseService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSFirehoseService.h; sourceTree = "<group>"; };
+		CEBA353E1C24D4140003237B /* AWSFirehoseService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSFirehoseService.m; sourceTree = "<group>"; };
+		CEBA35471C24D4280003237B /* AWSFirehoseRecorderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSFirehoseRecorderTests.m; sourceTree = "<group>"; };
+		CEBA35481C24D4280003237B /* AWSFirehoseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSFirehoseTests.m; sourceTree = "<group>"; };
+		CEBA35491C24D4280003237B /* AWSGeneralFirehoseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSGeneralFirehoseTests.m; sourceTree = "<group>"; };
+		CEDEC21A1BFD640100BE16EA /* AWSAbstractKinesisRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSAbstractKinesisRecorder.h; sourceTree = "<group>"; };
+		CEDEC21B1BFD640100BE16EA /* AWSAbstractKinesisRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSAbstractKinesisRecorder.m; sourceTree = "<group>"; };
 		CEE532651B03D3B2002CED62 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		CEE7DE701AC1E1AF0095C4B7 /* AWSKinesisService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSKinesisService.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -101,6 +160,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEB380621C1780A9008B520C /* Security.framework in Frameworks */,
+				CEB3802B1C177F19008B520C /* SystemConfiguration.framework in Frameworks */,
+				CE27CB5D1BF1885C00B22AB3 /* UIKit.framework in Frameworks */,
 				BDD876AA1B4B52E3009268C7 /* libOCMock.a in Frameworks */,
 				BDF125C91B45C1D000DFBFEC /* libz.dylib in Frameworks */,
 				BDF125CA1B45C1D000DFBFEC /* libsqlite3.dylib in Frameworks */,
@@ -120,6 +182,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEB380611C1780A5008B520C /* Security.framework in Frameworks */,
+				CEB380411C177FA3008B520C /* SystemConfiguration.framework in Frameworks */,
+				CE27CB5C1BF1885700B22AB3 /* UIKit.framework in Frameworks */,
 				CEE532661B03D3B2002CED62 /* libz.dylib in Frameworks */,
 				CE14DF8D1B02DEBC00EF6D09 /* libsqlite3.dylib in Frameworks */,
 				BD00FF431AB8B6DA004496EF /* libAWSCore.a in Frameworks */,
@@ -135,8 +200,8 @@
 			children = (
 				BDF559BB1AB376720067F4F1 /* AWSKinesis */,
 				BDF559C81AB376720067F4F1 /* AWSKinesisTests */,
-				BDF559BA1AB376720067F4F1 /* Products */,
 				D34BD40ED7327D8616BDFE58 /* Frameworks */,
+				BDF559BA1AB376720067F4F1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -153,15 +218,27 @@
 		BDF559BB1AB376720067F4F1 /* AWSKinesis */ = {
 			isa = PBXGroup;
 			children = (
+				CEDEC21A1BFD640100BE16EA /* AWSAbstractKinesisRecorder.h */,
+				CEDEC21B1BFD640100BE16EA /* AWSAbstractKinesisRecorder.m */,
+				CE3038231C3F37EF00008F26 /* AWSFirehose.h */,
+				CEBA35371C24D4140003237B /* AWSFirehoseModel.h */,
+				CEBA35381C24D4140003237B /* AWSFirehoseModel.m */,
+				CEBA35391C24D4140003237B /* AWSFirehoseRecorder.h */,
+				CEBA353A1C24D4140003237B /* AWSFirehoseRecorder.m */,
+				CEBA353B1C24D4140003237B /* AWSFirehoseResources.h */,
+				CEBA353C1C24D4140003237B /* AWSFirehoseResources.m */,
+				CEBA353D1C24D4140003237B /* AWSFirehoseService.h */,
+				CEBA353E1C24D4140003237B /* AWSFirehoseService.m */,
 				BDF559D51AB376A50067F4F1 /* AWSKinesis.h */,
 				BDF559D71AB376A50067F4F1 /* AWSKinesisModel.h */,
 				BDF559D81AB376A50067F4F1 /* AWSKinesisModel.m */,
 				BDF559D91AB376A50067F4F1 /* AWSKinesisRecorder.h */,
 				BDF559DA1AB376A50067F4F1 /* AWSKinesisRecorder.m */,
-				CEE7DE701AC1E1AF0095C4B7 /* AWSKinesisService.h */,
-				BDF559D61AB376A50067F4F1 /* AWSKinesisService.m */,
 				BDB73D791B1D3EFC00717559 /* AWSKinesisResources.h */,
 				BDB73D7A1B1D3EFC00717559 /* AWSKinesisResources.m */,
+				CEE7DE701AC1E1AF0095C4B7 /* AWSKinesisService.h */,
+				BDF559D61AB376A50067F4F1 /* AWSKinesisService.m */,
+				CE6552361BEC363600DACBC2 /* module.modulemap */,
 			);
 			path = AWSKinesis;
 			sourceTree = "<group>";
@@ -169,6 +246,9 @@
 		BDF559C81AB376720067F4F1 /* AWSKinesisTests */ = {
 			isa = PBXGroup;
 			children = (
+				CEBA35471C24D4280003237B /* AWSFirehoseRecorderTests.m */,
+				CEBA35481C24D4280003237B /* AWSFirehoseTests.m */,
+				CEBA35491C24D4280003237B /* AWSGeneralFirehoseTests.m */,
 				BD00FFEE1AB8C437004496EF /* AWSGeneralKinesisTests.m */,
 				BD00FFEF1AB8C437004496EF /* AWSKinesisRecorderTests.m */,
 				BD00FFF01AB8C437004496EF /* AWSKinesisTests.m */,
@@ -191,6 +271,9 @@
 		D34BD40ED7327D8616BDFE58 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CEB380601C1780A5008B520C /* Security.framework */,
+				CEB3802A1C177F19008B520C /* SystemConfiguration.framework */,
+				CE27CB5B1BF1885700B22AB3 /* UIKit.framework */,
 				BDD876A91B4B52E3009268C7 /* libOCMock.a */,
 				CEE532651B03D3B2002CED62 /* libz.dylib */,
 				CE14DF8C1B02DEBC00EF6D09 /* libsqlite3.dylib */,
@@ -209,8 +292,14 @@
 				BDF559E11AB376A50067F4F1 /* AWSKinesisRecorder.h in Headers */,
 				BDF559DF1AB376A50067F4F1 /* AWSKinesisModel.h in Headers */,
 				BDF559DD1AB376A50067F4F1 /* AWSKinesis.h in Headers */,
+				CEBA35411C24D4140003237B /* AWSFirehoseRecorder.h in Headers */,
+				CEBA353F1C24D4140003237B /* AWSFirehoseModel.h in Headers */,
+				CEBA35451C24D4140003237B /* AWSFirehoseService.h in Headers */,
 				CEE7DE711AC1E1AF0095C4B7 /* AWSKinesisService.h in Headers */,
 				BDB73D7B1B1D3EFC00717559 /* AWSKinesisResources.h in Headers */,
+				CE3038241C3F37EF00008F26 /* AWSFirehose.h in Headers */,
+				CEBA35431C24D4140003237B /* AWSFirehoseResources.h in Headers */,
+				CEDEC21C1BFD640100BE16EA /* AWSAbstractKinesisRecorder.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +332,7 @@
 				BDF559B61AB376720067F4F1 /* Frameworks */,
 				BDF559B71AB376720067F4F1 /* CopyFiles */,
 				BDF559D31AB3769A0067F4F1 /* Headers */,
+				CE2EDE971BF3DF2900B9F26B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -277,7 +367,7 @@
 		BDF559B11AB376720067F4F1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0620;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Amazon Web Services";
 				TargetAttributes = {
 					BDF559B81AB376720067F4F1 = {
@@ -330,6 +420,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEBA354D1C24D4390003237B /* AWSGeneralFirehoseTests.m in Sources */,
 				BDF125C61B45C1D000DFBFEC /* AWSTestUtility.m in Sources */,
 				BDF125C71B45C1D000DFBFEC /* AWSGeneralKinesisTests.m in Sources */,
 			);
@@ -339,9 +430,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEDEC21D1BFD640100BE16EA /* AWSAbstractKinesisRecorder.m in Sources */,
 				BDB73D7C1B1D3EFC00717559 /* AWSKinesisResources.m in Sources */,
 				BDF559E21AB376A50067F4F1 /* AWSKinesisRecorder.m in Sources */,
+				CEBA35421C24D4140003237B /* AWSFirehoseRecorder.m in Sources */,
+				CEBA35461C24D4140003237B /* AWSFirehoseService.m in Sources */,
+				CEBA35441C24D4140003237B /* AWSFirehoseResources.m in Sources */,
 				BDF559E01AB376A50067F4F1 /* AWSKinesisModel.m in Sources */,
+				CEBA35401C24D4140003237B /* AWSFirehoseModel.m in Sources */,
 				BDF559DE1AB376A50067F4F1 /* AWSKinesisService.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -350,8 +446,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEBA354B1C24D4280003237B /* AWSFirehoseTests.m in Sources */,
 				BD00FFF21AB8C437004496EF /* AWSKinesisRecorderTests.m in Sources */,
 				BDF126941B45CF4700DFBFEC /* AWSKinesisTests.m in Sources */,
+				CEBA354A1C24D4280003237B /* AWSFirehoseRecorderTests.m in Sources */,
 				BD00005B1AB8E19E004496EF /* AWSTestUtility.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -375,10 +473,7 @@
 		BDF125D01B45C1D000DFBFEC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -398,6 +493,7 @@
 					"-force_load",
 					"$(PROJECT_DIR)/AWSCoreTests/OCMock/libOCMock.a",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSKinesisUnitTests;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include/** $(PROJECT_DIR)/AWSCoreTests/OCMock";
 			};
@@ -406,10 +502,7 @@
 		BDF125D11B45C1D000DFBFEC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = AWSKinesisTests/Info.plist;
@@ -425,6 +518,7 @@
 					"-force_load",
 					"$(PROJECT_DIR)/AWSCoreTests/OCMock/libOCMock.a",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSKinesisUnitTests;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include/** $(PROJECT_DIR)/AWSCoreTests/OCMock";
 			};
@@ -440,7 +534,8 @@
 				);
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -453,6 +548,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -485,7 +581,8 @@
 				);
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -517,38 +614,49 @@
 		BDF559CE1AB376720067F4F1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				DEAD_CODE_STRIPPING = NO;
+				DEFINES_MODULE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"${SRCROOT}/Pods/Headers/**",
 				);
+				MODULEMAP_FILE = "$(PRODUCT_NAME:c99extidentifier)/module.modulemap";
+				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = AWSKinesis;
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 			};
 			name = Debug;
 		};
 		BDF559CF1AB376720067F4F1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				DEAD_CODE_STRIPPING = NO;
+				DEFINES_MODULE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"${SRCROOT}/Pods/Headers/**",
 				);
+				MODULEMAP_FILE = "$(PRODUCT_NAME:c99extidentifier)/module.modulemap";
+				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = AWSKinesis;
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 			};
 			name = Release;
 		};
 		BDF559D11AB376720067F4F1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -558,6 +666,7 @@
 				INFOPLIST_FILE = AWSKinesisTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(SYMROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSKinesisTests;
 			};
 			name = Debug;
@@ -565,15 +674,13 @@
 		BDF559D21AB376720067F4F1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = AWSKinesisTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(SYMROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSKinesisTests;
 			};
 			name = Release;

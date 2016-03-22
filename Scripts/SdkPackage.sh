@@ -3,7 +3,7 @@ set -u
 
 # Helper function to exit on nonzero code
 function exitOnFailureCode() {
-    if [ $1 -ne 0 ] 
+    if [ $1 -ne 0 ]
     then
     	echo "Error occurred, abort"
         exit $1
@@ -20,6 +20,9 @@ if [ $# -eq 0 ]
 fi
 
 project_name=$1
+#set the project_path if $2 exists, if not, assign it to "."
+project_path=${2-.}
+echo "Project name: ${project_name}, Project Path: ${project_path}"
 
 # Define these to suit your nefarious purposes
 CURR_DIR=$(PWD)
@@ -44,8 +47,9 @@ fi
 # Build .a files
 xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" \
 	ONLY_ACTIVE_ARCH=NO \
+	OTHER_CFLAGS="-fembed-bitcode" \
 	-configuration Debug \
-    -project "${project_name}.xcodeproj" \
+    -project "${project_path}/${project_name}.xcodeproj" \
     -target "${project_name}" \
     -sdk iphonesimulator \
     SYMROOT=$(PWD)/builtFramework \
@@ -55,8 +59,9 @@ exitOnFailureCode $?
 
 xcodebuild ARCHS="armv7 armv7s arm64 i386 x86_64" \
 	ONLY_ACTIVE_ARCH=NO \
+	OTHER_CFLAGS="-fembed-bitcode" \
 	-configuration Release \
-    -project "${project_name}.xcodeproj" \
+    -project "${project_path}/${project_name}.xcodeproj" \
     -target "${project_name}" \
     -sdk iphoneos \
     SYMROOT=$(PWD)/builtFramework \
@@ -77,13 +82,13 @@ echo "Framework: Setting up directories..."
 mkdir -p $FRAMEWORK_DIR
 mkdir -p $FRAMEWORK_DIR/Versions
 mkdir -p $FRAMEWORK_DIR/Versions/$FRAMEWORK_VERSION
-mkdir -p $FRAMEWORK_DIR/Versions/$FRAMEWORK_VERSION/Resources
+mkdir -p $FRAMEWORK_DIR/Versions/$FRAMEWORK_VERSION/Modules
 mkdir -p $FRAMEWORK_DIR/Versions/$FRAMEWORK_VERSION/Headers
 
 echo "Framework: Creating symlinks..."
 ln -s $FRAMEWORK_VERSION $FRAMEWORK_DIR/Versions/Current
 ln -s Versions/Current/Headers $FRAMEWORK_DIR/Headers
-ln -s Versions/Current/Resources $FRAMEWORK_DIR/Resources
+ln -s Versions/Current/Modules $FRAMEWORK_DIR/Modules
 ln -s Versions/Current/$FRAMEWORK_NAME $FRAMEWORK_DIR/$FRAMEWORK_NAME
 
 # The trick for creating a fully usable library is
@@ -109,8 +114,7 @@ echo "Framework: Copying public headers into current version..."
 cp -a builtFramework/Release-iphoneos/include/${project_name}/*.h $FRAMEWORK_DIR/Headers/
 exitOnFailureCode $?
 
-# copy service definition json files
-echo "Copying service definition files into current build directory..."
-mkdir -p 'builtFramework/service-definitions'
-find . -name "*.json" -not -path "./*Tests/*" -not -path './builtFramework/*' -exec cp {} 'builtFramework/service-definitions/' \;
+echo "Framework: Copying the module map into current version..."
+#those headers are declared in xcode's building phase: Headers
+cp -a builtFramework/Release-iphoneos/modules/${project_name}/module.modulemap $FRAMEWORK_DIR/Modules/
 exitOnFailureCode $?

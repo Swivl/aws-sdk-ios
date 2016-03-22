@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
@@ -49,7 +49,7 @@
     AWSCloudWatch *cloudWatch = [AWSCloudWatch defaultCloudWatch];
     XCTAssertNotNil(cloudWatch);
 
-    [[[cloudWatch listMetrics:nil] continueWithBlock:^id(AWSTask *task) {
+    [[[cloudWatch listMetrics:[AWSCloudWatchListMetricsInput new]] continueWithBlock:^id(AWSTask *task) {
         if (task.error) {
             XCTFail(@"Error: [%@]", task.error);
         }
@@ -69,7 +69,7 @@
 - (void)testListMetrics {
     AWSCloudWatch *cloudWatch = [AWSCloudWatch defaultCloudWatch];
 
-    [[[cloudWatch listMetrics:nil] continueWithBlock:^id(AWSTask *task) {
+    [[[cloudWatch listMetrics:[AWSCloudWatchListMetricsInput new]] continueWithBlock:^id(AWSTask *task) {
         if (task.error) {
             XCTFail(@"Error: [%@]", task.error);
         }
@@ -96,7 +96,7 @@
         AWSCloudWatchDescribeAlarmHistoryOutput *output = task.result;
         XCTAssertTrue([output isKindOfClass:[AWSCloudWatchDescribeAlarmHistoryOutput class]]);
         NSArray *items = output.alarmHistoryItems;
-        XCTAssertTrue(items.count > 0);
+        XCTAssertTrue([items isKindOfClass:[NSArray class]]);
         
         return nil;
     }] waitUntilFinished];

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = 'AWSS3'
-  s.version      = '2.2.2.BT'
+  s.version      = '2.3.6.BT'
   s.summary      = 'Amazon Web Services SDK for iOS.'
 
   s.description  = 'The AWS SDK for iOS provides a library, code samples, and documentation for developers to build connected mobile applications using AWS.'
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
  # TODO: find a way to setup source for dependency pod
- #s.dependency 'AWSCore'
+ #s.dependency 'AWSCore', '2.3.6'
 
   s.source_files = 'AWSS3/*.{h,m}'
 end

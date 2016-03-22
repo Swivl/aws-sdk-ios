@@ -11,7 +11,6 @@
 		BD00004C1AB8E12D004496EF /* AWSTestUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = BD00004B1AB8E12D004496EF /* AWSTestUtility.m */; };
 		BD00FF391AB8B69F004496EF /* libAWSCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD00FF381AB8B69F004496EF /* libAWSCore.a */; };
 		BD00FFD91AB8C3FE004496EF /* AWSSQSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BD00FFD71AB8C3FE004496EF /* AWSSQSTests.m */; };
-		BD3464871ADDB5D3000C5A95 /* AWSSQSClockSkewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3464861ADDB5D3000C5A95 /* AWSSQSClockSkewTests.m */; };
 		BD9D97671AC1EEF100CEEE08 /* AWSSQSService.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CEE7DE781AC1E23F0095C4B7 /* AWSSQSService.h */; };
 		BDB5DEFA1AB37849002DD224 /* libAWSSQS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDB5DEEE1AB37849002DD224 /* libAWSSQS.a */; };
 		BDB5DF0F1AB3786A002DD224 /* AWSSQS.h in Headers */ = {isa = PBXBuildFile; fileRef = BDB5DF091AB3786A002DD224 /* AWSSQS.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -28,6 +27,13 @@
 		BDF126601B45C36100DFBFEC /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CEE532691B03D3BE002CED62 /* libz.dylib */; };
 		BDF126611B45C36100DFBFEC /* libAWSCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD00FF381AB8B69F004496EF /* libAWSCore.a */; };
 		BDF126621B45C36100DFBFEC /* libAWSSQS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDB5DEEE1AB37849002DD224 /* libAWSSQS.a */; };
+		CE27CB751BF1933000B22AB3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE27CB741BF1933000B22AB3 /* UIKit.framework */; };
+		CE27CB761BF1933400B22AB3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE27CB741BF1933000B22AB3 /* UIKit.framework */; };
+		CE2EDEA91BF3DFA100B9F26B /* module.modulemap in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE6552461BEC36C900DACBC2 /* module.modulemap */; };
+		CEB380391C177F58008B520C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB380381C177F58008B520C /* SystemConfiguration.framework */; };
+		CEB3803A1C177F6F008B520C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB380381C177F58008B520C /* SystemConfiguration.framework */; };
+		CEB3804B1C178053008B520C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB3804A1C178053008B520C /* Security.framework */; };
+		CEB3804C1C178057008B520C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB3804A1C178053008B520C /* Security.framework */; };
 		CEE5326A1B03D3BE002CED62 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CEE532691B03D3BE002CED62 /* libz.dylib */; };
 		CEE7DE791AC1E23F0095C4B7 /* AWSSQSService.h in Headers */ = {isa = PBXBuildFile; fileRef = CEE7DE781AC1E23F0095C4B7 /* AWSSQSService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
@@ -62,6 +68,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE2EDEA81BF3DF9B00B9F26B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "modules/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				CE2EDEA91BF3DFA100B9F26B /* module.modulemap in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -71,18 +87,21 @@
 		BD00FF381AB8B69F004496EF /* libAWSCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAWSCore.a; path = "build/Debug-iphoneos/libAWSCore.a"; sourceTree = "<group>"; };
 		BD00FFD61AB8C3FE004496EF /* AWSGeneralSQSTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSGeneralSQSTests.m; sourceTree = "<group>"; };
 		BD00FFD71AB8C3FE004496EF /* AWSSQSTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSSQSTests.m; sourceTree = "<group>"; };
-		BD3464861ADDB5D3000C5A95 /* AWSSQSClockSkewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSSQSClockSkewTests.m; sourceTree = "<group>"; };
 		BDB5DEEE1AB37849002DD224 /* libAWSSQS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAWSSQS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDB5DEF91AB37849002DD224 /* AWSSQSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AWSSQSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDB5DEFF1AB37849002DD224 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BDB5DF091AB3786A002DD224 /* AWSSQS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSSQS.h; sourceTree = "<group>"; };
-		BDB5DF0A1AB3786A002DD224 /* AWSSQSService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSSQSService.m; sourceTree = "<group>"; };
+		BDB5DF0A1AB3786A002DD224 /* AWSSQSService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AWSSQSService.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BDB5DF0B1AB3786A002DD224 /* AWSSQSModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSSQSModel.h; sourceTree = "<group>"; };
 		BDB5DF0C1AB3786A002DD224 /* AWSSQSModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSSQSModel.m; sourceTree = "<group>"; };
 		BDB73D951B1D3FF100717559 /* AWSSQSResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSSQSResources.h; sourceTree = "<group>"; };
 		BDB73D961B1D3FF100717559 /* AWSSQSResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSSQSResources.m; sourceTree = "<group>"; };
 		BDD876B91B4B5370009268C7 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOCMock.a; path = AWSCoreTests/OCMock/libOCMock.a; sourceTree = "<group>"; };
 		BDF126681B45C36100DFBFEC /* AWSSQSUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AWSSQSUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE27CB741BF1933000B22AB3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		CE6552461BEC36C900DACBC2 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		CEB380381C177F58008B520C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		CEB3804A1C178053008B520C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		CEE532691B03D3BE002CED62 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		CEE7DE781AC1E23F0095C4B7 /* AWSSQSService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSSQSService.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -99,6 +118,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEB3804B1C178053008B520C /* Security.framework in Frameworks */,
+				CEB3803A1C177F6F008B520C /* SystemConfiguration.framework in Frameworks */,
+				CE27CB751BF1933000B22AB3 /* UIKit.framework in Frameworks */,
 				CEE5326A1B03D3BE002CED62 /* libz.dylib in Frameworks */,
 				BD00FF391AB8B69F004496EF /* libAWSCore.a in Frameworks */,
 				BDB5DEFA1AB37849002DD224 /* libAWSSQS.a in Frameworks */,
@@ -109,6 +131,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEB3804C1C178057008B520C /* Security.framework in Frameworks */,
+				CEB380391C177F58008B520C /* SystemConfiguration.framework in Frameworks */,
+				CE27CB761BF1933400B22AB3 /* UIKit.framework in Frameworks */,
 				BDD876BA1B4B5370009268C7 /* libOCMock.a in Frameworks */,
 				BDF126601B45C36100DFBFEC /* libz.dylib in Frameworks */,
 				BDF126611B45C36100DFBFEC /* libAWSCore.a in Frameworks */,
@@ -122,6 +147,9 @@
 		9CB08B3BEE06127D4F608086 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CEB3804A1C178053008B520C /* Security.framework */,
+				CEB380381C177F58008B520C /* SystemConfiguration.framework */,
+				CE27CB741BF1933000B22AB3 /* UIKit.framework */,
 				BDD876B91B4B5370009268C7 /* libOCMock.a */,
 				CEE532691B03D3BE002CED62 /* libz.dylib */,
 				BD00FF381AB8B69F004496EF /* libAWSCore.a */,
@@ -152,6 +180,7 @@
 		BDB5DEF01AB37849002DD224 /* AWSSQS */ = {
 			isa = PBXGroup;
 			children = (
+				CE6552461BEC36C900DACBC2 /* module.modulemap */,
 				BDB5DF091AB3786A002DD224 /* AWSSQS.h */,
 				BDB5DF0B1AB3786A002DD224 /* AWSSQSModel.h */,
 				BDB5DF0C1AB3786A002DD224 /* AWSSQSModel.m */,
@@ -167,7 +196,6 @@
 			isa = PBXGroup;
 			children = (
 				BD00FFD61AB8C3FE004496EF /* AWSGeneralSQSTests.m */,
-				BD3464861ADDB5D3000C5A95 /* AWSSQSClockSkewTests.m */,
 				BD00FFD71AB8C3FE004496EF /* AWSSQSTests.m */,
 				BDB5DEFE1AB37849002DD224 /* Supporting Files */,
 			);
@@ -210,6 +238,7 @@
 				BDB5DEEB1AB37849002DD224 /* Frameworks */,
 				BDB5DEEC1AB37849002DD224 /* CopyFiles */,
 				BDB5DF081AB37863002DD224 /* Headers */,
+				CE2EDEA81BF3DF9B00B9F26B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -262,7 +291,7 @@
 		BDB5DEE61AB37849002DD224 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0620;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Amazon Web Services";
 				TargetAttributes = {
 					BDB5DEED1AB37849002DD224 = {
@@ -325,7 +354,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD3464871ADDB5D3000C5A95 /* AWSSQSClockSkewTests.m in Sources */,
 				BD00004C1AB8E12D004496EF /* AWSTestUtility.m in Sources */,
 				BD00FFD91AB8C3FE004496EF /* AWSSQSTests.m in Sources */,
 			);
@@ -366,7 +394,8 @@
 				);
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -379,6 +408,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -411,7 +441,8 @@
 				);
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -443,38 +474,49 @@
 		BDB5DF031AB37849002DD224 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				DEAD_CODE_STRIPPING = NO;
+				DEFINES_MODULE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"${SRCROOT}/Pods/Headers/**",
 				);
+				MODULEMAP_FILE = "$(PRODUCT_NAME:c99extidentifier)/module.modulemap";
+				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = AWSSQS;
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 			};
 			name = Debug;
 		};
 		BDB5DF041AB37849002DD224 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = NO;
+				DEAD_CODE_STRIPPING = NO;
+				DEFINES_MODULE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"${SRCROOT}/Pods/Headers/**",
 				);
+				MODULEMAP_FILE = "$(PRODUCT_NAME:c99extidentifier)/module.modulemap";
+				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = AWSSQS;
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 			};
 			name = Release;
 		};
 		BDB5DF061AB37849002DD224 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -484,6 +526,7 @@
 				INFOPLIST_FILE = AWSSQSTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(SYMROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSSQSTests;
 			};
 			name = Debug;
@@ -491,15 +534,13 @@
 		BDB5DF071AB37849002DD224 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = AWSSQSTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(SYMROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSSQSTests;
 			};
 			name = Release;
@@ -507,10 +548,7 @@
 		BDF126661B45C36100DFBFEC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -530,6 +568,7 @@
 					"-force_load",
 					"$(PROJECT_DIR)/AWSCoreTests/OCMock/libOCMock.a",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSSQSUnitTests;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include/** $(PROJECT_DIR)/AWSCoreTests/OCMock";
 			};
@@ -538,10 +577,7 @@
 		BDF126671B45C36100DFBFEC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = AWSSQSTests/Info.plist;
@@ -557,6 +593,7 @@
 					"-force_load",
 					"$(PROJECT_DIR)/AWSCoreTests/OCMock/libOCMock.a",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.amazonaws.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AWSSQSUnitTests;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/include/** $(PROJECT_DIR)/AWSCoreTests/OCMock";
 			};

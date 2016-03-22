@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <XCTest/XCTest.h>
 #import "AWSDynamoDB.h"
@@ -72,7 +72,7 @@ static NSString *table2Name = nil;
                 }
             }
 
-            sleep(15);
+            sleep(5);
 
             AWSDynamoDBDescribeTableInput *describeTableInput = [AWSDynamoDBDescribeTableInput new];
             describeTableInput.tableName = tableName;
@@ -89,7 +89,7 @@ static NSString *table2Name = nil;
     AWSTask *task = [AWSTask taskWithResult:nil];
     for(int32_t i = 0; i < 16; i ++) {
         task = [task continueWithSuccessBlock:^id(AWSTask *task) {
-            sleep(15);
+            sleep(5);
 
             AWSDynamoDBDescribeTableInput *describeTableInput = [AWSDynamoDBDescribeTableInput new];
             describeTableInput.tableName = tableName;
@@ -768,6 +768,7 @@ static NSString *table2Name = nil;
 
     AWSDynamoDBBatchWriteItemInput *batchWriteItemInput = [AWSDynamoDBBatchWriteItemInput new];
     batchWriteItemInput.requestItems = @{table1Name: @[writeRequest,writeRequest2]};
+    batchWriteItemInput.returnConsumedCapacity = AWSDynamoDBReturnConsumedCapacityTotal;
 
     [[[dynamoDB batchWriteItem:batchWriteItemInput
        ] continueWithBlock:^id(AWSTask *task) {
@@ -776,8 +777,8 @@ static NSString *table2Name = nil;
         } else {
             XCTAssertTrue([task.result isKindOfClass:[AWSDynamoDBBatchWriteItemOutput class]], @"The response object is not a class of [%@]", NSStringFromClass([AWSDynamoDBBatchWriteItemOutput class]));
             AWSDynamoDBBatchWriteItemOutput *batchWriteItemOutput = task.result;
-            NSDictionary *unprocessedItems = batchWriteItemOutput.unprocessedItems;
-            XCTAssertEqual([unprocessedItems count], (NSUInteger)0);
+            NSArray *consumedCapacity = batchWriteItemOutput.consumedCapacity;
+            XCTAssertGreaterThan([consumedCapacity count], (NSUInteger)0);
         }
 
         return nil;

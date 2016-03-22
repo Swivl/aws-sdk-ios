@@ -1,22 +1,24 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 #import "AWSCore.h"
 #import "AWSURLSessionManager.h"
+#import "AWSURLRequestSerialization.h"
+#import "AWSURLResponseSerialization.h"
 
 @interface AWSNetworkingTests : XCTestCase
 
@@ -89,7 +91,8 @@
     configuration.responseSerializer = [[AWSJSONResponseSerializer alloc] initWithJSONDefinition:nil
                                                                                 actionName:@"operationName"
                                                                                outputClass:nil];
-    
+
+    XCTAssertTrue(configuration.allowsCellularAccess);
     
     AWSServiceConfiguration *configurationClone = [configuration copy];
     
@@ -102,13 +105,16 @@
     XCTAssertEqualObjects(configuration.responseSerializer, configurationClone.responseSerializer);
     XCTAssertEqualObjects(configuration.responseInterceptors, configurationClone.responseInterceptors);
     XCTAssertEqualObjects(configuration.retryHandler, configurationClone.retryHandler);
+    XCTAssertTrue(configuration.allowsCellularAccess);
     
     AWSNetworkingConfiguration *networkConfig = [[AWSNetworkingConfiguration alloc] init];
     networkConfig.baseURL = [NSURL URLWithString:@"baseURL"];
+    networkConfig.allowsCellularAccess = NO;
+
     AWSNetworkingConfiguration *networkConfigClone = [networkConfig copy];
     XCTAssertEqualObjects(networkConfig.baseURL, networkConfigClone.baseURL);
-    
-    
+    XCTAssertEqual(networkConfig.allowsCellularAccess, networkConfigClone.allowsCellularAccess);
+    XCTAssertFalse(networkConfigClone.allowsCellularAccess);
 }
 
 - (void)testConfigurationDefault {

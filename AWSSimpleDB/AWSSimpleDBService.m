@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import "AWSSimpleDBService.h"
 
@@ -25,8 +25,6 @@
 #import "AWSURLRequestRetryHandler.h"
 #import "AWSSynchronizedMutableDictionary.h"
 #import "AWSSimpleDBResources.h"
-
-NSString *const AWSSimpleDBDefinitionFileName = @"sdb-2009-04-15";
 
 @interface AWSSimpleDBResponseSerializer : AWSXMLResponseSerializer
 
@@ -93,7 +91,15 @@ static NSDictionary *errorCodeDictionary = nil;
                 return responseObject;
             }
         }
+    }
 
+    if (!*error && response.statusCode/100 != 2) {
+        *error = [NSError errorWithDomain:AWSSimpleDBErrorDomain
+                                     code:AWSSimpleDBErrorUnknown
+                                 userInfo:nil];
+    }
+
+    if (!*error && [responseObject isKindOfClass:[NSDictionary class]]) {
         if (self.outputClass) {
             responseObject = [AWSMTLJSONAdapter modelOfClass:self.outputClass
                                           fromJSONDictionary:responseObject
@@ -165,7 +171,9 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
 + (instancetype)defaultSimpleDB {
     if (![AWSServiceManager defaultServiceManager].defaultServiceConfiguration) {
-        return nil;
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"`defaultServiceConfiguration` is `nil`. You need to set it before using this method."
+                                     userInfo:nil];
     }
 
     static AWSSimpleDB *_defaultSimpleDB = nil;
@@ -217,9 +225,10 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
         AWSSignatureV2Signer *signer = [AWSSignatureV2Signer signerWithCredentialsProvider:_configuration.credentialsProvider
                                                                                   endpoint:_configuration.endpoint];
+        AWSNetworkingRequestInterceptor *baseInterceptor = [[AWSNetworkingRequestInterceptor alloc] initWithUserAgent:_configuration.userAgent];
+        _configuration.requestInterceptors = @[baseInterceptor, signer];
 
         _configuration.baseURL = _configuration.endpoint.URL;
-        _configuration.requestInterceptors = @[[AWSNetworkingRequestInterceptor new], signer];
         _configuration.retryHandler = [[AWSSimpleDBRequestRetryHandler alloc] initWithMaximumRetryCount:_configuration.maxRetryCount];
 
         _networking = [[AWSNetworking alloc] initWithConfiguration:_configuration];
@@ -267,6 +276,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
+- (void)batchDeleteAttributes:(AWSSimpleDBBatchDeleteAttributesRequest *)request
+            completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self batchDeleteAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)batchPutAttributes:(AWSSimpleDBBatchPutAttributesRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -274,6 +301,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                   targetPrefix:@""
                  operationName:@"BatchPutAttributes"
                    outputClass:nil];
+}
+
+- (void)batchPutAttributes:(AWSSimpleDBBatchPutAttributesRequest *)request
+         completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self batchPutAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)createDomain:(AWSSimpleDBCreateDomainRequest *)request {
@@ -285,6 +330,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
+- (void)createDomain:(AWSSimpleDBCreateDomainRequest *)request
+   completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self createDomain:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)deleteAttributes:(AWSSimpleDBDeleteAttributesRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -292,6 +355,24 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                   targetPrefix:@""
                  operationName:@"DeleteAttributes"
                    outputClass:nil];
+}
+
+- (void)deleteAttributes:(AWSSimpleDBDeleteAttributesRequest *)request
+       completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)deleteDomain:(AWSSimpleDBDeleteDomainRequest *)request {
@@ -303,7 +384,25 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
-- (AWSTask *)domainMetadata:(AWSSimpleDBDomainMetadataRequest *)request {
+- (void)deleteDomain:(AWSSimpleDBDeleteDomainRequest *)request
+   completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteDomain:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSimpleDBDomainMetadataResult *> *)domainMetadata:(AWSSimpleDBDomainMetadataRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -312,7 +411,26 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSimpleDBDomainMetadataResult class]];
 }
 
-- (AWSTask *)getAttributes:(AWSSimpleDBGetAttributesRequest *)request {
+- (void)domainMetadata:(AWSSimpleDBDomainMetadataRequest *)request
+     completionHandler:(void (^)(AWSSimpleDBDomainMetadataResult *response, NSError *error))completionHandler {
+    [[self domainMetadata:request] continueWithBlock:^id _Nullable(AWSTask<AWSSimpleDBDomainMetadataResult *> * _Nonnull task) {
+        AWSSimpleDBDomainMetadataResult *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSimpleDBGetAttributesResult *> *)getAttributes:(AWSSimpleDBGetAttributesRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
@@ -321,13 +439,51 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:[AWSSimpleDBGetAttributesResult class]];
 }
 
-- (AWSTask *)listDomains:(AWSSimpleDBListDomainsRequest *)request {
+- (void)getAttributes:(AWSSimpleDBGetAttributesRequest *)request
+    completionHandler:(void (^)(AWSSimpleDBGetAttributesResult *response, NSError *error))completionHandler {
+    [[self getAttributes:request] continueWithBlock:^id _Nullable(AWSTask<AWSSimpleDBGetAttributesResult *> * _Nonnull task) {
+        AWSSimpleDBGetAttributesResult *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSimpleDBListDomainsResult *> *)listDomains:(AWSSimpleDBListDomainsRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
                   targetPrefix:@""
                  operationName:@"ListDomains"
                    outputClass:[AWSSimpleDBListDomainsResult class]];
+}
+
+- (void)listDomains:(AWSSimpleDBListDomainsRequest *)request
+  completionHandler:(void (^)(AWSSimpleDBListDomainsResult *response, NSError *error))completionHandler {
+    [[self listDomains:request] continueWithBlock:^id _Nullable(AWSTask<AWSSimpleDBListDomainsResult *> * _Nonnull task) {
+        AWSSimpleDBListDomainsResult *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
 }
 
 - (AWSTask *)putAttributes:(AWSSimpleDBPutAttributesRequest *)request {
@@ -339,13 +495,50 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
                    outputClass:nil];
 }
 
-- (AWSTask *)select:(AWSSimpleDBSelectRequest *)request {
+- (void)putAttributes:(AWSSimpleDBPutAttributesRequest *)request
+    completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self putAttributes:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSSimpleDBSelectResult *> *)select:(AWSSimpleDBSelectRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
                      URLString:@""
                   targetPrefix:@""
                  operationName:@"Select"
                    outputClass:[AWSSimpleDBSelectResult class]];
+}
+
+- (void)select:(AWSSimpleDBSelectRequest *)request
+completionHandler:(void (^)(AWSSimpleDBSelectResult *response, NSError *error))completionHandler {
+    [[self select:request] continueWithBlock:^id _Nullable(AWSTask<AWSSimpleDBSelectResult *> * _Nonnull task) {
+        AWSSimpleDBSelectResult *result = task.result;
+        NSError *error = task.error;
+
+        if (task.exception) {
+            AWSLogError(@"Fatal exception: [%@]", task.exception);
+            kill(getpid(), SIGKILL);
+        }
+        
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+        
+        return nil;
+    }];
 }
 
 @end

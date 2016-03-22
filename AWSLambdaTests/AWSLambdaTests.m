@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
@@ -155,6 +155,60 @@
         NSDictionary *result = invocationResponse.payload;
         NSString *expectedString = [NSString stringWithFormat:@"Hello %@",NSStringFromSelector(_cmd)];
         XCTAssertEqualObjects(expectedString,result[@"message"]);
+        return nil;
+    }] waitUntilFinished];
+}
+
+- (void)testInvokeWithVersion {
+    AWSLambda *lambda = [AWSLambda defaultLambda];
+    AWSLambdaInvocationRequest *invocationRequest = [AWSLambdaInvocationRequest new];
+    invocationRequest.functionName = @"helloWorldExample";
+    invocationRequest.qualifier = @"2";
+    invocationRequest.invocationType = AWSLambdaInvocationTypeRequestResponse;
+    NSDictionary *parameters = @{@"key1" : @"value1",
+                                 @"key2" : @"value2",
+                                 @"key3" : @"value3",
+                                 @"isError" : @NO};
+    invocationRequest.payload = [NSJSONSerialization dataWithJSONObject:parameters
+                                                                options:kNilOptions
+                                                                  error:nil];
+    invocationRequest.clientContext = [[AWSClientContext new] base64EncodedJSONString];
+
+    [[[lambda invoke:invocationRequest] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertNil(task.error);
+        XCTAssertNil(task.exception);
+        XCTAssertNotNil(task.result);
+        AWSLambdaInvocationResponse *invocationResponse = task.result;
+        XCTAssertTrue([invocationResponse.payload isKindOfClass:[NSDictionary class]]);
+        NSDictionary *result = invocationResponse.payload;
+        XCTAssertEqualObjects(result[@"version"], @"1");
+        return nil;
+    }] waitUntilFinished];
+}
+
+- (void)testInvokeWithVersionAlias {
+    AWSLambda *lambda = [AWSLambda defaultLambda];
+    AWSLambdaInvocationRequest *invocationRequest = [AWSLambdaInvocationRequest new];
+    invocationRequest.functionName = @"helloWorldExample";
+    invocationRequest.qualifier = @"version2";
+    invocationRequest.invocationType = AWSLambdaInvocationTypeRequestResponse;
+    NSDictionary *parameters = @{@"key1" : @"value1",
+                                 @"key2" : @"value2",
+                                 @"key3" : @"value3",
+                                 @"isError" : @NO};
+    invocationRequest.payload = [NSJSONSerialization dataWithJSONObject:parameters
+                                                                options:kNilOptions
+                                                                  error:nil];
+    invocationRequest.clientContext = [[AWSClientContext new] base64EncodedJSONString];
+
+    [[[lambda invoke:invocationRequest] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertNil(task.error);
+        XCTAssertNil(task.exception);
+        XCTAssertNotNil(task.result);
+        AWSLambdaInvocationResponse *invocationResponse = task.result;
+        XCTAssertTrue([invocationResponse.payload isKindOfClass:[NSDictionary class]]);
+        NSDictionary *result = invocationResponse.payload;
+        XCTAssertEqualObjects(result[@"version"], @"1");
         return nil;
     }] waitUntilFinished];
 }

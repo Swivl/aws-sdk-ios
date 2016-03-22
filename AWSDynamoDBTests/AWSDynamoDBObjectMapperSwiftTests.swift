@@ -1,17 +1,17 @@
-/*
-* Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License").
-* You may not use this file except in compliance with the License.
-* A copy of the License is located at
-*
-*  http://aws.amazon.com/apache2.0
-*
-* or in the "license" file accompanying this file. This file is distributed
-* on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-* express or implied. See the License for the specific language governing
-* permissions and limitations under the License.
-*/
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 import UIKit
 import XCTest
@@ -43,10 +43,6 @@ class TestObjectV2: AWSDynamoDBObjectModel, AWSDynamoDBModeling {
     class func rangeKeyAttribute() -> String {
         return "rangeKey"
     }
-
-    override func isEqual(anObject: AnyObject?) -> Bool {
-        return super.isEqual(anObject)
-    }
 }
 
 class AWSDynamoDBObjectMapperSwiftTests: XCTestCase {
@@ -65,7 +61,7 @@ class AWSDynamoDBObjectMapperSwiftTests: XCTestCase {
         let boolNumberArray:Array<AnyObject> = [true,false,NSNumber(bool: true),NSNumber(bool: false)]
         let nonBoolNumberArray:Array<AnyObject> = [20,500.34,NSNumber(integer: 34),NSNumber(char: 3),NSNumber(float: 23.4)]
         let myboolClass = NSNumber(bool: true).dynamicType
-        var klass: AnyClass = object_getClass( NSNumber(bool: true))
+        let klass: AnyClass = object_getClass(NSNumber(bool: true))
 
         for myNum in boolNumberArray {
             let result = myNum.isKindOfClass(myboolClass)
@@ -105,9 +101,6 @@ class AWSDynamoDBObjectMapperSwiftTests: XCTestCase {
         let listElement = ["StringInList",55,binaryElement,stringSet,numberSet,binarySet,true,["stringInListOfList",57]]
         let mapElement = ["mapStringKey":"mapStringValue","mapNumberKey":98,"mapBinaryKey":binaryElement,"mapStringSetKey":stringSet,"mapNumberSetKey":numberSet,"mapBoolKey":true,"mapListKey":listElement,"mapMapKey":["str":"strValue","num":5,"lst":listElement]]
 
-        let updatedListElement = ["updatedValue",999,false,["newListOfList",123]]
-        let updatedMapElement = ["mapStringKey":"updatedValue","mapNumberSetKey":123456,"mapBoolKey":false,"mapListKey":updatedListElement]
-
         let objv2 = TestObjectV2()
         objv2.hashKey = hashKeyValue
         objv2.rangeKey = rangeKeyValue
@@ -118,7 +111,7 @@ class AWSDynamoDBObjectMapperSwiftTests: XCTestCase {
         objv2.listElement = listElement
         objv2.mapElement = mapElement
 
-        updateMapper.save(objv2).continueWithBlock { (task:AWSTask!) -> AnyObject! in
+        updateMapper.save(objv2).continueWithBlock() { (task) -> AnyObject? in
             if (task.error != nil) {
                 XCTFail("Error: \(task.error)")
             }
@@ -126,5 +119,4 @@ class AWSDynamoDBObjectMapperSwiftTests: XCTestCase {
             return nil
             }.waitUntilFinished()
     }
-
 }

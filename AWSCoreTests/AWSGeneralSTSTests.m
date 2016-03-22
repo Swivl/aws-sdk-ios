@@ -1,17 +1,17 @@
-/*
- Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License").
- You may not use this file except in compliance with the License.
- A copy of the License is located at
-
- http://aws.amazon.com/apache2.0
-
- or in the "license" file accompanying this file. This file is distributed
- on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- express or implied. See the License for the specific language governing
- permissions and limitations under the License.
- */
+//
+// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
@@ -59,13 +59,14 @@ static id mockNetworking = nil;
 
 - (void)testAssumeRole {
     NSString *key = @"testAssumeRole";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSSTS registerSTSWithConfiguration:configuration forKey:key];
 
     AWSSTS *awsClient = [AWSSTS STSForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSSTS STSForKey:key] assumeRole:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSSTS STSForKey:key] assumeRole:[AWSSTSAssumeRoleRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -81,13 +82,14 @@ static id mockNetworking = nil;
 
 - (void)testAssumeRoleWithSAML {
     NSString *key = @"testAssumeRoleWithSAML";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSSTS registerSTSWithConfiguration:configuration forKey:key];
 
     AWSSTS *awsClient = [AWSSTS STSForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSSTS STSForKey:key] assumeRoleWithSAML:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSSTS STSForKey:key] assumeRoleWithSAML:[AWSSTSAssumeRoleWithSAMLRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -103,13 +105,14 @@ static id mockNetworking = nil;
 
 - (void)testAssumeRoleWithWebIdentity {
     NSString *key = @"testAssumeRoleWithWebIdentity";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSSTS registerSTSWithConfiguration:configuration forKey:key];
 
     AWSSTS *awsClient = [AWSSTS STSForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSSTS STSForKey:key] assumeRoleWithWebIdentity:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSSTS STSForKey:key] assumeRoleWithWebIdentity:[AWSSTSAssumeRoleWithWebIdentityRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -125,13 +128,14 @@ static id mockNetworking = nil;
 
 - (void)testDecodeAuthorizationMessage {
     NSString *key = @"testDecodeAuthorizationMessage";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSSTS registerSTSWithConfiguration:configuration forKey:key];
 
     AWSSTS *awsClient = [AWSSTS STSForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSSTS STSForKey:key] decodeAuthorizationMessage:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSSTS STSForKey:key] decodeAuthorizationMessage:[AWSSTSDecodeAuthorizationMessageRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -147,13 +151,14 @@ static id mockNetworking = nil;
 
 - (void)testGetFederationToken {
     NSString *key = @"testGetFederationToken";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSSTS registerSTSWithConfiguration:configuration forKey:key];
 
     AWSSTS *awsClient = [AWSSTS STSForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSSTS STSForKey:key] getFederationToken:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSSTS STSForKey:key] getFederationToken:[AWSSTSGetFederationTokenRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
@@ -169,13 +174,14 @@ static id mockNetworking = nil;
 
 - (void)testGetSessionToken {
     NSString *key = @"testGetSessionToken";
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUnknown credentialsProvider:nil];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1 credentialsProvider:nil];
     [AWSSTS registerSTSWithConfiguration:configuration forKey:key];
 
     AWSSTS *awsClient = [AWSSTS STSForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
-    [[[[AWSSTS STSForKey:key] getSessionToken:nil] continueWithBlock:^id(AWSTask *task) {
+    XCTAssertNotNil(mockNetworking);
+    [awsClient setValue:mockNetworking forKey:@"networking"];
+    [[[[AWSSTS STSForKey:key] getSessionToken:[AWSSTSGetSessionTokenRequest new]] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
         XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
         XCTAssertEqual(8848, task.error.code);
