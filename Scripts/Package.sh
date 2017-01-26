@@ -21,10 +21,12 @@ fi
 set -u
 
 if [ -x "Scripts/SdkPackage.sh" ]; then
-
     Scripts/SdkPackage.sh AWSCore
     Scripts/SdkPackage.sh AWSAutoScaling
+    Scripts/SdkPackage.sh AWSCognito
+    Scripts/SdkPackage.sh AWSCognitoIdentityProvider
     Scripts/SdkPackage.sh AWSCloudWatch
+    Scripts/SdkPackage.sh AWSDeepSense
     Scripts/SdkPackage.sh AWSDynamoDB
     Scripts/SdkPackage.sh AWSEC2
     Scripts/SdkPackage.sh AWSElasticLoadBalancing
@@ -33,11 +35,10 @@ if [ -x "Scripts/SdkPackage.sh" ]; then
     Scripts/SdkPackage.sh AWSLambda
     Scripts/SdkPackage.sh AWSMachineLearning
     Scripts/SdkPackage.sh AWSMobileAnalytics
+    Scripts/SdkPackage.sh AWSPinpoint
     Scripts/SdkPackage.sh AWSS3
     Scripts/SdkPackage.sh AWSSES
     Scripts/SdkPackage.sh AWSSimpleDB
     Scripts/SdkPackage.sh AWSSNS
     Scripts/SdkPackage.sh AWSSQS
-
-    Scripts/SdkPackage.sh AWSCognito AWSiOSSDKCognitoSync/
 fi

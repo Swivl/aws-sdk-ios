@@ -308,6 +308,88 @@ static NSString *testBucketNameGeneral = nil;
     }] waitUntilFinished];
 }
 
+- (void)testBucketCustomEndpoint {
+    
+    id<AWSCredentialsProvider> credentialsProvider = [[[AWSServiceManager defaultServiceManager] defaultServiceConfiguration] credentialsProvider];
+    
+    AWSEndpoint *customEndpoint = [[AWSEndpoint alloc]initWithURLString:@"https://s3.dualstack.us-east-1.amazonaws.com"];
+    
+    AWSServiceConfiguration *serviceConfiguration = [[AWSServiceConfiguration alloc]initWithRegion:AWSRegionUSEast1 endpoint:customEndpoint credentialsProvider:credentialsProvider];
+    
+    [AWSS3 registerS3WithConfiguration:serviceConfiguration forKey:@"customendpoint"];
+    
+    AWSS3 *s3 = [AWSS3 S3ForKey:@"customendpoint"];
+    XCTAssertNotNil(s3);
+    
+    AWSS3ListObjectsRequest *listObjectReq = [AWSS3ListObjectsRequest new];
+    listObjectReq.bucket = testBucketNameGeneral;
+    
+    [[[s3 listObjects:listObjectReq] continueWithBlock:^id _Nullable(AWSTask<AWSS3ListObjectsOutput *> * _Nonnull task) {
+        XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3ListObjectsOutput class]],@"The response object is not a class of [%@]", NSStringFromClass([AWSS3ListObjectsOutput class]));
+        AWSS3ListObjectsOutput *listObjectsOutput = task.result;
+        
+        for (AWSS3Object *s3Object in listObjectsOutput.contents) {
+            XCTAssertTrue([s3Object.lastModified isKindOfClass:[NSDate class]], @"listObject doesn't contain LastModified(NSDate)");
+        }
+        
+        return nil;
+    }] waitUntilFinished];
+    
+}
+
+- (void)testEmptyFolder{
+    AWSS3 *s3 = [AWSS3 defaultS3];
+    XCTAssertNotNil(s3);
+    
+    XCTAssertNotNil(testBucketNameGeneral);
+    
+    AWSS3PutObjectRequest *putObjectRequest = [AWSS3PutObjectRequest new];
+    
+    putObjectRequest.key = @"test/";
+    putObjectRequest.bucket = testBucketNameGeneral;
+   
+    putObjectRequest.body = nil;
+    NSLog(@"testBucketNameGeneral %@",testBucketNameGeneral);
+    
+    [AWSLogger defaultLogger].logLevel = AWSLogLevelVerbose;
+    
+    [[[[[[s3 putObject:putObjectRequest] continueWithBlock:^id(AWSTask *task)
+      {
+          XCTAssertNil(task.error, @"The request failed. error: [%@]", task.error);
+          AWSS3ListObjectsRequest *list = [AWSS3ListObjectsRequest new];
+          list.bucket = testBucketNameGeneral;
+          return [s3 listObjects:list];
+      }] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+          XCTAssertNil(task.error);
+          XCTAssertNil(task.exception);
+          AWSS3ListObjectsOutput *listObjects = (AWSS3ListObjectsOutput *)task.result;
+          XCTAssertTrue([[listObjects contents] count] == 1);
+          NSArray<AWSS3Object *> *contents = [listObjects contents];
+          AWSS3Object *fileContent = [contents firstObject];
+          XCTAssertNotNil(fileContent);
+          NSString *key = [fileContent key];
+          XCTAssertTrue([[key substringFromIndex:[key length] - 1] isEqualToString:@"/"]);
+          AWSS3DeleteObjectRequest *del = [AWSS3DeleteObjectRequest new];
+          del.bucket = testBucketNameGeneral;
+          del.key = @"test/";
+          return [s3 deleteObject:del];
+      }] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+          XCTAssertNil(task.error);
+          XCTAssertNil(task.exception);
+          AWSS3ListObjectsRequest *list = [AWSS3ListObjectsRequest new];
+          list.bucket = testBucketNameGeneral;
+          return [s3 listObjects:list];
+      }] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+          XCTAssertNil(task.error);
+          XCTAssertNil(task.exception);
+          AWSS3ListObjectsOutput *listObjects = (AWSS3ListObjectsOutput *)task.result;
+          XCTAssertTrue([[listObjects contents] count] == 0);
+          return nil;
+      }] waitUntilFinished];
+}
+
+
 - (void)testPutBucketWithGrants {
     NSString *grantBucketName = [testBucketNameGeneral stringByAppendingString:@"-grant"];
     XCTAssertTrue([AWSS3Tests createBucketWithName:grantBucketName]);
@@ -1324,6 +1406,62 @@ static NSString *testBucketNameGeneral = nil;
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
+}
+
+- (void)testHTMLContentType {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion handler called."];
+
+    NSString *testObjectStr = @"<html></html>";
+    NSString *keyName = @"ios-test-put-get-and-delete-html";
+    NSData *testObjectData = [testObjectStr dataUsingEncoding:NSUTF8StringEncoding];
+
+    AWSS3 *s3 = [AWSS3 defaultS3];
+    XCTAssertNotNil(s3);
+
+    AWSS3PutObjectRequest *putObjectRequest = [AWSS3PutObjectRequest new];
+    putObjectRequest.bucket = testBucketNameGeneral;
+    putObjectRequest.key = keyName;
+    putObjectRequest.body = testObjectData;
+    putObjectRequest.contentLength = @(testObjectData.length);
+    putObjectRequest.contentType = @"text/html";
+
+    [[[[[s3 putObject:putObjectRequest] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3PutObjectOutput class]], @"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3PutObjectOutput class]), [task.result description]);
+        AWSS3PutObjectOutput *putObjectOutput = task.result;
+        XCTAssertNotNil(putObjectOutput.ETag);
+
+        AWSS3GetObjectRequest *getObjectRequest = [AWSS3GetObjectRequest new];
+        getObjectRequest.bucket = testBucketNameGeneral;
+        getObjectRequest.key = keyName;
+
+        return [s3 getObject:getObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3GetObjectOutput class]], @"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3GetObjectOutput class]),[task.result description]);
+        AWSS3GetObjectOutput *getObjectOutput = task.result;
+        NSData *receivedBody = getObjectOutput.body;
+
+        XCTAssertEqualObjects(testObjectData,receivedBody, @"received object is different from sent object, expect:%@ but got:%@",[[NSString alloc] initWithData:testObjectData encoding:NSUTF8StringEncoding],[[NSString alloc] initWithData:receivedBody encoding:NSUTF8StringEncoding]);
+        XCTAssertEqualObjects(getObjectOutput.contentType, @"text/html");
+
+        AWSS3DeleteObjectRequest *deleteObjectRequest = [AWSS3DeleteObjectRequest new];
+        deleteObjectRequest.bucket = testBucketNameGeneral;
+        deleteObjectRequest.key = keyName;
+
+        return [s3 deleteObject:deleteObjectRequest];
+    }] continueWithSuccessBlock:^id(AWSTask *task) {
+        XCTAssertTrue([task.result isKindOfClass:[AWSS3DeleteObjectOutput class]],@"The response object is not a class of [%@], got: %@", NSStringFromClass([AWSS3DeleteObjectOutput class]),[task.result description]);
+        return nil;
+    }] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertNil(task.error, @"Error: [%@]", task.error);
+
+        [expectation fulfill];
+
+        return nil;
+    }];
+
+    [self waitForExpectationsWithTimeout:30.0 handler:^(NSError * _Nullable error) {
+        XCTAssertNil(error);
+    }];
 }
 
 @end

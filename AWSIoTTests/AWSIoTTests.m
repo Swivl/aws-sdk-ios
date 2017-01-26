@@ -15,43 +15,29 @@
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
-#import <OCMock/OCMock.h>
+#import "AWSTestUtility.h"
 #import "AWSIoT.h"
 
-static id mockNetworking = nil;
 static NSString *certificateID = nil;
 
-@interface AWSIoTUnitTests : XCTestCase
+@interface AWSIoTTests : XCTestCase
 
 @end
 
-@implementation AWSIoTUnitTests
+@implementation AWSIoTTests
 
-- (void)setupCredentialsProvider {
-    
-    AWSStaticCredentialsProvider *credentialsProvider = [[AWSStaticCredentialsProvider alloc] initWithAccessKey:@"testAccessKey" secretKey:@"testSecretKey"];
-    
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSEast1
-                                                                         credentialsProvider:credentialsProvider];
-    [AWSServiceManager defaultServiceManager].defaultServiceConfiguration = configuration;
-    
++ (void)setUp {
+    [super setUp];
+    [AWSTestUtility setupCognitoCredentialsProvider];
 }
-
 - (void)setUp {
     [super setUp];
-    [self setupCredentialsProvider];
-    
-    mockNetworking = OCMClassMock([AWSNetworking class]);
-    AWSTask *errorTask = [AWSTask taskWithError:[NSError errorWithDomain:@"OCMockExpectedNetworkingError" code:8848 userInfo:nil]];
-    OCMStub([mockNetworking sendRequest:[OCMArg isKindOfClass:[AWSNetworkingRequest class]]]).andReturn(errorTask);
-    
-    certificateID = @"test_cert_ID";
-    
 }
 
 - (void)tearDown {
     [super tearDown];
 }
+
 
 - (void)testConstructors {
     NSString *key = @"testIOTConstructors";
@@ -77,21 +63,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDescribeCertificateRequest *request = [[AWSIoTDescribeCertificateRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] describeCertificate:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -103,21 +84,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTCreatePolicyRequest *request = [[AWSIoTCreatePolicyRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] createPolicy:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -129,21 +105,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTAttachPrincipalPolicyRequest *request = [[AWSIoTAttachPrincipalPolicyRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] attachPrincipalPolicy:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -155,21 +126,17 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTAttachThingPrincipalRequest *request = [[AWSIoTAttachThingPrincipalRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] attachThingPrincipal:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
     
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -181,21 +148,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTCancelCertificateTransferRequest *request = [[AWSIoTCancelCertificateTransferRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] cancelCertificateTransfer:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -207,21 +169,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTCreatePolicyVersionRequest *request = [[AWSIoTCreatePolicyVersionRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] createPolicyVersion:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -233,21 +190,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTCreateThingRequest *request = [[AWSIoTCreateThingRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] createThing:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -259,21 +211,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTCreateTopicRuleRequest *request = [[AWSIoTCreateTopicRuleRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] createTopicRule:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -285,21 +232,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDeleteCertificateRequest *request = [[AWSIoTDeleteCertificateRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] deleteCertificate:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -311,21 +253,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDeletePolicyRequest *request = [[AWSIoTDeletePolicyRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] deletePolicy:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -337,21 +274,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDeletePolicyVersionRequest *request = [[AWSIoTDeletePolicyVersionRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] deletePolicyVersion:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -363,21 +295,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDeleteThingRequest *request = [[AWSIoTDeleteThingRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] deleteThing:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -389,21 +316,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDeleteTopicRuleRequest *request = [[AWSIoTDeleteTopicRuleRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] deleteTopicRule:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -415,21 +337,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDescribeThingRequest *request = [[AWSIoTDescribeThingRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] describeThing:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -441,21 +358,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDetachPrincipalPolicyRequest *request = [[AWSIoTDetachPrincipalPolicyRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] detachPrincipalPolicy:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -468,21 +380,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTDetachThingPrincipalRequest *request = [[AWSIoTDetachThingPrincipalRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] detachThingPrincipal:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -494,21 +401,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTGetPolicyRequest *request = [[AWSIoTGetPolicyRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] getPolicy:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -520,21 +422,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTGetPolicyVersionRequest *request = [[AWSIoTGetPolicyVersionRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] getPolicyVersion:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -546,21 +443,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTGetTopicRuleRequest *request = [[AWSIoTGetTopicRuleRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] getTopicRule:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -572,21 +464,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListCertificatesRequest *request = [[AWSIoTListCertificatesRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listCertificates:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -598,21 +485,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListPoliciesRequest *request = [[AWSIoTListPoliciesRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listPolicies:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -624,21 +506,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListPolicyVersionsRequest *request = [[AWSIoTListPolicyVersionsRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listPolicyVersions:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -650,21 +527,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListPrincipalPoliciesRequest *request = [[AWSIoTListPrincipalPoliciesRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listPrincipalPolicies:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -676,21 +548,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListPrincipalThingsRequest *request = [[AWSIoTListPrincipalThingsRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listPrincipalThings:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -702,21 +569,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListThingPrincipalsRequest *request = [[AWSIoTListThingPrincipalsRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listThingPrincipals:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -728,21 +590,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListThingsRequest *request = [[AWSIoTListThingsRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listThings:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -754,21 +611,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTListTopicRulesRequest *request = [[AWSIoTListTopicRulesRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] listTopicRules:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -780,21 +632,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTRejectCertificateTransferRequest *request = [[AWSIoTRejectCertificateTransferRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] rejectCertificateTransfer:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -806,21 +653,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTReplaceTopicRuleRequest *request = [[AWSIoTReplaceTopicRuleRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] replaceTopicRule:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -832,21 +674,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTSetDefaultPolicyVersionRequest *request = [[AWSIoTSetDefaultPolicyVersionRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] setDefaultPolicyVersion:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -858,21 +695,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTTransferCertificateRequest *request = [[AWSIoTTransferCertificateRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] transferCertificate:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -884,21 +716,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTUpdateCertificateRequest *request = [[AWSIoTUpdateCertificateRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] updateCertificate:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }
@@ -910,21 +737,16 @@ static NSString *certificateID = nil;
     
     AWSIoT *awsClient = [AWSIoT IoTForKey:key];
     XCTAssertNotNil(awsClient);
-    XCTAssertNotNil(mockNetworking);    [awsClient setValue:mockNetworking forKey:@"networking"];
     
     AWSIoTUpdateThingRequest *request = [[AWSIoTUpdateThingRequest alloc] init];
     XCTAssertNotNil(request);
     
     [[[[AWSIoT IoTForKey:key] updateThing:request] continueWithBlock:^id(AWSTask *task) {
         XCTAssertNotNil(task.error);
-        XCTAssertEqualObjects(@"OCMockExpectedNetworkingError", task.error.domain);
-        XCTAssertEqual(8848, task.error.code);
         XCTAssertNil(task.exception);
         XCTAssertNil(task.result);
         return nil;
     }] waitUntilFinished];
-    
-    OCMVerify([mockNetworking sendRequest:[OCMArg isNotNil]]);
     
     [AWSIoT removeIoTForKey:key];
 }

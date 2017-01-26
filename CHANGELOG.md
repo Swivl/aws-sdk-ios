@@ -1,5 +1,251 @@
 # AWS Mobile SDK for iOS CHANGELOG
 
+## 2.4.16
+### New Features
+* **SDK Core**
+	* Introducing new AWS `EUWest2` - Europe (London) region, endpoint `eu-west-2`. 
+
+* **Amazon Rekognition**
+	* Amazon Rekognition is a service that makes it easy to add image analysis to your applications. With Rekognition, you can detect objects, scenes, and faces in images. You can also search and compare faces. Rekognition’s API enables you to quickly add sophisticated deep learning-based visual search and image classification to your applications.
+	
+### Misc. Updates
+
+* **Amazon SQS**
+ 	* Update SQS client to latest service model.
+
+## 2.4.15
+### New Features
+* **SDK Core**
+	* Introducing new AWS `CACentral1` - Canada (Central) region, endpoint `ca-central-1`. 
+    
+### Resolved Issues
+
+* **Amazon Pinpoint**
+    *  Fix bugs related to session timeout and campaign opens analytics.
+
+## 2.4.14
+### New Features
+* **Amazon Pinpoint**
+	* Amazon Pinpoint makes it easy to run targeted campaigns to improve user engagement. Pinpoint helps you understand your users behavior, define who to target, what messages to send, when to deliver them, and tracks the results of the campaigns.
+	
+
+## 2.4.13
+### New Features
+* **Amazon Polly**
+    *  Amazon Polly is a service that turns text into lifelike speech, making it easy to develop applications that use high-quality speech to increase engagement and accessibility. With Amazon Polly the developers can build speech-enabled apps that work in multiple geographies.
+* **Amazon Lex - Beta**
+    * Amazon Lex is a service for building conversational interactions into any application using voice and text. With Lex, the same conversational engine that powers Amazon Alexa is now available to any developer, enabling you to build sophisticated, natural language, conversational bots (chatbots) into your new and existing applications. Amazon Lex provides the deep functionality and flexibility of automatic speech recognition (ASR) for converting speech to text and natural language understanding (NLU) to understand the intent of the text. This allows you to build highly engaging user experiences with lifelike, conversational interactions.     
+    
+### Resolved Issues
+
+* **Amazon Mobile Analytics**
+    * Do not allow empty keys for attributes or metrics.
+
+
+## 2.4.12
+### New Features
+* **Amazon Mobile Analytics**
+	*  Added support for setting custom max keystorage size. [Github Issue 500](https://github.com/aws/aws-sdk-ios/issues/500)
+	
+### Resolved Issues
+
+* **Amazon API Gateway**
+    * Fixed a URL encoding bug. [Github Issue 505](https://github.com/aws/aws-sdk-ios/issues/505)
+* **Amazon S3 TransferUtility**
+    * Added fix for timeout based on configuration.    
+* **Amazon Cognito Identity**
+    * Fix issue causing SDK to call getOpenIdToken even with useEnhancedFlow set to YES
+    * Fix issue introduced in 2.4.0 causing credentials to be refreshed on every AWS service call even when they were still valid
+* **Amazon Cognito Sync**
+    * Fix issue causing synchronize() to fail with "Mismatch between session identity id and request identity id" on the first sync with Developer Authenticated Identities and in other scenarios
+
+## 2.4.11
+### New Features
+* **SDK Core**
+	* Introducing new AWS `USEast2` (Ohio) region, endpoint `us-east-2`. 
+    
+### Resolved Issues
+
+* **Amazon API Gateway**
+    * Fixed a URL encoding bug. [Github Issue 491](https://github.com/aws/aws-sdk-ios/issues/491)
+
+
+## 2.4.10
+### New Features
+* **Amazon API Gateway**
+	* Added support for a custom API invoker method with configurable HTTP parameters.
+* **Amazon Cognito Identity Provider**
+    * Added support for end user to set password and required attributes during initial authentication if they were created using AdminCreateUser. 
+    
+### Resolved Issues
+
+* **Amazon Cognito Identity Provider**
+    * Fixed a bug causing AWSCognitoIdentityUserPool.clearAll to not clear the keychain. [Github Issue #476](https://github.com/aws/aws-sdk-ios/issues/476)
+
+* **Amazon S3**
+    * Fixed a bug which disabled creating an empty folder. [Github Issue #480](https://github.com/aws/aws-sdk-ios/issues/480)
+    * Fixed a bug which did not set error object when bucket name is empty in request. [Github Issue #469](https://github.com/aws/aws-sdk-ios/issues/469)
+
+## 2.4.9
+### New Features
+* **All Services**
+    * Added support for Custom Endpoints.
+
+### Resolved Issues
+* **Amazon S3**
+    * Fixed a bug which caused compilation errors when using SDK version 2.4.8 through CocoaPods.
+
+### Misc. Updates
+* **Amazon Mobile Analytics**
+    * Deprecated the `mobileAnalyticsForAppId:identityPoolId:` and `mobileAnalyticsForAppId:identityPoolId:completionBlock:` client initializers. 
+
+## 2.4.8
+### New Features
+* **Amazon Cognito Identity Provider**
+    * Added feature for custom authentication handlers.
+    * Added support for getDevice, forgetDevice and added convenience methods to perform operations on this device.
+
+### Misc Changes
+* **All Services**
+    * Updated all of the low-level clients with the latest models.
+
+## 2.4.7
+### Resolved Issues
+* **Amazon Cognito Identity Provider**
+	* Fixed integration between Cognito Identity Provider and Cognito Identity. [#438](https://github.com/aws/aws-sdk-ios/issues/438)
+
+## 2.4.6
+### New Features  
+* **SDK Core**
+    * Added support for shared container identifier for extension support.
+* **AWS Cognito Identity Provider**
+    * Added support for devices in Cognito User Pools.
+    * Added support for global sign out in Cognito User Pools.
+    * Updated to support GA Cognito User Pools API's with exception of custom authentication. Custom authentication will be supported in a future release.
+* **AWS S3**
+    * Added userInfo to error objects in AWSS3TransferUtility.
+* **Amazon SNS**
+    * General service updates.
+
+### Resolved Issues
+* **Amazon Cognito Identity Provider**
+    * Made providerId nullable in AWSCredentialProvider.
+    * Fixed non-optional error parameter in Cognito User Pools.
+    * Fixed issue causing resendConfirmationCode to return a null destination in Cognito User Pools.
+* **Amazon S3**
+    * Switched behavior from assert to throwing exception in AWSS3TransferUtility when response is not of class NSHTTPURLResponse type to avoid crashes.
+* **Amazon Mobile Analytics**
+    * Bug fix for [issue](https://github.com/aws/aws-sdk-ios/issues/409). Please refer to [this forum post](https://forums.aws.amazon.com/ann.jspa?annID=3935) for more details .
+    
+## 2.4.5
+### New Features  
+* **SDK Core**
+	* Introducing new AWS region Asia Pacific (Mumbai) region, endpoint `ap-south-1`.     
+
+### Resolved Issues
+* **SDK Core**
+    * Fixed a bug with response serialization to sometimes fail.
+
+## 2.4.4
+### New Features  
+* **SDK Core**
+    * Added SAML support for `Amazon Cognito Federated Identities`.     
+### Resolved Issues
+* **SDK Core**
+    * Fixed a bug causing SDK to use legacy flow instead of enhanced flow when `IdentityProviderManager` is set.
+
+## 2.4.3
+### New Features  
+* **Amazon S3**
+    * Added support for Amazon S3 Transfer Acceleration in `AWSS3TransferUtility`.        
+
+### Resolved Issues
+* **Amazon S3**
+    * Fixed the [issue](https://github.com/aws/aws-sdk-ios/issues/390) related to wrong error handling in AWSS3TransferUtility.
+
+## 2.4.2
+### New Features  
+* **SDK Core**
+    * Added a new init method for the Cognito Identity credentials provider.
+    * Added full support for IPv6.
+* **Amazon S3**
+    * Added `requestHeaders` to `AWSS3PreSignedURLBuilder` and `AWSS3TransferUtility`. Now you can specify the headers to sign for pre-signed URLs.        
+* **AWS IoT**
+    * Added MQTT device shadow APIs to `AWSIoTDataManager` 
+    * Added support in `AWSIoTDataManager` for message callbacks with mqtt client and topic parameters
+* **All services**
+    * Updated all of the low-level clients with the latest models.
+
+### Resolved Issues
+* **SDK Core**
+    * Fixed `AWSCore.podspec` for the extobjc conflict.
+    * Fixed the enhanced flow switch in the Cognito Identity credentials provider.
+* **Amazon Cognito User Pools**
+    * Fixed [issue](https://forums.aws.amazon.com/thread.jspa?threadID=230694&tstart=0) with sign-in in locales other than English not working.
+    * Fixed [issue](https://github.com/aws/aws-sdk-ios/issues/373) with sign-in using aliases.
+    * [Added ability to determine whether a user is signed in and clearing last known user](https://github.com/aws/aws-sdk-ios/issues/370).
+    * Fixed [issue](https://github.com/aws/aws-sdk-ios/issues/383) causing user pool delegate to not be released 
+* **Amazon Cognito Sync**
+    * Serialize calls to synchronize and discard duplicate synchronize requests to prevent ResourceConflicts when syncing from one device.
+    * Fixed issue with identity id being preserved when database was cleared.
+    * [Correctly set datasets’s lastModified and creationDate](https://github.com/aws/aws-sdk-ios/issues/246).
+* **Amazon Kinesis**
+    * Fixed the threading issue in the Kinesis Recorder.
+* **Amazon S3**
+    * Fixed the response serialization issue when the response content type is HTML.
+    
+
+## 2.4.1
+
+### New Features
+* **Amazon S3**
+    * **(Breaking)** `AWSS3TransferUtility` is generally available. Now you have access to the underlying `NSURLSessionTask`, `NSURLRequest` and `NSHTTPURLResponse`. The progress feedback block is updated to use `NSProgress`. Also, the error messages returned by Amazon S3 are correctly propagated as an `NSError`.
+* **Amazon Cognito Identity Provider (Beta)**
+    * Fixed the issue requiring password reentry with a valid refresh token.
+    * The SDK retries for bad auth attempts.
+    * **(Breaking)** Switched from blocks to delegates for interactive authentication. Set a class that conforms to the `AWSCognitoIdentityInteractiveAuthenticationDelegate` protocol as the delegate on `AWSCognitoIdentityUserPool`.
+    * **(Breaking)** `- signUp:password:userAttributes:validationData:` on `AWSCognitoIdentityUserPool` returns an `AWSCognitoIdentityUserPoolSignUpResponse` containing the `AWSCognitoIdentityUser` instead of directly returning an `AWSCognitoIdentityUser`.
+
+### Misc Changes
+* **SDK Core**
+    * Now the SDK fails fast to help identify an issue when you mix different versions of the `AWSCore` SDK and service client SDKs. You need to use the same version of the AWS Mobile SDKs within a project.
+    * The AWS Signature related logs are moved from the `Debug` to `Verbose` level.
+
+## 2.4.0
+
+### New Features
+* **SDK Core**
+    * **(Breaking)** Migrated from the static frameworks to the dynamic frameworks. The AWS Mobile SDK for iOS now supports iOS 8 and above due to this change. If you need iOS 7 support, continue using 2.3.x.
+    * Added official support for [Carthage](https://github.com/Carthage/Carthage). See `README.md` for more information.
+    * Added support for the SDK configurations through `Info.plist`.
+    * **(Breaking)** Updated the credentials provider and identity provider protocols to asynchronous interfaces instead of previous synchronous ones. The `logins` dictionary of `AWSCognitoCredentialsProvider` is now deprecated. Use `AWSIdentityProviderManager` to provide login providers' credentials. See `AWSCredentialsProvider.h` and `AWSIdentityProvider.h` for more details.
+* **Amazon Cognito Identity Provider (Beta)**
+    * You can now use Amazon Cognito to easily add user sign-up and sign-in to your mobile and web apps. Your User Pool in Amazon Cognito is a fully managed user directory that can scale to hundreds of millions of users, so you don't have to worry about building, securing, and scaling a solution to handle user management and authentication. See `AWSCognitoIdentityUserPool.h` for more details.
+* **AWS IoT**
+    * Added support for Amazon Cognito Identity with WebSocket connections, identity import, custom `Keep-Alive` and Last Will and Testament, and exponential back-off on reconnect.
+* **Amazon DynamoDB**
+    * Added the attribute name override capability to `AWSDynamoDBObjectMapper` by implementing `+ JSONKeyPathsByPropertyKey` in the model class.
+
+### Resolved Issues
+* **SDK Core**
+    * Fixed an issue where Cognito Identity Id is not properly cleaned up under certain circumstances.
+    * Improved the retry handling for certain throttling exceptions.
+    * Fixed an AWS Signature Version 4 issue when there is an extra `/` at the end of the endpoint URL.
+    * Fixed the `FMDatabasePoolDelegate` naming collision.
+* **Amazon DynamoDB**
+    * Fixed `- load:hashKey:rangeKey:` to return `nil` when the row does not exist.
+* **Amazon Kinesis**
+    * Patched an issue where `AWSKinesisRecorder` and `AWSFirehoseRecorder` may cause an infinite retry loop when the device is offline.
+* **Amazon S3**
+    * The SDK now invalidates the internal `NSURLSession` when `+ removeS3TransferUtilityForKey:` is called.
+    * Fixed a memory issue for downloading a large object as an `NSData`.
+
+### Misc Changes
+* **SDK Core**
+    * Changed the default logging level from `Error` to `Debug`.
+* **Amazon Cognito Sync**
+    * The source code for the Amazon Cognito Sync iOS client is now hosted in our [aws-sdk-ios](https://github.com/aws/aws-sdk-ios) repository instead of [amazon-cognito-ios](https://github.com/aws/amazon-cognito-ios). The AWS Mobile SDK for iOS is generally licensed under the Apache 2.0 License, with the Amazon Cognito Sync and Amazon Cognito Identity Provider subcomponents being licensed under the Amazon Software License. See `LICENSE`, `LICENSE.AMAZON`, and `LICENSE.APACHE` for more details.
+
 ## 2.3.6
 
 ### New Features
