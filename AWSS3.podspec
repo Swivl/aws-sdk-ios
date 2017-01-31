@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = 'AWSS3'
-  s.version      = '2.4.16.BT'
+  s.version      = '2.5.0.BT'
   s.summary      = 'Amazon Web Services SDK for iOS.'
 
   s.description  = 'The AWS SDK for iOS provides a library, code samples, and documentation for developers to build connected mobile applications using AWS.'
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
                      :tag => s.version}
   s.requires_arc = true
 
-  s.dependency 'AWSCore', '2.4.16.BT'
+  s.dependency 'AWSCore', '2.5.0.BT'
 
   s.source_files = 'AWSS3/*.{h,m}'
 end
