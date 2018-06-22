@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #import "AWSKinesisRequestRetryHandler.h"
 
 static NSString *const AWSInfoKinesis = @"Kinesis";
-static NSString *const AWSKinesisSDKVersion = @"2.5.0";
+static NSString *const AWSKinesisSDKVersion = @"2.6.22";
 
 
 @interface AWSKinesisResponseSerializer : AWSJSONResponseSerializer
@@ -42,7 +42,14 @@ static NSDictionary *errorCodeDictionary = nil;
 + (void)initialize {
     errorCodeDictionary = @{
                             @"ExpiredIteratorException" : @(AWSKinesisErrorExpiredIterator),
+                            @"ExpiredNextTokenException" : @(AWSKinesisErrorExpiredNextToken),
                             @"InvalidArgumentException" : @(AWSKinesisErrorInvalidArgument),
+                            @"KMSAccessDeniedException" : @(AWSKinesisErrorKMSAccessDenied),
+                            @"KMSDisabledException" : @(AWSKinesisErrorKMSDisabled),
+                            @"KMSInvalidStateException" : @(AWSKinesisErrorKMSInvalidState),
+                            @"KMSNotFoundException" : @(AWSKinesisErrorKMSNotFound),
+                            @"KMSOptInRequired" : @(AWSKinesisErrorKMSOptInRequired),
+                            @"KMSThrottlingException" : @(AWSKinesisErrorKMSThrottling),
                             @"LimitExceededException" : @(AWSKinesisErrorLimitExceeded),
                             @"ProvisionedThroughputExceededException" : @(AWSKinesisErrorProvisionedThroughputExceeded),
                             @"ResourceInUseException" : @(AWSKinesisErrorResourceInUse),
@@ -95,7 +102,8 @@ static NSDictionary *errorCodeDictionary = nil;
                                                        error:error];
         }
     }
-	    return responseObject;
+	
+    return responseObject;
 }
 
 @end
@@ -159,7 +167,7 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
         if (!serviceConfiguration) {
             @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                           reason:@"The service configuration is `nil`. You need to configure `Info.plist` or set `defaultServiceConfiguration` before using this method."
+                                           reason:@"The service configuration is `nil`. You need to configure `awsconfiguration.json`, `Info.plist` or set `defaultServiceConfiguration` before using this method."
                                          userInfo:nil];
         }
         _defaultKinesis = [[AWSKinesis alloc] initWithConfiguration:serviceConfiguration];
@@ -361,6 +369,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask<AWSKinesisDescribeLimitsOutput *> *)describeLimits:(AWSKinesisDescribeLimitsInput *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@""
+                  targetPrefix:@"Kinesis_20131202"
+                 operationName:@"DescribeLimits"
+                   outputClass:[AWSKinesisDescribeLimitsOutput class]];
+}
+
+- (void)describeLimits:(AWSKinesisDescribeLimitsInput *)request
+     completionHandler:(void (^)(AWSKinesisDescribeLimitsOutput *response, NSError *error))completionHandler {
+    [[self describeLimits:request] continueWithBlock:^id _Nullable(AWSTask<AWSKinesisDescribeLimitsOutput *> * _Nonnull task) {
+        AWSKinesisDescribeLimitsOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask<AWSKinesisDescribeStreamOutput *> *)describeStream:(AWSKinesisDescribeStreamInput *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -374,6 +405,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
      completionHandler:(void (^)(AWSKinesisDescribeStreamOutput *response, NSError *error))completionHandler {
     [[self describeStream:request] continueWithBlock:^id _Nullable(AWSTask<AWSKinesisDescribeStreamOutput *> * _Nonnull task) {
         AWSKinesisDescribeStreamOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSKinesisDescribeStreamSummaryOutput *> *)describeStreamSummary:(AWSKinesisDescribeStreamSummaryInput *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@""
+                  targetPrefix:@"Kinesis_20131202"
+                 operationName:@"DescribeStreamSummary"
+                   outputClass:[AWSKinesisDescribeStreamSummaryOutput class]];
+}
+
+- (void)describeStreamSummary:(AWSKinesisDescribeStreamSummaryInput *)request
+     completionHandler:(void (^)(AWSKinesisDescribeStreamSummaryOutput *response, NSError *error))completionHandler {
+    [[self describeStreamSummary:request] continueWithBlock:^id _Nullable(AWSTask<AWSKinesisDescribeStreamSummaryOutput *> * _Nonnull task) {
+        AWSKinesisDescribeStreamSummaryOutput *result = task.result;
         NSError *error = task.error;
 
         if (completionHandler) {
@@ -492,6 +546,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
         if (completionHandler) {
             completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSKinesisListShardsOutput *> *)listShards:(AWSKinesisListShardsInput *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@""
+                  targetPrefix:@"Kinesis_20131202"
+                 operationName:@"ListShards"
+                   outputClass:[AWSKinesisListShardsOutput class]];
+}
+
+- (void)listShards:(AWSKinesisListShardsInput *)request
+     completionHandler:(void (^)(AWSKinesisListShardsOutput *response, NSError *error))completionHandler {
+    [[self listShards:request] continueWithBlock:^id _Nullable(AWSTask<AWSKinesisListShardsOutput *> * _Nonnull task) {
+        AWSKinesisListShardsOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
         }
 
         return nil;
@@ -650,6 +727,73 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
         if (completionHandler) {
             completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)startStreamEncryption:(AWSKinesisStartStreamEncryptionInput *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@""
+                  targetPrefix:@"Kinesis_20131202"
+                 operationName:@"StartStreamEncryption"
+                   outputClass:nil];
+}
+
+- (void)startStreamEncryption:(AWSKinesisStartStreamEncryptionInput *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self startStreamEncryption:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)stopStreamEncryption:(AWSKinesisStopStreamEncryptionInput *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@""
+                  targetPrefix:@"Kinesis_20131202"
+                 operationName:@"StopStreamEncryption"
+                   outputClass:nil];
+}
+
+- (void)stopStreamEncryption:(AWSKinesisStopStreamEncryptionInput *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self stopStreamEncryption:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSKinesisUpdateShardCountOutput *> *)updateShardCount:(AWSKinesisUpdateShardCountInput *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@""
+                  targetPrefix:@"Kinesis_20131202"
+                 operationName:@"UpdateShardCount"
+                   outputClass:[AWSKinesisUpdateShardCountOutput class]];
+}
+
+- (void)updateShardCount:(AWSKinesisUpdateShardCountInput *)request
+     completionHandler:(void (^)(AWSKinesisUpdateShardCountOutput *response, NSError *error))completionHandler {
+    [[self updateShardCount:request] continueWithBlock:^id _Nullable(AWSTask<AWSKinesisUpdateShardCountOutput *> * _Nonnull task) {
+        AWSKinesisUpdateShardCountOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
         }
 
         return nil;

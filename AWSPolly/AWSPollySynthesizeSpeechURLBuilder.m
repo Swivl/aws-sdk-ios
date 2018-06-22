@@ -16,7 +16,7 @@
 #import "AWSPollySynthesizeSpeechURLBuilder.h"
 
 static NSString *const AWSInfoPollySynthesizeSpeechURLBuilder = @"PollySynthesizeSpeechUrlBuilder";
-static NSString *const AWSPollySDKVersion = @"2.5.0";
+static NSString *const AWSPollySDKVersion = @"2.6.22";
 
 NSString *const AWSPollySynthesizeSpeechURLBuilderErrorDomain = @"com.amazonaws.AWSPollySynthesizeSpeechURLBuilderErrorDomain";
 NSString *const AWSPollyPresignedUrlPath = @"v1/speech";
@@ -36,12 +36,11 @@ NSString *const AWSPollyPresignedUrlPath = @"v1/speech";
 @implementation AWSPollySynthesizeSpeechURLBuilderRequest
 
 - (void)setLexiconNames:(NSArray<NSString *> *)lexiconNames {
-    if([lexiconNames count] > 1) {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:@"Cannot create Presigned URL with multiple lexicon names"
-                                     userInfo:nil];
-    }
     _lexiconNames = lexiconNames;
+}
+
+- (void)setSpeechMarkTypes:(NSArray<NSString *> *)speechMarkTypes {
+    _speechMarkTypes = speechMarkTypes;
 }
 
 @end
@@ -175,10 +174,12 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
         
         [parameters setObject:[self stringFromVoiceId:preSignedURLRequest.voiceId] forKey:@"VoiceId"];
         
-        //TODO: currently only the first lexicon is picked up, need to add support for string to list types
-        if(preSignedURLRequest.lexiconNames && [preSignedURLRequest.lexiconNames count] > 0)
-        {
-            [parameters setObject:preSignedURLRequest.lexiconNames[0] forKey:@"LexiconName"];
+        if(preSignedURLRequest.lexiconNames && [preSignedURLRequest.lexiconNames count] >= 1) {
+            [parameters setObject:preSignedURLRequest.lexiconNames forKey:@"LexiconNames"];
+        }
+        
+        if(preSignedURLRequest.speechMarkTypes && [preSignedURLRequest.speechMarkTypes count] >= 1) {
+            [parameters setObject:preSignedURLRequest.speechMarkTypes forKey:@"SpeechMarkTypes"];
         }
         
         NSMutableDictionary *headers = [NSMutableDictionary new];
@@ -203,6 +204,8 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
             return @"pcm";
         case AWSPollyOutputFormatOggVorbis:
             return @"ogg_vorbis";
+        case AWSPollyOutputFormatJson:
+            return @"json";
         case AWSPollyOutputFormatUnknown:
             return @"";
     }
@@ -257,6 +260,8 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
             return @"Kendra";
         case AWSPollyVoiceIdKimberly:
             return @"Kimberly";
+        case AWSPollyVoiceIdMatthew:
+            return @"Matthew";
         case AWSPollyVoiceIdSalli:
             return @"Salli";
         case AWSPollyVoiceIdConchita:
@@ -315,6 +320,16 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
             return @"Astrid";
         case AWSPollyVoiceIdFiliz:
             return @"Filiz";
+        case AWSPollyVoiceIdVicki:
+            return @"Vicki";
+        case AWSPollyVoiceIdTakumi:
+            return @"Takumi";
+        case AWSPollyVoiceIdSeoyeon:
+            return @"Seoyeon";
+        case AWSPollyVoiceIdAditi:
+            return @"Aditi";
+        case AWSPollyVoiceIdLea:
+            return @"Lea";
         default:
             return nil;
     }

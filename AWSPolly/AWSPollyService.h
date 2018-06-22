@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -301,7 +301,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param request A container for the necessary parameters to execute the SynthesizeSpeech service method.
 
- @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSPollySynthesizeSpeechOutput`. On failed execution, `task.error` may contain an `NSError` with `AWSPollyErrorDomain` domain and the following error code: `AWSPollyErrorTextLengthExceeded`, `AWSPollyErrorInvalidSampleRate`, `AWSPollyErrorInvalidSsml`, `AWSPollyErrorLexiconNotFound`, `AWSPollyErrorServiceFailure`.
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSPollySynthesizeSpeechOutput`. On failed execution, `task.error` may contain an `NSError` with `AWSPollyErrorDomain` domain and the following error code: `AWSPollyErrorTextLengthExceeded`, `AWSPollyErrorInvalidSampleRate`, `AWSPollyErrorInvalidSsml`, `AWSPollyErrorLexiconNotFound`, `AWSPollyErrorServiceFailure`, `AWSPollyErrorMarksNotSupportedForFormat`, `AWSPollyErrorSsmlMarksNotSupportedForTextType`.
  
  @see AWSPollySynthesizeSpeechInput
  @see AWSPollySynthesizeSpeechOutput
@@ -314,7 +314,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param request A container for the necessary parameters to execute the SynthesizeSpeech service method.
  @param completionHandler The completion handler to call when the load request is complete.
                           `response` - A response object, or `nil` if the request failed.
-                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful. On failed execution, `error` may contain an `NSError` with `AWSPollyErrorDomain` domain and the following error code: `AWSPollyErrorTextLengthExceeded`, `AWSPollyErrorInvalidSampleRate`, `AWSPollyErrorInvalidSsml`, `AWSPollyErrorLexiconNotFound`, `AWSPollyErrorServiceFailure`.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful. On failed execution, `error` may contain an `NSError` with `AWSPollyErrorDomain` domain and the following error code: `AWSPollyErrorTextLengthExceeded`, `AWSPollyErrorInvalidSampleRate`, `AWSPollyErrorInvalidSsml`, `AWSPollyErrorLexiconNotFound`, `AWSPollyErrorServiceFailure`, `AWSPollyErrorMarksNotSupportedForFormat`, `AWSPollyErrorSsmlMarksNotSupportedForTextType`.
  
  @see AWSPollySynthesizeSpeechInput
  @see AWSPollySynthesizeSpeechOutput

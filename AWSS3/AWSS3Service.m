@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #import "AWSS3Serializer.h"
 
 static NSString *const AWSInfoS3 = @"S3";
-static NSString *const AWSS3SDKVersion = @"2.5.0";
+static NSString *const AWSS3SDKVersion = @"2.6.22";
 
 
 
@@ -91,7 +91,7 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
         if (!serviceConfiguration) {
             @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                           reason:@"The service configuration is `nil`. You need to configure `Info.plist` or set `defaultServiceConfiguration` before using this method."
+                                           reason:@"The service configuration is `nil`. You need to configure `awsconfiguration.json`, `Info.plist` or set `defaultServiceConfiguration` before using this method."
                                          userInfo:nil];
         }
         _defaultS3 = [[AWSS3 alloc] initWithConfiguration:serviceConfiguration];
@@ -349,6 +349,28 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask *)deleteBucketAnalyticsConfiguration:(AWSS3DeleteBucketAnalyticsConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodDELETE
+                     URLString:@"/{Bucket}?analytics"
+                  targetPrefix:@""
+                 operationName:@"DeleteBucketAnalyticsConfiguration"
+                   outputClass:nil];
+}
+
+- (void)deleteBucketAnalyticsConfiguration:(AWSS3DeleteBucketAnalyticsConfigurationRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteBucketAnalyticsConfiguration:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)deleteBucketCors:(AWSS3DeleteBucketCorsRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodDELETE
@@ -371,6 +393,50 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask *)deleteBucketEncryption:(AWSS3DeleteBucketEncryptionRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodDELETE
+                     URLString:@"/{Bucket}?encryption"
+                  targetPrefix:@""
+                 operationName:@"DeleteBucketEncryption"
+                   outputClass:nil];
+}
+
+- (void)deleteBucketEncryption:(AWSS3DeleteBucketEncryptionRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteBucketEncryption:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)deleteBucketInventoryConfiguration:(AWSS3DeleteBucketInventoryConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodDELETE
+                     URLString:@"/{Bucket}?inventory"
+                  targetPrefix:@""
+                 operationName:@"DeleteBucketInventoryConfiguration"
+                   outputClass:nil];
+}
+
+- (void)deleteBucketInventoryConfiguration:(AWSS3DeleteBucketInventoryConfigurationRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteBucketInventoryConfiguration:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)deleteBucketLifecycle:(AWSS3DeleteBucketLifecycleRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodDELETE
@@ -383,6 +449,28 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 - (void)deleteBucketLifecycle:(AWSS3DeleteBucketLifecycleRequest *)request
      completionHandler:(void (^)(NSError *error))completionHandler {
     [[self deleteBucketLifecycle:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)deleteBucketMetricsConfiguration:(AWSS3DeleteBucketMetricsConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodDELETE
+                     URLString:@"/{Bucket}?metrics"
+                  targetPrefix:@""
+                 operationName:@"DeleteBucketMetricsConfiguration"
+                   outputClass:nil];
+}
+
+- (void)deleteBucketMetricsConfiguration:(AWSS3DeleteBucketMetricsConfigurationRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteBucketMetricsConfiguration:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
         NSError *error = task.error;
 
         if (completionHandler) {
@@ -504,6 +592,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask<AWSS3DeleteObjectTaggingOutput *> *)deleteObjectTagging:(AWSS3DeleteObjectTaggingRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodDELETE
+                     URLString:@"/{Bucket}/{Key+}?tagging"
+                  targetPrefix:@""
+                 operationName:@"DeleteObjectTagging"
+                   outputClass:[AWSS3DeleteObjectTaggingOutput class]];
+}
+
+- (void)deleteObjectTagging:(AWSS3DeleteObjectTaggingRequest *)request
+     completionHandler:(void (^)(AWSS3DeleteObjectTaggingOutput *response, NSError *error))completionHandler {
+    [[self deleteObjectTagging:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3DeleteObjectTaggingOutput *> * _Nonnull task) {
+        AWSS3DeleteObjectTaggingOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask<AWSS3DeleteObjectsOutput *> *)deleteObjects:(AWSS3DeleteObjectsRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -573,6 +684,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask<AWSS3GetBucketAnalyticsConfigurationOutput *> *)getBucketAnalyticsConfiguration:(AWSS3GetBucketAnalyticsConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}?analytics"
+                  targetPrefix:@""
+                 operationName:@"GetBucketAnalyticsConfiguration"
+                   outputClass:[AWSS3GetBucketAnalyticsConfigurationOutput class]];
+}
+
+- (void)getBucketAnalyticsConfiguration:(AWSS3GetBucketAnalyticsConfigurationRequest *)request
+     completionHandler:(void (^)(AWSS3GetBucketAnalyticsConfigurationOutput *response, NSError *error))completionHandler {
+    [[self getBucketAnalyticsConfiguration:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3GetBucketAnalyticsConfigurationOutput *> * _Nonnull task) {
+        AWSS3GetBucketAnalyticsConfigurationOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask<AWSS3GetBucketCorsOutput *> *)getBucketCors:(AWSS3GetBucketCorsRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodGET
@@ -586,6 +720,52 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
      completionHandler:(void (^)(AWSS3GetBucketCorsOutput *response, NSError *error))completionHandler {
     [[self getBucketCors:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3GetBucketCorsOutput *> * _Nonnull task) {
         AWSS3GetBucketCorsOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSS3GetBucketEncryptionOutput *> *)getBucketEncryption:(AWSS3GetBucketEncryptionRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}?encryption"
+                  targetPrefix:@""
+                 operationName:@"GetBucketEncryption"
+                   outputClass:[AWSS3GetBucketEncryptionOutput class]];
+}
+
+- (void)getBucketEncryption:(AWSS3GetBucketEncryptionRequest *)request
+     completionHandler:(void (^)(AWSS3GetBucketEncryptionOutput *response, NSError *error))completionHandler {
+    [[self getBucketEncryption:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3GetBucketEncryptionOutput *> * _Nonnull task) {
+        AWSS3GetBucketEncryptionOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSS3GetBucketInventoryConfigurationOutput *> *)getBucketInventoryConfiguration:(AWSS3GetBucketInventoryConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}?inventory"
+                  targetPrefix:@""
+                 operationName:@"GetBucketInventoryConfiguration"
+                   outputClass:[AWSS3GetBucketInventoryConfigurationOutput class]];
+}
+
+- (void)getBucketInventoryConfiguration:(AWSS3GetBucketInventoryConfigurationRequest *)request
+     completionHandler:(void (^)(AWSS3GetBucketInventoryConfigurationOutput *response, NSError *error))completionHandler {
+    [[self getBucketInventoryConfiguration:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3GetBucketInventoryConfigurationOutput *> * _Nonnull task) {
+        AWSS3GetBucketInventoryConfigurationOutput *result = task.result;
         NSError *error = task.error;
 
         if (completionHandler) {
@@ -678,6 +858,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
      completionHandler:(void (^)(AWSS3GetBucketLoggingOutput *response, NSError *error))completionHandler {
     [[self getBucketLogging:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3GetBucketLoggingOutput *> * _Nonnull task) {
         AWSS3GetBucketLoggingOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSS3GetBucketMetricsConfigurationOutput *> *)getBucketMetricsConfiguration:(AWSS3GetBucketMetricsConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}?metrics"
+                  targetPrefix:@""
+                 operationName:@"GetBucketMetricsConfiguration"
+                   outputClass:[AWSS3GetBucketMetricsConfigurationOutput class]];
+}
+
+- (void)getBucketMetricsConfiguration:(AWSS3GetBucketMetricsConfigurationRequest *)request
+     completionHandler:(void (^)(AWSS3GetBucketMetricsConfigurationOutput *response, NSError *error))completionHandler {
+    [[self getBucketMetricsConfiguration:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3GetBucketMetricsConfigurationOutput *> * _Nonnull task) {
+        AWSS3GetBucketMetricsConfigurationOutput *result = task.result;
         NSError *error = task.error;
 
         if (completionHandler) {
@@ -918,6 +1121,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask<AWSS3GetObjectTaggingOutput *> *)getObjectTagging:(AWSS3GetObjectTaggingRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}/{Key+}?tagging"
+                  targetPrefix:@""
+                 operationName:@"GetObjectTagging"
+                   outputClass:[AWSS3GetObjectTaggingOutput class]];
+}
+
+- (void)getObjectTagging:(AWSS3GetObjectTaggingRequest *)request
+     completionHandler:(void (^)(AWSS3GetObjectTaggingOutput *response, NSError *error))completionHandler {
+    [[self getObjectTagging:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3GetObjectTaggingOutput *> * _Nonnull task) {
+        AWSS3GetObjectTaggingOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask<AWSS3GetObjectTorrentOutput *> *)getObjectTorrent:(AWSS3GetObjectTorrentRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodGET
@@ -976,6 +1202,75 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
      completionHandler:(void (^)(AWSS3HeadObjectOutput *response, NSError *error))completionHandler {
     [[self headObject:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3HeadObjectOutput *> * _Nonnull task) {
         AWSS3HeadObjectOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSS3ListBucketAnalyticsConfigurationsOutput *> *)listBucketAnalyticsConfigurations:(AWSS3ListBucketAnalyticsConfigurationsRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}?analytics"
+                  targetPrefix:@""
+                 operationName:@"ListBucketAnalyticsConfigurations"
+                   outputClass:[AWSS3ListBucketAnalyticsConfigurationsOutput class]];
+}
+
+- (void)listBucketAnalyticsConfigurations:(AWSS3ListBucketAnalyticsConfigurationsRequest *)request
+     completionHandler:(void (^)(AWSS3ListBucketAnalyticsConfigurationsOutput *response, NSError *error))completionHandler {
+    [[self listBucketAnalyticsConfigurations:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3ListBucketAnalyticsConfigurationsOutput *> * _Nonnull task) {
+        AWSS3ListBucketAnalyticsConfigurationsOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSS3ListBucketInventoryConfigurationsOutput *> *)listBucketInventoryConfigurations:(AWSS3ListBucketInventoryConfigurationsRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}?inventory"
+                  targetPrefix:@""
+                 operationName:@"ListBucketInventoryConfigurations"
+                   outputClass:[AWSS3ListBucketInventoryConfigurationsOutput class]];
+}
+
+- (void)listBucketInventoryConfigurations:(AWSS3ListBucketInventoryConfigurationsRequest *)request
+     completionHandler:(void (^)(AWSS3ListBucketInventoryConfigurationsOutput *response, NSError *error))completionHandler {
+    [[self listBucketInventoryConfigurations:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3ListBucketInventoryConfigurationsOutput *> * _Nonnull task) {
+        AWSS3ListBucketInventoryConfigurationsOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSS3ListBucketMetricsConfigurationsOutput *> *)listBucketMetricsConfigurations:(AWSS3ListBucketMetricsConfigurationsRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/{Bucket}?metrics"
+                  targetPrefix:@""
+                 operationName:@"ListBucketMetricsConfigurations"
+                   outputClass:[AWSS3ListBucketMetricsConfigurationsOutput class]];
+}
+
+- (void)listBucketMetricsConfigurations:(AWSS3ListBucketMetricsConfigurationsRequest *)request
+     completionHandler:(void (^)(AWSS3ListBucketMetricsConfigurationsOutput *response, NSError *error))completionHandler {
+    [[self listBucketMetricsConfigurations:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3ListBucketMetricsConfigurationsOutput *> * _Nonnull task) {
+        AWSS3ListBucketMetricsConfigurationsOutput *result = task.result;
         NSError *error = task.error;
 
         if (completionHandler) {
@@ -1168,6 +1463,28 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask *)putBucketAnalyticsConfiguration:(AWSS3PutBucketAnalyticsConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPUT
+                     URLString:@"/{Bucket}?analytics"
+                  targetPrefix:@""
+                 operationName:@"PutBucketAnalyticsConfiguration"
+                   outputClass:nil];
+}
+
+- (void)putBucketAnalyticsConfiguration:(AWSS3PutBucketAnalyticsConfigurationRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self putBucketAnalyticsConfiguration:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)putBucketCors:(AWSS3PutBucketCorsRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPUT
@@ -1180,6 +1497,50 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 - (void)putBucketCors:(AWSS3PutBucketCorsRequest *)request
      completionHandler:(void (^)(NSError *error))completionHandler {
     [[self putBucketCors:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)putBucketEncryption:(AWSS3PutBucketEncryptionRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPUT
+                     URLString:@"/{Bucket}?encryption"
+                  targetPrefix:@""
+                 operationName:@"PutBucketEncryption"
+                   outputClass:nil];
+}
+
+- (void)putBucketEncryption:(AWSS3PutBucketEncryptionRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self putBucketEncryption:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)putBucketInventoryConfiguration:(AWSS3PutBucketInventoryConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPUT
+                     URLString:@"/{Bucket}?inventory"
+                  targetPrefix:@""
+                 operationName:@"PutBucketInventoryConfiguration"
+                   outputClass:nil];
+}
+
+- (void)putBucketInventoryConfiguration:(AWSS3PutBucketInventoryConfigurationRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self putBucketInventoryConfiguration:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
         NSError *error = task.error;
 
         if (completionHandler) {
@@ -1246,6 +1607,28 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 - (void)putBucketLogging:(AWSS3PutBucketLoggingRequest *)request
      completionHandler:(void (^)(NSError *error))completionHandler {
     [[self putBucketLogging:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)putBucketMetricsConfiguration:(AWSS3PutBucketMetricsConfigurationRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPUT
+                     URLString:@"/{Bucket}?metrics"
+                  targetPrefix:@""
+                 operationName:@"PutBucketMetricsConfiguration"
+                   outputClass:nil];
+}
+
+- (void)putBucketMetricsConfiguration:(AWSS3PutBucketMetricsConfigurationRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self putBucketMetricsConfiguration:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
         NSError *error = task.error;
 
         if (completionHandler) {
@@ -1478,6 +1861,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask<AWSS3PutObjectTaggingOutput *> *)putObjectTagging:(AWSS3PutObjectTaggingRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPUT
+                     URLString:@"/{Bucket}/{Key+}?tagging"
+                  targetPrefix:@""
+                 operationName:@"PutObjectTagging"
+                   outputClass:[AWSS3PutObjectTaggingOutput class]];
+}
+
+- (void)putObjectTagging:(AWSS3PutObjectTaggingRequest *)request
+     completionHandler:(void (^)(AWSS3PutObjectTaggingOutput *response, NSError *error))completionHandler {
+    [[self putObjectTagging:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3PutObjectTaggingOutput *> * _Nonnull task) {
+        AWSS3PutObjectTaggingOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask<AWSS3RestoreObjectOutput *> *)restoreObject:(AWSS3RestoreObjectRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodPOST
@@ -1491,6 +1897,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
      completionHandler:(void (^)(AWSS3RestoreObjectOutput *response, NSError *error))completionHandler {
     [[self restoreObject:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3RestoreObjectOutput *> * _Nonnull task) {
         AWSS3RestoreObjectOutput *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSS3SelectObjectContentOutput *> *)selectObjectContent:(AWSS3SelectObjectContentRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@"/{Bucket}/{Key+}?select&select-type=2"
+                  targetPrefix:@""
+                 operationName:@"SelectObjectContent"
+                   outputClass:[AWSS3SelectObjectContentOutput class]];
+}
+
+- (void)selectObjectContent:(AWSS3SelectObjectContentRequest *)request
+     completionHandler:(void (^)(AWSS3SelectObjectContentOutput *response, NSError *error))completionHandler {
+    [[self selectObjectContent:request] continueWithBlock:^id _Nullable(AWSTask<AWSS3SelectObjectContentOutput *> * _Nonnull task) {
+        AWSS3SelectObjectContentOutput *result = task.result;
         NSError *error = task.error;
 
         if (completionHandler) {

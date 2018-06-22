@@ -1,19 +1,17 @@
 //
-// MQTTSession.h
-// MQtt Client
-// 
-// Copyright (c) 2011, 2013, 2lemetry LLC
-// 
-// All rights reserved. This program and the accompanying materials
-// are made available under the terms of the Eclipse Public License v1.0
-// and Eclipse Distribution License v. 1.0 which accompanies this distribution.
-// The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
-// and the Eclipse Distribution License is available at
-// http://www.eclipse.org/org/documents/edl-v10.php.
-// 
-// Contributors:
-//    Kyle Roche - initial API and implementation and/or initial documentation
-// 
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
 #import <Foundation/Foundation.h>
 #import "MQTTMessage.h"
@@ -40,44 +38,15 @@ typedef enum {
 - (void)session:(MQTTSession*)session handleEvent:(MQTTSessionEvent)eventCode;
 - (void)session:(MQTTSession*)session newMessage:(NSData*)data onTopic:(NSString*)topic;
 
+@optional
+- (void)session:(MQTTSession*)session newAckForMessageId:(UInt16)msgId;
+
 @end
 
 @interface MQTTSession : NSObject 
 
 #pragma mark Constructors
 
-- (id)initWithClientId:(NSString*)theClientId;
-- (id)initWithClientId:(NSString*)theClientId runLoop:(NSRunLoop*)theRunLoop
-               forMode:(NSString*)theRunLoopMode;
-- (id)initWithClientId:(NSString*)theClientId
-              userName:(NSString*)theUsername
-              password:(NSString*)thePassword;
-- (id)initWithClientId:(NSString*)theClientId
-              userName:(NSString*)theUserName
-              password:(NSString*)thePassword
-               runLoop:(NSRunLoop*)theRunLoop
-               forMode:(NSString*)theRunLoopMode;
-- (id)initWithClientId:(NSString*)theClientId
-              userName:(NSString*)theUsername
-              password:(NSString*)thePassword
-             keepAlive:(UInt16)theKeepAliveInterval
-          cleanSession:(BOOL)cleanSessionFlag;
-- (id)initWithClientId:(NSString*)theClientId
-              userName:(NSString*)theUsername
-              password:(NSString*)thePassword
-             keepAlive:(UInt16)theKeepAlive
-          cleanSession:(BOOL)theCleanSessionFlag
-               runLoop:(NSRunLoop*)theRunLoop
-               forMode:(NSString*)theMode;
-- (id)initWithClientId:(NSString*)theClientId
-              userName:(NSString*)theUserName
-              password:(NSString*)thePassword
-             keepAlive:(UInt16)theKeepAliveInterval
-          cleanSession:(BOOL)theCleanSessionFlag
-             willTopic:(NSString*)willTopic
-               willMsg:(NSData*)willMsg
-               willQoS:(UInt8)willQoS
-        willRetainFlag:(BOOL)willRetainFlag;
 - (id)initWithClientId:(NSString*)theClientId
               userName:(NSString*)theUserName
               password:(NSString*)thePassword
@@ -87,43 +56,38 @@ typedef enum {
                willMsg:(NSData*)willMsg
                willQoS:(UInt8)willQoS
         willRetainFlag:(BOOL)willRetainFlag
-               runLoop:(NSRunLoop*)theRunLoop
-               forMode:(NSString*)theRunLoopMode;
-- (id)initWithClientId:(NSString*)theClientId
-             keepAlive:(UInt16)theKeepAliveInterval
-        connectMessage:(MQTTMessage*)theConnectMessage
-               runLoop:(NSRunLoop*)theRunLoop
-               forMode:(NSString*)theRunLoopMode;
+  publishRetryThrottle: (NSUInteger)publishRetryThrottle;
 
 #pragma mark Delegates and Callback blocks
 @property (weak) id<MQTTSessionDelegate> delegate;
 @property (strong) void (^connectionHandler)(MQTTSessionEvent event);
 @property (strong) void (^messageHandler)(NSData* message, NSString* topic);
+@property (strong) void (^subsAckHandler)(UInt16 msgId);
 
 #pragma mark Connection Management
-- (void)connectToHost:(NSString*)ip port:(UInt32)port;
-- (void)connectToHost:(NSString*)ip port:(UInt32)port usingSSL:(BOOL)usingSSL sslCertificated:(NSArray*)sslCertificated;
-- (void)connectToHost:(NSString*)ip port:(UInt32)port withConnectionHandler:(void (^)(MQTTSessionEvent event))connHandler messageHandler:(void (^)(NSData* data, NSString* topic))messHandler;
-- (void)connectToHost:(NSString*)ip port:(UInt32)port usingSSL:(BOOL)usingSSL sslCertificated:(NSArray*)sslCertificated withConnectionHandler:(void (^)(MQTTSessionEvent event))connHandler messageHandler:(void (^)(NSData* data, NSString* topic))messHandler;
-- (id)connectToInputStream:(NSInputStream *)readStream outputStream:(NSOutputStream *)writeStream;
+- (id)connectToInputStream:(NSInputStream *)readStream
+              outputStream:(NSOutputStream *)writeStream;
 - (void)close;
 
 #pragma mark Subscription Management
-- (void)subscribeTopic:(NSString*)theTopic;
-- (void)subscribeToTopic:(NSString*)topic atLevel:(UInt8)qosLevel;
-- (void)unsubscribeTopic:(NSString*)theTopic;
+- (UInt16)subscribeTopic:(NSString*)theTopic;
+- (UInt16)subscribeToTopic:(NSString*)topic atLevel:(UInt8)qosLevel;
+- (UInt16)unsubscribeTopic:(NSString*)theTopic;
 
 #pragma mark Message Publishing
+@property NSUInteger publishRetryThrottle; //The max number of publish messages to retry per second if the pub-ack is not received within 60 seconds
+
 - (void)publishData:(NSData*)theData onTopic:(NSString*)theTopic;
-- (void)publishDataAtLeastOnce:(NSData*)theData onTopic:(NSString*)theTopic;
-- (void)publishDataAtLeastOnce:(NSData*)theData onTopic:(NSString*)theTopic retain:(BOOL)retainFlag;
+- (UInt16)publishDataAtLeastOnce:(NSData*)theData onTopic:(NSString*)theTopic;
+- (UInt16)publishDataAtLeastOnce:(NSData*)theData onTopic:(NSString*)theTopic retain:(BOOL)retainFlag;
 - (void)publishDataAtMostOnce:(NSData*)theData onTopic:(NSString*)theTopic;
 - (void)publishDataAtMostOnce:(NSData*)theData onTopic:(NSString*)theTopic retain:(BOOL)retainFlag;
-- (void)publishDataExactlyOnce:(NSData*)theData onTopic:(NSString*)theTopic;
-- (void)publishDataExactlyOnce:(NSData*)theData onTopic:(NSString*)theTopic retain:(BOOL)retainFlag;
+- (UInt16)publishDataExactlyOnce:(NSData*)theData onTopic:(NSString*)theTopic;
+- (UInt16)publishDataExactlyOnce:(NSData*)theData onTopic:(NSString*)theTopic retain:(BOOL)retainFlag;
 - (void)publishJson:(id)payload onTopic:(NSString*)theTopic;
 
 - (BOOL)isReadyToPublish;
+- (void)send:(MQTTMessage*)msg;
 
 @end
 

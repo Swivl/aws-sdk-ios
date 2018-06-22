@@ -30,10 +30,22 @@
 @property (nonatomic, strong) NSString *topic;
 @property (nonatomic, strong) NSData *message;
 @property (atomic, assign) UInt8 qos;
+@property (nonatomic, strong) AWSIoTMQTTAckBlock ackCallback;
 @end
 
 @interface AWSIoTMQTTClient <AWSSRWebSocketDelegate, NSStreamDelegate>: NSObject
 
+
+/**
+ Boolean flag to indicate whether auto-resubscribe feature is enabled. This flag may
+ be set through AWSIoTMQTTConfiguration in AWSIoTDataManager
+ */
+@property(nonatomic, assign) BOOL autoResubscribe;
+
+/**
+ The current MQTT connection status to AWS IoT
+ */
+@property(atomic, assign, readonly) AWSIoTMQTTStatus mqttStatus;
 /**
  These properties control the reconnect behavior of the MQTT Client.  If the MQTT
  client becomes disconnected, it will attempt to reconnect after a quiet period;
@@ -58,6 +70,9 @@
 @property(atomic, assign) NSTimeInterval minimumConnectionTime;
 @property(atomic, assign) NSTimeInterval maximumReconnectTime;
 
+@property(atomic, assign) BOOL isMetricsEnabled;
+@property(atomic, assign) NSUInteger publishRetryThrottle;
+
 /**
  The client ID for the current connection; can be nil if not connected.
  */
@@ -67,12 +82,6 @@
  An optional associated object (nil by default).
  */
 @property(nonatomic, strong) NSObject *associatedObject;
-
-/**
- Returns a default singleton object. You should use this singleton method instead of creating an instance of the mqtt client.
- @return The default mqtt client. This is a singleton object.
- */
-+ (instancetype)sharedInstance;
 
 - (BOOL)connectWithClientId:(NSString *)clientId
                      toHost:(NSString *)host
@@ -84,8 +93,6 @@
                     willMsg:(NSData*)willMsg
                     willQoS:(UInt8)willQoS
              willRetainFlag:(BOOL)willRetainFlag
-                    runLoop:(NSRunLoop*)theRunLoop
-                    forMode:(NSString*)theRunLoopMode
              statusCallback:(void (^)(AWSIoTMQTTStatus status))callback;
 
 - (BOOL)connectWithClientId:(NSString *)clientId
@@ -96,8 +103,6 @@
                     willMsg:(NSData*)willMsg
                     willQoS:(UInt8)willQoS
              willRetainFlag:(BOOL)willRetainFlag
-                    runLoop:(NSRunLoop*)theRunLoop
-                    forMode:(NSString*)theRunLoopMode
              statusCallback:(void (^)(AWSIoTMQTTStatus status))callback;
 
 - (void)disconnect;
@@ -105,7 +110,9 @@
 /**
  Send MQTT message to specified topic
 
- @param message The message to be sent.
+ @param str The message to be sent.
+ 
+ @param data The data to be sent.
 
  @param qos The qos to use when sending (optional, default 0).
 
@@ -119,12 +126,22 @@
                   qos:(UInt8)qos
               onTopic:(NSString *)topic;
 
+- (void)publishString:(NSString *)str
+                  qos:(UInt8)qos
+              onTopic:(NSString *)topic
+          ackCallback:(AWSIoTMQTTAckBlock)ackCallback;
+
 - (void)publishData:(NSData *)data
             onTopic:(NSString *)topic;
 
 - (void)publishData:(NSData *)data
                 qos:(UInt8)qos
             onTopic:(NSString *)topic;
+
+- (void)publishData:(NSData *)data
+                qos:(UInt8)qos
+            onTopic:(NSString *)topic
+        ackCallback:(AWSIoTMQTTAckBlock)ackCallback;
 
 /**
  Subscribes to a topic at a specific QoS level
@@ -133,7 +150,7 @@
 
  @param qos Specifies the QoS Level of the subscription. Can be 0, 1, or 2.
 
- @param delegate Reference to AWSIOTMQTTNewMessageBlock. When new message is received the block will be invoked.
+ @param callback Delegate Reference to AWSIOTMQTTNewMessageBlock. When new message is received the callback will be invoked.
  */
 - (void)subscribeToTopic:(NSString *)topic qos:(UInt8)qos
          messageCallback:(AWSIoTMQTTNewMessageBlock)callback;
@@ -145,10 +162,42 @@
  
  @param qos Specifies the QoS Level of the subscription. Can be 0, 1, or 2.
  
- @param delegate Reference to AWSIOTMQTTExtendedNewMessageBlock. When new message is received the block will be invoked.
+ @param callback Delegate Reference to AWSIOTMQTTNewMessageBlock. When new message is received the callback will be invoked.
+ 
+ @param ackCallback Delegate Reference to AWSIOTMQTTNewAckBlock. When ack is received the callback will be invoked.
+ */
+- (void)subscribeToTopic:(NSString *)topic
+                     qos:(UInt8)qos
+         messageCallback:(AWSIoTMQTTNewMessageBlock)callback
+             ackCallback:(AWSIoTMQTTAckBlock)ackCallback;
+
+/**
+ Subscribes to a topic at a specific QoS level
+ 
+ @param topic The Topic to subscribe to.
+ 
+ @param qos Specifies the QoS Level of the subscription. Can be 0, 1, or 2.
+ 
+ @param callback Delegate Reference to AWSIOTMQTTExtendedNewMessageBlock. When new message is received the block will be invoked.
  */
 - (void)subscribeToTopic:(NSString *)topic qos:(UInt8)qos
         extendedCallback:(AWSIoTMQTTExtendedNewMessageBlock)callback;
+
+/**
+ Subscribes to a topic at a specific QoS level
+ 
+ @param topic The Topic to subscribe to.
+ 
+ @param qos Specifies the QoS Level of the subscription. Can be 0, 1, or 2.
+ 
+ @param ackCallback The ackCallback for QoS > 0
+ 
+ @param callback Delegate Reference to AWSIOTMQTTExtendedNewMessageBlock. When new message is received the block will be invoked.
+ */
+- (void)subscribeToTopic:(NSString *)topic
+                     qos:(UInt8)qos
+        extendedCallback:(AWSIoTMQTTExtendedNewMessageBlock)callback
+             ackCallback:(AWSIoTMQTTAckBlock)ackCallback;
 
 /**
  Unsubscribes from a topic
@@ -157,5 +206,15 @@
 
  */
 - (void)unsubscribeTopic:(NSString *)topic;
+
+/**
+ Unsubscribes from a topic
+ 
+ @param topic The Topic to unsubscribe from.
+ @param ack callback for unsubscribe message.
+ 
+ */
+- (void)unsubscribeTopic:(NSString *)topic
+             ackCallback:(AWSIoTMQTTAckBlock)ackCallback;
 
 @end

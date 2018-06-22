@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 //
 
 #import "AWSS3Resources.h"
-#import <AWSCore/AWSLogging.h>
+#import <AWSCore/AWSCocoaLumberjack.h>
 
 @interface AWSS3Resources ()
 
@@ -48,7 +48,7 @@
                                                                   error:&error];
         if (_definitionDictionary == nil) {
             if (error) {
-                AWSLogError(@"Failed to parse JSON service definition: %@",error);
+                AWSDDLogError(@"Failed to parse JSON service definition: %@",error);
             }
         }
     }
@@ -66,8 +66,10 @@
     \"protocol\":\"rest-xml\",\
     \"serviceAbbreviation\":\"Amazon S3\",\
     \"serviceFullName\":\"Amazon Simple Storage Service\",\
+    \"serviceId\":\"S3\",\
     \"signatureVersion\":\"s3\",\
-    \"timestampFormat\":\"rfc822\"\
+    \"timestampFormat\":\"rfc822\",\
+    \"uid\":\"s3-2006-03-01\"\
   },\
   \"operations\":{\
     \"AbortMultipartUpload\":{\
@@ -148,6 +150,15 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketDELETE.html\",\
       \"documentation\":\"Deletes the bucket. All objects (including all object versions and Delete Markers) in the bucket must be deleted before the bucket itself can be deleted.\"\
     },\
+    \"DeleteBucketAnalyticsConfiguration\":{\
+      \"name\":\"DeleteBucketAnalyticsConfiguration\",\
+      \"http\":{\
+        \"method\":\"DELETE\",\
+        \"requestUri\":\"/{Bucket}?analytics\"\
+      },\
+      \"input\":{\"shape\":\"DeleteBucketAnalyticsConfigurationRequest\"},\
+      \"documentation\":\"Deletes an analytics configuration for the bucket (specified by the analytics configuration ID).\"\
+    },\
     \"DeleteBucketCors\":{\
       \"name\":\"DeleteBucketCors\",\
       \"http\":{\
@@ -158,6 +169,24 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketDELETEcors.html\",\
       \"documentation\":\"Deletes the cors configuration information set for the bucket.\"\
     },\
+    \"DeleteBucketEncryption\":{\
+      \"name\":\"DeleteBucketEncryption\",\
+      \"http\":{\
+        \"method\":\"DELETE\",\
+        \"requestUri\":\"/{Bucket}?encryption\"\
+      },\
+      \"input\":{\"shape\":\"DeleteBucketEncryptionRequest\"},\
+      \"documentation\":\"Deletes the server-side encryption configuration from the bucket.\"\
+    },\
+    \"DeleteBucketInventoryConfiguration\":{\
+      \"name\":\"DeleteBucketInventoryConfiguration\",\
+      \"http\":{\
+        \"method\":\"DELETE\",\
+        \"requestUri\":\"/{Bucket}?inventory\"\
+      },\
+      \"input\":{\"shape\":\"DeleteBucketInventoryConfigurationRequest\"},\
+      \"documentation\":\"Deletes an inventory configuration (identified by the inventory ID) from the bucket.\"\
+    },\
     \"DeleteBucketLifecycle\":{\
       \"name\":\"DeleteBucketLifecycle\",\
       \"http\":{\
@@ -167,6 +196,15 @@
       \"input\":{\"shape\":\"DeleteBucketLifecycleRequest\"},\
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketDELETElifecycle.html\",\
       \"documentation\":\"Deletes the lifecycle configuration from the bucket.\"\
+    },\
+    \"DeleteBucketMetricsConfiguration\":{\
+      \"name\":\"DeleteBucketMetricsConfiguration\",\
+      \"http\":{\
+        \"method\":\"DELETE\",\
+        \"requestUri\":\"/{Bucket}?metrics\"\
+      },\
+      \"input\":{\"shape\":\"DeleteBucketMetricsConfigurationRequest\"},\
+      \"documentation\":\"Deletes a metrics configuration (specified by the metrics configuration ID) from the bucket.\"\
     },\
     \"DeleteBucketPolicy\":{\
       \"name\":\"DeleteBucketPolicy\",\
@@ -218,6 +256,16 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectDELETE.html\",\
       \"documentation\":\"Removes the null version (if there is one) of an object and inserts a delete marker, which becomes the latest version of the object. If there isn't a null version, Amazon S3 does not remove any objects.\"\
     },\
+    \"DeleteObjectTagging\":{\
+      \"name\":\"DeleteObjectTagging\",\
+      \"http\":{\
+        \"method\":\"DELETE\",\
+        \"requestUri\":\"/{Bucket}/{Key+}?tagging\"\
+      },\
+      \"input\":{\"shape\":\"DeleteObjectTaggingRequest\"},\
+      \"output\":{\"shape\":\"DeleteObjectTaggingOutput\"},\
+      \"documentation\":\"Removes the tag-set from an existing object.\"\
+    },\
     \"DeleteObjects\":{\
       \"name\":\"DeleteObjects\",\
       \"http\":{\
@@ -251,6 +299,16 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketGETacl.html\",\
       \"documentation\":\"Gets the access control policy for the bucket.\"\
     },\
+    \"GetBucketAnalyticsConfiguration\":{\
+      \"name\":\"GetBucketAnalyticsConfiguration\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}?analytics\"\
+      },\
+      \"input\":{\"shape\":\"GetBucketAnalyticsConfigurationRequest\"},\
+      \"output\":{\"shape\":\"GetBucketAnalyticsConfigurationOutput\"},\
+      \"documentation\":\"Gets an analytics configuration for the bucket (specified by the analytics configuration ID).\"\
+    },\
     \"GetBucketCors\":{\
       \"name\":\"GetBucketCors\",\
       \"http\":{\
@@ -261,6 +319,26 @@
       \"output\":{\"shape\":\"GetBucketCorsOutput\"},\
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketGETcors.html\",\
       \"documentation\":\"Returns the cors configuration for the bucket.\"\
+    },\
+    \"GetBucketEncryption\":{\
+      \"name\":\"GetBucketEncryption\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}?encryption\"\
+      },\
+      \"input\":{\"shape\":\"GetBucketEncryptionRequest\"},\
+      \"output\":{\"shape\":\"GetBucketEncryptionOutput\"},\
+      \"documentation\":\"Returns the server-side encryption configuration of a bucket.\"\
+    },\
+    \"GetBucketInventoryConfiguration\":{\
+      \"name\":\"GetBucketInventoryConfiguration\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}?inventory\"\
+      },\
+      \"input\":{\"shape\":\"GetBucketInventoryConfigurationRequest\"},\
+      \"output\":{\"shape\":\"GetBucketInventoryConfigurationOutput\"},\
+      \"documentation\":\"Returns an inventory configuration (identified by the inventory ID) from the bucket.\"\
     },\
     \"GetBucketLifecycle\":{\
       \"name\":\"GetBucketLifecycle\",\
@@ -305,6 +383,16 @@
       \"output\":{\"shape\":\"GetBucketLoggingOutput\"},\
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketGETlogging.html\",\
       \"documentation\":\"Returns the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner.\"\
+    },\
+    \"GetBucketMetricsConfiguration\":{\
+      \"name\":\"GetBucketMetricsConfiguration\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}?metrics\"\
+      },\
+      \"input\":{\"shape\":\"GetBucketMetricsConfigurationRequest\"},\
+      \"output\":{\"shape\":\"GetBucketMetricsConfigurationOutput\"},\
+      \"documentation\":\"Gets a metrics configuration (specified by the metrics configuration ID) from the bucket.\"\
     },\
     \"GetBucketNotification\":{\
       \"name\":\"GetBucketNotification\",\
@@ -421,6 +509,16 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectGETacl.html\",\
       \"documentation\":\"Returns the access control list (ACL) of an object.\"\
     },\
+    \"GetObjectTagging\":{\
+      \"name\":\"GetObjectTagging\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}/{Key+}?tagging\"\
+      },\
+      \"input\":{\"shape\":\"GetObjectTaggingRequest\"},\
+      \"output\":{\"shape\":\"GetObjectTaggingOutput\"},\
+      \"documentation\":\"Returns the tag-set of an object.\"\
+    },\
     \"GetObjectTorrent\":{\
       \"name\":\"GetObjectTorrent\",\
       \"http\":{\
@@ -458,6 +556,36 @@
       ],\
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectHEAD.html\",\
       \"documentation\":\"The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you're only interested in an object's metadata. To use HEAD, you must have READ access to the object.\"\
+    },\
+    \"ListBucketAnalyticsConfigurations\":{\
+      \"name\":\"ListBucketAnalyticsConfigurations\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}?analytics\"\
+      },\
+      \"input\":{\"shape\":\"ListBucketAnalyticsConfigurationsRequest\"},\
+      \"output\":{\"shape\":\"ListBucketAnalyticsConfigurationsOutput\"},\
+      \"documentation\":\"Lists the analytics configurations for the bucket.\"\
+    },\
+    \"ListBucketInventoryConfigurations\":{\
+      \"name\":\"ListBucketInventoryConfigurations\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}?inventory\"\
+      },\
+      \"input\":{\"shape\":\"ListBucketInventoryConfigurationsRequest\"},\
+      \"output\":{\"shape\":\"ListBucketInventoryConfigurationsOutput\"},\
+      \"documentation\":\"Returns a list of inventory configurations for the bucket.\"\
+    },\
+    \"ListBucketMetricsConfigurations\":{\
+      \"name\":\"ListBucketMetricsConfigurations\",\
+      \"http\":{\
+        \"method\":\"GET\",\
+        \"requestUri\":\"/{Bucket}?metrics\"\
+      },\
+      \"input\":{\"shape\":\"ListBucketMetricsConfigurationsRequest\"},\
+      \"output\":{\"shape\":\"ListBucketMetricsConfigurationsOutput\"},\
+      \"documentation\":\"Lists the metrics configurations for the bucket.\"\
     },\
     \"ListBuckets\":{\
       \"name\":\"ListBuckets\",\
@@ -551,6 +679,15 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketPUTacl.html\",\
       \"documentation\":\"Sets the permissions on a bucket using access control lists (ACL).\"\
     },\
+    \"PutBucketAnalyticsConfiguration\":{\
+      \"name\":\"PutBucketAnalyticsConfiguration\",\
+      \"http\":{\
+        \"method\":\"PUT\",\
+        \"requestUri\":\"/{Bucket}?analytics\"\
+      },\
+      \"input\":{\"shape\":\"PutBucketAnalyticsConfigurationRequest\"},\
+      \"documentation\":\"Sets an analytics configuration for the bucket (specified by the analytics configuration ID).\"\
+    },\
     \"PutBucketCors\":{\
       \"name\":\"PutBucketCors\",\
       \"http\":{\
@@ -560,6 +697,24 @@
       \"input\":{\"shape\":\"PutBucketCorsRequest\"},\
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketPUTcors.html\",\
       \"documentation\":\"Sets the cors configuration for a bucket.\"\
+    },\
+    \"PutBucketEncryption\":{\
+      \"name\":\"PutBucketEncryption\",\
+      \"http\":{\
+        \"method\":\"PUT\",\
+        \"requestUri\":\"/{Bucket}?encryption\"\
+      },\
+      \"input\":{\"shape\":\"PutBucketEncryptionRequest\"},\
+      \"documentation\":\"Creates a new server-side encryption configuration (or replaces an existing one, if present).\"\
+    },\
+    \"PutBucketInventoryConfiguration\":{\
+      \"name\":\"PutBucketInventoryConfiguration\",\
+      \"http\":{\
+        \"method\":\"PUT\",\
+        \"requestUri\":\"/{Bucket}?inventory\"\
+      },\
+      \"input\":{\"shape\":\"PutBucketInventoryConfigurationRequest\"},\
+      \"documentation\":\"Adds an inventory configuration (identified by the inventory ID) from the bucket.\"\
     },\
     \"PutBucketLifecycle\":{\
       \"name\":\"PutBucketLifecycle\",\
@@ -590,6 +745,15 @@
       \"input\":{\"shape\":\"PutBucketLoggingRequest\"},\
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTBucketPUTlogging.html\",\
       \"documentation\":\"Set the logging parameters for a bucket and to specify permissions for who can view and modify the logging parameters. To set the logging status of a bucket, you must be the bucket owner.\"\
+    },\
+    \"PutBucketMetricsConfiguration\":{\
+      \"name\":\"PutBucketMetricsConfiguration\",\
+      \"http\":{\
+        \"method\":\"PUT\",\
+        \"requestUri\":\"/{Bucket}?metrics\"\
+      },\
+      \"input\":{\"shape\":\"PutBucketMetricsConfigurationRequest\"},\
+      \"documentation\":\"Sets a metrics configuration (specified by the metrics configuration ID) for the bucket.\"\
     },\
     \"PutBucketNotification\":{\
       \"name\":\"PutBucketNotification\",\
@@ -695,6 +859,16 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectPUTacl.html\",\
       \"documentation\":\"uses the acl subresource to set the access control list (ACL) permissions for an object that already exists in a bucket\"\
     },\
+    \"PutObjectTagging\":{\
+      \"name\":\"PutObjectTagging\",\
+      \"http\":{\
+        \"method\":\"PUT\",\
+        \"requestUri\":\"/{Bucket}/{Key+}?tagging\"\
+      },\
+      \"input\":{\"shape\":\"PutObjectTaggingRequest\"},\
+      \"output\":{\"shape\":\"PutObjectTaggingOutput\"},\
+      \"documentation\":\"Sets the supplied tag-set to an object that already exists in a bucket\"\
+    },\
     \"RestoreObject\":{\
       \"name\":\"RestoreObject\",\
       \"http\":{\
@@ -709,6 +883,20 @@
       \"documentationUrl\":\"http://docs.amazonwebservices.com/AmazonS3/latest/API/RESTObjectRestore.html\",\
       \"documentation\":\"Restores an archived copy of an object back into Amazon S3\",\
       \"alias\":\"PostObjectRestore\"\
+    },\
+    \"SelectObjectContent\":{\
+      \"name\":\"SelectObjectContent\",\
+      \"http\":{\
+        \"method\":\"POST\",\
+        \"requestUri\":\"/{Bucket}/{Key+}?select&select-type=2\"\
+      },\
+      \"input\":{\
+        \"shape\":\"SelectObjectContentRequest\",\
+        \"locationName\":\"SelectObjectContentRequest\",\
+        \"xmlNamespace\":{\"uri\":\"http://s3.amazonaws.com/doc/2006-03-01/\"}\
+      },\
+      \"output\":{\"shape\":\"SelectObjectContentOutput\"},\
+      \"documentation\":\"This operation filters the contents of an Amazon S3 object based on a simple Structured Query Language (SQL) statement. In the request, along with the SQL expression, you must also specify a data serialization format (JSON or CSV) of the object. Amazon S3 uses this to parse object data into records, and returns only records that match the specified SQL expression. You must also specify the data serialization format for the response.\"\
     },\
     \"UploadPart\":{\
       \"name\":\"UploadPart\",\
@@ -807,6 +995,18 @@
         \"Owner\":{\"shape\":\"Owner\"}\
       }\
     },\
+    \"AccessControlTranslation\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Owner\"],\
+      \"members\":{\
+        \"Owner\":{\
+          \"shape\":\"OwnerOverride\",\
+          \"documentation\":\"The override value for the owner of the replica object.\"\
+        }\
+      },\
+      \"documentation\":\"Container for information regarding the access control for replicas.\"\
+    },\
+    \"AccountId\":{\"type\":\"string\"},\
     \"AllowedHeader\":{\"type\":\"string\"},\
     \"AllowedHeaders\":{\
       \"type\":\"list\",\
@@ -824,6 +1024,104 @@
       \"type\":\"list\",\
       \"member\":{\"shape\":\"AllowedOrigin\"},\
       \"flattened\":true\
+    },\
+    \"AnalyticsAndOperator\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"The prefix to use when evaluating an AND predicate.\"\
+        },\
+        \"Tags\":{\
+          \"shape\":\"TagSet\",\
+          \"documentation\":\"The list of tags to use when evaluating an AND predicate.\",\
+          \"flattened\":true,\
+          \"locationName\":\"Tag\"\
+        }\
+      }\
+    },\
+    \"AnalyticsConfiguration\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Id\",\
+        \"StorageClassAnalysis\"\
+      ],\
+      \"members\":{\
+        \"Id\":{\
+          \"shape\":\"AnalyticsId\",\
+          \"documentation\":\"The identifier used to represent an analytics configuration.\"\
+        },\
+        \"Filter\":{\
+          \"shape\":\"AnalyticsFilter\",\
+          \"documentation\":\"The filter used to describe a set of objects for analyses. A filter must have exactly one prefix, one tag, or one conjunction (AnalyticsAndOperator). If no filter is provided, all objects will be considered in any analysis.\"\
+        },\
+        \"StorageClassAnalysis\":{\
+          \"shape\":\"StorageClassAnalysis\",\
+          \"documentation\":\"If present, it indicates that data related to access patterns will be collected and made available to analyze the tradeoffs between different storage classes.\"\
+        }\
+      }\
+    },\
+    \"AnalyticsConfigurationList\":{\
+      \"type\":\"list\",\
+      \"member\":{\"shape\":\"AnalyticsConfiguration\"},\
+      \"flattened\":true\
+    },\
+    \"AnalyticsExportDestination\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"S3BucketDestination\"],\
+      \"members\":{\
+        \"S3BucketDestination\":{\
+          \"shape\":\"AnalyticsS3BucketDestination\",\
+          \"documentation\":\"A destination signifying output to an S3 bucket.\"\
+        }\
+      }\
+    },\
+    \"AnalyticsFilter\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"The prefix to use when evaluating an analytics filter.\"\
+        },\
+        \"Tag\":{\
+          \"shape\":\"Tag\",\
+          \"documentation\":\"The tag to use when evaluating an analytics filter.\"\
+        },\
+        \"And\":{\
+          \"shape\":\"AnalyticsAndOperator\",\
+          \"documentation\":\"A conjunction (logical AND) of predicates, which is used in evaluating an analytics filter. The operator must have at least two predicates.\"\
+        }\
+      }\
+    },\
+    \"AnalyticsId\":{\"type\":\"string\"},\
+    \"AnalyticsS3BucketDestination\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Format\",\
+        \"Bucket\"\
+      ],\
+      \"members\":{\
+        \"Format\":{\
+          \"shape\":\"AnalyticsS3ExportFileFormat\",\
+          \"documentation\":\"The file format used when exporting data to Amazon S3.\"\
+        },\
+        \"BucketAccountId\":{\
+          \"shape\":\"AccountId\",\
+          \"documentation\":\"The account ID that owns the destination bucket. If no account ID is provided, the owner will not be validated prior to exporting data.\"\
+        },\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The Amazon resource name (ARN) of the bucket to which data is exported.\"\
+        },\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"The prefix to use when exporting data. The exported data begins with this prefix.\"\
+        }\
+      }\
+    },\
+    \"AnalyticsS3ExportFileFormat\":{\
+      \"type\":\"string\",\
+      \"enum\":[\"CSV\"]\
     },\
     \"Body\":{\"type\":\"blob\"},\
     \"Bucket\":{\
@@ -884,10 +1182,11 @@
         \"\",\
         \"EU\",\
         \"eu-west-1\",\
-        \"eu-west-2\",\
-        \"us-east-2\",\
         \"us-west-1\",\
         \"us-west-2\",\
+        \"eu-west-2\",\
+        \"eu-west-3\",\
+        \"us-east-2\",\
         \"ap-south-1\",\
         \"ap-southeast-1\",\
         \"ap-southeast-2\",\
@@ -895,6 +1194,7 @@
         \"ap-northeast-2\",\
         \"sa-east-1\",\
         \"cn-north-1\",\
+        \"cn-northwest-1\",\
         \"us-gov-west-1\",\
         \"eu-central-1\",\
         \"ca-central-1\"\
@@ -929,6 +1229,8 @@
         \"locationName\":\"Bucket\"\
       }\
     },\
+    \"BytesProcessed\":{\"type\":\"long\"},\
+    \"BytesScanned\":{\"type\":\"long\"},\
     \"CORSConfiguration\":{\
       \"type\":\"structure\",\
       \"required\":[\"CORSRules\"],\
@@ -977,6 +1279,62 @@
       \"member\":{\"shape\":\"CORSRule\"},\
       \"flattened\":true\
     },\
+    \"CSVInput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"FileHeaderInfo\":{\
+          \"shape\":\"FileHeaderInfo\",\
+          \"documentation\":\"Describes the first line of input. Valid values: None, Ignore, Use.\"\
+        },\
+        \"Comments\":{\
+          \"shape\":\"Comments\",\
+          \"documentation\":\"Single character used to indicate a row should be ignored when present at the start of a row.\"\
+        },\
+        \"QuoteEscapeCharacter\":{\
+          \"shape\":\"QuoteEscapeCharacter\",\
+          \"documentation\":\"Single character used for escaping the quote character inside an already escaped value.\"\
+        },\
+        \"RecordDelimiter\":{\
+          \"shape\":\"RecordDelimiter\",\
+          \"documentation\":\"Value used to separate individual records.\"\
+        },\
+        \"FieldDelimiter\":{\
+          \"shape\":\"FieldDelimiter\",\
+          \"documentation\":\"Value used to separate individual fields in a record.\"\
+        },\
+        \"QuoteCharacter\":{\
+          \"shape\":\"QuoteCharacter\",\
+          \"documentation\":\"Value used for escaping where the field delimiter is part of the value.\"\
+        }\
+      },\
+      \"documentation\":\"Describes how a CSV-formatted input object is formatted.\"\
+    },\
+    \"CSVOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"QuoteFields\":{\
+          \"shape\":\"QuoteFields\",\
+          \"documentation\":\"Indicates whether or not all output fields should be quoted.\"\
+        },\
+        \"QuoteEscapeCharacter\":{\
+          \"shape\":\"QuoteEscapeCharacter\",\
+          \"documentation\":\"Single character used for escaping the quote character inside an already escaped value.\"\
+        },\
+        \"RecordDelimiter\":{\
+          \"shape\":\"RecordDelimiter\",\
+          \"documentation\":\"Value used to separate individual records.\"\
+        },\
+        \"FieldDelimiter\":{\
+          \"shape\":\"FieldDelimiter\",\
+          \"documentation\":\"Value used to separate individual fields in a record.\"\
+        },\
+        \"QuoteCharacter\":{\
+          \"shape\":\"QuoteCharacter\",\
+          \"documentation\":\"Value used for escaping where the field delimiter is part of the value.\"\
+        }\
+      },\
+      \"documentation\":\"Describes how CSV-formatted results are formatted.\"\
+    },\
     \"CacheControl\":{\"type\":\"string\"},\
     \"CloudFunction\":{\"type\":\"string\"},\
     \"CloudFunctionConfiguration\":{\
@@ -997,6 +1355,7 @@
     },\
     \"CloudFunctionInvocationRole\":{\"type\":\"string\"},\
     \"Code\":{\"type\":\"string\"},\
+    \"Comments\":{\"type\":\"string\"},\
     \"CommonPrefix\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -1112,6 +1471,13 @@
       \"member\":{\"shape\":\"CompletedPart\"},\
       \"flattened\":true\
     },\
+    \"CompressionType\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"NONE\",\
+        \"GZIP\"\
+      ]\
+    },\
     \"Condition\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -1125,6 +1491,7 @@
         }\
       }\
     },\
+    \"ConfirmRemoveSelfBucketAccess\":{\"type\":\"boolean\"},\
     \"ContentDisposition\":{\"type\":\"string\"},\
     \"ContentEncoding\":{\"type\":\"string\"},\
     \"ContentLanguage\":{\"type\":\"string\"},\
@@ -1132,6 +1499,12 @@
     \"ContentMD5\":{\"type\":\"string\"},\
     \"ContentRange\":{\"type\":\"string\"},\
     \"ContentType\":{\"type\":\"string\"},\
+    \"ContinuationEvent\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+      },\
+      \"event\":true\
+    },\
     \"CopyObjectOutput\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -1311,6 +1684,12 @@
           \"location\":\"header\",\
           \"locationName\":\"x-amz-metadata-directive\"\
         },\
+        \"TaggingDirective\":{\
+          \"shape\":\"TaggingDirective\",\
+          \"documentation\":\"Specifies whether the object tag-set are copied from the source object or replaced with tag-set provided in the request.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-tagging-directive\"\
+        },\
         \"ServerSideEncryption\":{\
           \"shape\":\"ServerSideEncryption\",\
           \"documentation\":\"The Server-side encryption algorithm used when storing this object in S3 (e.g., AES256, aws:kms).\",\
@@ -1375,6 +1754,12 @@
           \"shape\":\"RequestPayer\",\
           \"location\":\"header\",\
           \"locationName\":\"x-amz-request-payer\"\
+        },\
+        \"Tagging\":{\
+          \"shape\":\"TaggingHeader\",\
+          \"documentation\":\"The tag-set for the object destination object this value must be used in conjunction with the TaggingDirective. The tag-set must be encoded as URL Query parameters\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-tagging\"\
         }\
       }\
     },\
@@ -1680,6 +2065,12 @@
           \"shape\":\"RequestPayer\",\
           \"location\":\"header\",\
           \"locationName\":\"x-amz-request-payer\"\
+        },\
+        \"Tagging\":{\
+          \"shape\":\"TaggingHeader\",\
+          \"documentation\":\"The tag-set for the object. The tag-set must be encoded as URL Query parameters\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-tagging\"\
         }\
       }\
     },\
@@ -1704,6 +2095,27 @@
         }\
       }\
     },\
+    \"DeleteBucketAnalyticsConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket from which an analytics configuration is deleted.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"AnalyticsId\",\
+          \"documentation\":\"The identifier used to represent an analytics configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
+        }\
+      }\
+    },\
     \"DeleteBucketCorsRequest\":{\
       \"type\":\"structure\",\
       \"required\":[\"Bucket\"],\
@@ -1715,6 +2127,39 @@
         }\
       }\
     },\
+    \"DeleteBucketEncryptionRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Bucket\"],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket containing the server-side encryption configuration to delete.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        }\
+      }\
+    },\
+    \"DeleteBucketInventoryConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket containing the inventory configuration to delete.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"InventoryId\",\
+          \"documentation\":\"The ID used to identify the inventory configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
+        }\
+      }\
+    },\
     \"DeleteBucketLifecycleRequest\":{\
       \"type\":\"structure\",\
       \"required\":[\"Bucket\"],\
@@ -1723,6 +2168,27 @@
           \"shape\":\"BucketName\",\
           \"location\":\"uri\",\
           \"locationName\":\"Bucket\"\
+        }\
+      }\
+    },\
+    \"DeleteBucketMetricsConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket containing the metrics configuration to delete.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"MetricsId\",\
+          \"documentation\":\"The ID used to identify the metrics configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
         }\
       }\
     },\
@@ -1868,6 +2334,42 @@
         }\
       }\
     },\
+    \"DeleteObjectTaggingOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"VersionId\":{\
+          \"shape\":\"ObjectVersionId\",\
+          \"documentation\":\"The versionId of the object the tag-set was removed from.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-version-id\"\
+        }\
+      }\
+    },\
+    \"DeleteObjectTaggingRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Key\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Key\":{\
+          \"shape\":\"ObjectKey\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Key\"\
+        },\
+        \"VersionId\":{\
+          \"shape\":\"ObjectVersionId\",\
+          \"documentation\":\"The versionId of the object that the tag-set will be removed from.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"versionId\"\
+        }\
+      }\
+    },\
     \"DeleteObjectsOutput\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -1929,6 +2431,7 @@
       \"flattened\":true\
     },\
     \"Delimiter\":{\"type\":\"string\"},\
+    \"Description\":{\"type\":\"string\"},\
     \"Destination\":{\
       \"type\":\"structure\",\
       \"required\":[\"Bucket\"],\
@@ -1937,19 +2440,68 @@
           \"shape\":\"BucketName\",\
           \"documentation\":\"Amazon resource name (ARN) of the bucket where you want Amazon S3 to store replicas of the object identified by the rule.\"\
         },\
+        \"Account\":{\
+          \"shape\":\"AccountId\",\
+          \"documentation\":\"Account ID of the destination bucket. Currently this is only being verified if Access Control Translation is enabled\"\
+        },\
         \"StorageClass\":{\
           \"shape\":\"StorageClass\",\
           \"documentation\":\"The class of storage used to store the object.\"\
+        },\
+        \"AccessControlTranslation\":{\
+          \"shape\":\"AccessControlTranslation\",\
+          \"documentation\":\"Container for information regarding the access control for replicas.\"\
+        },\
+        \"EncryptionConfiguration\":{\
+          \"shape\":\"EncryptionConfiguration\",\
+          \"documentation\":\"Container for information regarding encryption based configuration for replicas.\"\
         }\
-      }\
+      },\
+      \"documentation\":\"Container for replication destination information.\"\
     },\
     \"DisplayName\":{\"type\":\"string\"},\
     \"ETag\":{\"type\":\"string\"},\
     \"EmailAddress\":{\"type\":\"string\"},\
+    \"EnableRequestProgress\":{\"type\":\"boolean\"},\
     \"EncodingType\":{\
       \"type\":\"string\",\
       \"documentation\":\"Requests Amazon S3 to encode the object keys in the response and specifies the encoding method to use. An object key may contain any Unicode character; however, XML 1.0 parser cannot parse some characters, such as characters with an ASCII value from 0 to 10. For characters that are not supported in XML 1.0, you can add this parameter to request that Amazon S3 encode the keys in the response.\",\
       \"enum\":[\"url\"]\
+    },\
+    \"Encryption\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"EncryptionType\"],\
+      \"members\":{\
+        \"EncryptionType\":{\
+          \"shape\":\"ServerSideEncryption\",\
+          \"documentation\":\"The server-side encryption algorithm used when storing job results in Amazon S3 (e.g., AES256, aws:kms).\"\
+        },\
+        \"KMSKeyId\":{\
+          \"shape\":\"SSEKMSKeyId\",\
+          \"documentation\":\"If the encryption type is aws:kms, this optional value specifies the AWS KMS key ID to use for encryption of job results.\"\
+        },\
+        \"KMSContext\":{\
+          \"shape\":\"KMSContext\",\
+          \"documentation\":\"If the encryption type is aws:kms, this optional value can be used to specify the encryption context for the restore results.\"\
+        }\
+      },\
+      \"documentation\":\"Describes the server-side encryption that will be applied to the restore results.\"\
+    },\
+    \"EncryptionConfiguration\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"ReplicaKmsKeyID\":{\
+          \"shape\":\"ReplicaKmsKeyID\",\
+          \"documentation\":\"The id of the KMS key used to encrypt the replica object.\"\
+        }\
+      },\
+      \"documentation\":\"Container for information regarding encryption based configuration for replicas.\"\
+    },\
+    \"EndEvent\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+      },\
+      \"event\":true\
     },\
     \"Error\":{\
       \"type\":\"structure\",\
@@ -2011,7 +2563,21 @@
       \"member\":{\"shape\":\"ExposeHeader\"},\
       \"flattened\":true\
     },\
+    \"Expression\":{\"type\":\"string\"},\
+    \"ExpressionType\":{\
+      \"type\":\"string\",\
+      \"enum\":[\"SQL\"]\
+    },\
     \"FetchOwner\":{\"type\":\"boolean\"},\
+    \"FieldDelimiter\":{\"type\":\"string\"},\
+    \"FileHeaderInfo\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"USE\",\
+        \"IGNORE\",\
+        \"NONE\"\
+      ]\
+    },\
     \"FilterRule\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -2080,6 +2646,37 @@
         }\
       }\
     },\
+    \"GetBucketAnalyticsConfigurationOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"AnalyticsConfiguration\":{\
+          \"shape\":\"AnalyticsConfiguration\",\
+          \"documentation\":\"The configuration and any analyses for the analytics filter.\"\
+        }\
+      },\
+      \"payload\":\"AnalyticsConfiguration\"\
+    },\
+    \"GetBucketAnalyticsConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket from which an analytics configuration is retrieved.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"AnalyticsId\",\
+          \"documentation\":\"The identifier used to represent an analytics configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
+        }\
+      }\
+    },\
     \"GetBucketCorsOutput\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -2097,6 +2694,56 @@
           \"shape\":\"BucketName\",\
           \"location\":\"uri\",\
           \"locationName\":\"Bucket\"\
+        }\
+      }\
+    },\
+    \"GetBucketEncryptionOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"ServerSideEncryptionConfiguration\":{\"shape\":\"ServerSideEncryptionConfiguration\"}\
+      },\
+      \"payload\":\"ServerSideEncryptionConfiguration\"\
+    },\
+    \"GetBucketEncryptionRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Bucket\"],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket from which the server-side encryption configuration is retrieved.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        }\
+      }\
+    },\
+    \"GetBucketInventoryConfigurationOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"InventoryConfiguration\":{\
+          \"shape\":\"InventoryConfiguration\",\
+          \"documentation\":\"Specifies the inventory configuration.\"\
+        }\
+      },\
+      \"payload\":\"InventoryConfiguration\"\
+    },\
+    \"GetBucketInventoryConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket containing the inventory configuration to retrieve.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"InventoryId\",\
+          \"documentation\":\"The ID used to identify the inventory configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
         }\
       }\
     },\
@@ -2171,6 +2818,37 @@
           \"shape\":\"BucketName\",\
           \"location\":\"uri\",\
           \"locationName\":\"Bucket\"\
+        }\
+      }\
+    },\
+    \"GetBucketMetricsConfigurationOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"MetricsConfiguration\":{\
+          \"shape\":\"MetricsConfiguration\",\
+          \"documentation\":\"Specifies the metrics configuration.\"\
+        }\
+      },\
+      \"payload\":\"MetricsConfiguration\"\
+    },\
+    \"GetBucketMetricsConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket containing the metrics configuration to retrieve.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"MetricsId\",\
+          \"documentation\":\"The ID used to identify the metrics configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
         }\
       }\
     },\
@@ -2513,6 +3191,12 @@
           \"documentation\":\"The count of parts this object has.\",\
           \"location\":\"header\",\
           \"locationName\":\"x-amz-mp-parts-count\"\
+        },\
+        \"TagCount\":{\
+          \"shape\":\"TagCount\",\
+          \"documentation\":\"The number of tags, if any, on the object.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-tagging-count\"\
         }\
       },\
       \"payload\":\"Body\"\
@@ -2637,6 +3321,42 @@
         }\
       }\
     },\
+    \"GetObjectTaggingOutput\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"TagSet\"],\
+      \"members\":{\
+        \"VersionId\":{\
+          \"shape\":\"ObjectVersionId\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-version-id\"\
+        },\
+        \"TagSet\":{\"shape\":\"TagSet\"}\
+      }\
+    },\
+    \"GetObjectTaggingRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Key\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Key\":{\
+          \"shape\":\"ObjectKey\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Key\"\
+        },\
+        \"VersionId\":{\
+          \"shape\":\"ObjectVersionId\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"versionId\"\
+        }\
+      }\
+    },\
     \"GetObjectTorrentOutput\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -2673,6 +3393,16 @@
           \"shape\":\"RequestPayer\",\
           \"location\":\"header\",\
           \"locationName\":\"x-amz-request-payer\"\
+        }\
+      }\
+    },\
+    \"GlacierJobParameters\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Tier\"],\
+      \"members\":{\
+        \"Tier\":{\
+          \"shape\":\"Tier\",\
+          \"documentation\":\"Glacier retrieval tier at which the restore will be processed.\"\
         }\
       }\
     },\
@@ -3008,8 +3738,214 @@
         }\
       }\
     },\
+    \"InputSerialization\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"CSV\":{\
+          \"shape\":\"CSVInput\",\
+          \"documentation\":\"Describes the serialization of a CSV-encoded object.\"\
+        },\
+        \"CompressionType\":{\
+          \"shape\":\"CompressionType\",\
+          \"documentation\":\"Specifies object's compression format. Valid values: NONE, GZIP. Default Value: NONE.\"\
+        },\
+        \"JSON\":{\
+          \"shape\":\"JSONInput\",\
+          \"documentation\":\"Specifies JSON as object's input serialization format.\"\
+        }\
+      },\
+      \"documentation\":\"Describes the serialization format of the object.\"\
+    },\
+    \"InventoryConfiguration\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Destination\",\
+        \"IsEnabled\",\
+        \"Id\",\
+        \"IncludedObjectVersions\",\
+        \"Schedule\"\
+      ],\
+      \"members\":{\
+        \"Destination\":{\
+          \"shape\":\"InventoryDestination\",\
+          \"documentation\":\"Contains information about where to publish the inventory results.\"\
+        },\
+        \"IsEnabled\":{\
+          \"shape\":\"IsEnabled\",\
+          \"documentation\":\"Specifies whether the inventory is enabled or disabled.\"\
+        },\
+        \"Filter\":{\
+          \"shape\":\"InventoryFilter\",\
+          \"documentation\":\"Specifies an inventory filter. The inventory only includes objects that meet the filter's criteria.\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"InventoryId\",\
+          \"documentation\":\"The ID used to identify the inventory configuration.\"\
+        },\
+        \"IncludedObjectVersions\":{\
+          \"shape\":\"InventoryIncludedObjectVersions\",\
+          \"documentation\":\"Specifies which object version(s) to included in the inventory results.\"\
+        },\
+        \"OptionalFields\":{\
+          \"shape\":\"InventoryOptionalFields\",\
+          \"documentation\":\"Contains the optional fields that are included in the inventory results.\"\
+        },\
+        \"Schedule\":{\
+          \"shape\":\"InventorySchedule\",\
+          \"documentation\":\"Specifies the schedule for generating inventory results.\"\
+        }\
+      }\
+    },\
+    \"InventoryConfigurationList\":{\
+      \"type\":\"list\",\
+      \"member\":{\"shape\":\"InventoryConfiguration\"},\
+      \"flattened\":true\
+    },\
+    \"InventoryDestination\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"S3BucketDestination\"],\
+      \"members\":{\
+        \"S3BucketDestination\":{\
+          \"shape\":\"InventoryS3BucketDestination\",\
+          \"documentation\":\"Contains the bucket name, file format, bucket owner (optional), and prefix (optional) where inventory results are published.\"\
+        }\
+      }\
+    },\
+    \"InventoryEncryption\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"SSES3\":{\
+          \"shape\":\"SSES3\",\
+          \"documentation\":\"Specifies the use of SSE-S3 to encrypt delievered Inventory reports.\",\
+          \"locationName\":\"SSE-S3\"\
+        },\
+        \"SSEKMS\":{\
+          \"shape\":\"SSEKMS\",\
+          \"documentation\":\"Specifies the use of SSE-KMS to encrypt delievered Inventory reports.\",\
+          \"locationName\":\"SSE-KMS\"\
+        }\
+      },\
+      \"documentation\":\"Contains the type of server-side encryption used to encrypt the inventory results.\"\
+    },\
+    \"InventoryFilter\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Prefix\"],\
+      \"members\":{\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"The prefix that an object must have to be included in the inventory results.\"\
+        }\
+      }\
+    },\
+    \"InventoryFormat\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"CSV\",\
+        \"ORC\"\
+      ]\
+    },\
+    \"InventoryFrequency\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"Daily\",\
+        \"Weekly\"\
+      ]\
+    },\
+    \"InventoryId\":{\"type\":\"string\"},\
+    \"InventoryIncludedObjectVersions\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"All\",\
+        \"Current\"\
+      ]\
+    },\
+    \"InventoryOptionalField\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"Size\",\
+        \"LastModifiedDate\",\
+        \"StorageClass\",\
+        \"ETag\",\
+        \"IsMultipartUploaded\",\
+        \"ReplicationStatus\",\
+        \"EncryptionStatus\"\
+      ]\
+    },\
+    \"InventoryOptionalFields\":{\
+      \"type\":\"list\",\
+      \"member\":{\
+        \"shape\":\"InventoryOptionalField\",\
+        \"locationName\":\"Field\"\
+      }\
+    },\
+    \"InventoryS3BucketDestination\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Format\"\
+      ],\
+      \"members\":{\
+        \"AccountId\":{\
+          \"shape\":\"AccountId\",\
+          \"documentation\":\"The ID of the account that owns the destination bucket.\"\
+        },\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The Amazon resource name (ARN) of the bucket where inventory results will be published.\"\
+        },\
+        \"Format\":{\
+          \"shape\":\"InventoryFormat\",\
+          \"documentation\":\"Specifies the output format of the inventory results.\"\
+        },\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"The prefix that is prepended to all inventory results.\"\
+        },\
+        \"Encryption\":{\
+          \"shape\":\"InventoryEncryption\",\
+          \"documentation\":\"Contains the type of server-side encryption used to encrypt the inventory results.\"\
+        }\
+      }\
+    },\
+    \"InventorySchedule\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Frequency\"],\
+      \"members\":{\
+        \"Frequency\":{\
+          \"shape\":\"InventoryFrequency\",\
+          \"documentation\":\"Specifies how frequently inventory results are produced.\"\
+        }\
+      }\
+    },\
+    \"IsEnabled\":{\"type\":\"boolean\"},\
     \"IsLatest\":{\"type\":\"boolean\"},\
     \"IsTruncated\":{\"type\":\"boolean\"},\
+    \"JSONInput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Type\":{\
+          \"shape\":\"JSONType\",\
+          \"documentation\":\"The type of JSON. Valid values: Document, Lines.\"\
+        }\
+      }\
+    },\
+    \"JSONOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"RecordDelimiter\":{\
+          \"shape\":\"RecordDelimiter\",\
+          \"documentation\":\"The value used to separate individual records in the output.\"\
+        }\
+      }\
+    },\
+    \"JSONType\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"DOCUMENT\",\
+        \"LINES\"\
+      ]\
+    },\
+    \"KMSContext\":{\"type\":\"string\"},\
     \"KeyCount\":{\"type\":\"integer\"},\
     \"KeyMarker\":{\"type\":\"string\"},\
     \"KeyPrefixEquals\":{\"type\":\"string\"},\
@@ -3070,10 +4006,7 @@
     },\
     \"LifecycleRule\":{\
       \"type\":\"structure\",\
-      \"required\":[\
-        \"Prefix\",\
-        \"Status\"\
-      ],\
+      \"required\":[\"Status\"],\
       \"members\":{\
         \"Expiration\":{\"shape\":\"LifecycleExpiration\"},\
         \"ID\":{\
@@ -3082,8 +4015,10 @@
         },\
         \"Prefix\":{\
           \"shape\":\"Prefix\",\
-          \"documentation\":\"Prefix identifying one or more objects to which the rule applies.\"\
+          \"documentation\":\"Prefix identifying one or more objects to which the rule applies. This is deprecated; use Filter instead.\",\
+          \"deprecated\":true\
         },\
+        \"Filter\":{\"shape\":\"LifecycleRuleFilter\"},\
         \"Status\":{\
           \"shape\":\"ExpirationStatus\",\
           \"documentation\":\"If 'Enabled', the rule is currently being applied. If 'Disabled', the rule is not currently being applied.\"\
@@ -3100,10 +4035,158 @@
         \"AbortIncompleteMultipartUpload\":{\"shape\":\"AbortIncompleteMultipartUpload\"}\
       }\
     },\
+    \"LifecycleRuleAndOperator\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Prefix\":{\"shape\":\"Prefix\"},\
+        \"Tags\":{\
+          \"shape\":\"TagSet\",\
+          \"documentation\":\"All of these tags must exist in the object's tag set in order for the rule to apply.\",\
+          \"flattened\":true,\
+          \"locationName\":\"Tag\"\
+        }\
+      },\
+      \"documentation\":\"This is used in a Lifecycle Rule Filter to apply a logical AND to two or more predicates. The Lifecycle Rule will apply to any object matching all of the predicates configured inside the And operator.\"\
+    },\
+    \"LifecycleRuleFilter\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"Prefix identifying one or more objects to which the rule applies.\"\
+        },\
+        \"Tag\":{\
+          \"shape\":\"Tag\",\
+          \"documentation\":\"This tag must exist in the object's tag set in order for the rule to apply.\"\
+        },\
+        \"And\":{\"shape\":\"LifecycleRuleAndOperator\"}\
+      },\
+      \"documentation\":\"The Filter is used to identify objects that a Lifecycle Rule applies to. A Filter must have exactly one of Prefix, Tag, or And specified.\"\
+    },\
     \"LifecycleRules\":{\
       \"type\":\"list\",\
       \"member\":{\"shape\":\"LifecycleRule\"},\
       \"flattened\":true\
+    },\
+    \"ListBucketAnalyticsConfigurationsOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"IsTruncated\":{\
+          \"shape\":\"IsTruncated\",\
+          \"documentation\":\"Indicates whether the returned list of analytics configurations is complete. A value of true indicates that the list is not complete and the NextContinuationToken will be provided for a subsequent request.\"\
+        },\
+        \"ContinuationToken\":{\
+          \"shape\":\"Token\",\
+          \"documentation\":\"The ContinuationToken that represents where this request began.\"\
+        },\
+        \"NextContinuationToken\":{\
+          \"shape\":\"NextToken\",\
+          \"documentation\":\"NextContinuationToken is sent when isTruncated is true, which indicates that there are more analytics configurations to list. The next request must include this NextContinuationToken. The token is obfuscated and is not a usable value.\"\
+        },\
+        \"AnalyticsConfigurationList\":{\
+          \"shape\":\"AnalyticsConfigurationList\",\
+          \"documentation\":\"The list of analytics configurations for a bucket.\",\
+          \"locationName\":\"AnalyticsConfiguration\"\
+        }\
+      }\
+    },\
+    \"ListBucketAnalyticsConfigurationsRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Bucket\"],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket from which analytics configurations are retrieved.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"ContinuationToken\":{\
+          \"shape\":\"Token\",\
+          \"documentation\":\"The ContinuationToken that represents a placeholder from where this request should begin.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"continuation-token\"\
+        }\
+      }\
+    },\
+    \"ListBucketInventoryConfigurationsOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"ContinuationToken\":{\
+          \"shape\":\"Token\",\
+          \"documentation\":\"If sent in the request, the marker that is used as a starting point for this inventory configuration list response.\"\
+        },\
+        \"InventoryConfigurationList\":{\
+          \"shape\":\"InventoryConfigurationList\",\
+          \"documentation\":\"The list of inventory configurations for a bucket.\",\
+          \"locationName\":\"InventoryConfiguration\"\
+        },\
+        \"IsTruncated\":{\
+          \"shape\":\"IsTruncated\",\
+          \"documentation\":\"Indicates whether the returned list of inventory configurations is truncated in this response. A value of true indicates that the list is truncated.\"\
+        },\
+        \"NextContinuationToken\":{\
+          \"shape\":\"NextToken\",\
+          \"documentation\":\"The marker used to continue this inventory configuration listing. Use the NextContinuationToken from this response to continue the listing in a subsequent request. The continuation token is an opaque value that Amazon S3 understands.\"\
+        }\
+      }\
+    },\
+    \"ListBucketInventoryConfigurationsRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Bucket\"],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket containing the inventory configurations to retrieve.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"ContinuationToken\":{\
+          \"shape\":\"Token\",\
+          \"documentation\":\"The marker used to continue an inventory configuration listing that has been truncated. Use the NextContinuationToken from a previously truncated list response to continue the listing. The continuation token is an opaque value that Amazon S3 understands.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"continuation-token\"\
+        }\
+      }\
+    },\
+    \"ListBucketMetricsConfigurationsOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"IsTruncated\":{\
+          \"shape\":\"IsTruncated\",\
+          \"documentation\":\"Indicates whether the returned list of metrics configurations is complete. A value of true indicates that the list is not complete and the NextContinuationToken will be provided for a subsequent request.\"\
+        },\
+        \"ContinuationToken\":{\
+          \"shape\":\"Token\",\
+          \"documentation\":\"The marker that is used as a starting point for this metrics configuration list response. This value is present if it was sent in the request.\"\
+        },\
+        \"NextContinuationToken\":{\
+          \"shape\":\"NextToken\",\
+          \"documentation\":\"The marker used to continue a metrics configuration listing that has been truncated. Use the NextContinuationToken from a previously truncated list response to continue the listing. The continuation token is an opaque value that Amazon S3 understands.\"\
+        },\
+        \"MetricsConfigurationList\":{\
+          \"shape\":\"MetricsConfigurationList\",\
+          \"documentation\":\"The list of metrics configurations for a bucket.\",\
+          \"locationName\":\"MetricsConfiguration\"\
+        }\
+      }\
+    },\
+    \"ListBucketMetricsConfigurationsRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Bucket\"],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket containing the metrics configurations to retrieve.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"ContinuationToken\":{\
+          \"shape\":\"Token\",\
+          \"documentation\":\"The marker that is used to continue a metrics configuration listing that has been truncated. Use the NextContinuationToken from a previously truncated list response to continue the listing. The continuation token is an opaque value that Amazon S3 understands.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"continuation-token\"\
+        }\
+      }\
     },\
     \"ListBucketsOutput\":{\
       \"type\":\"structure\",\
@@ -3580,8 +4663,13 @@
       }\
     },\
     \"Location\":{\"type\":\"string\"},\
+    \"LocationPrefix\":{\"type\":\"string\"},\
     \"LoggingEnabled\":{\
       \"type\":\"structure\",\
+      \"required\":[\
+        \"TargetBucket\",\
+        \"TargetPrefix\"\
+      ],\
       \"members\":{\
         \"TargetBucket\":{\
           \"shape\":\"TargetBucket\",\
@@ -3592,7 +4680,8 @@
           \"shape\":\"TargetPrefix\",\
           \"documentation\":\"This element lets you specify a prefix for the keys that the log files will be stored under.\"\
         }\
-      }\
+      },\
+      \"documentation\":\"Container for logging information. Presence of this element indicates that logging is enabled. Parameters TargetBucket and TargetPrefix are required in this case.\"\
     },\
     \"MFA\":{\"type\":\"string\"},\
     \"MFADelete\":{\
@@ -3627,8 +4716,68 @@
         \"REPLACE\"\
       ]\
     },\
+    \"MetadataEntry\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Name\":{\"shape\":\"MetadataKey\"},\
+        \"Value\":{\"shape\":\"MetadataValue\"}\
+      },\
+      \"documentation\":\"A metadata key-value pair to store with an object.\"\
+    },\
     \"MetadataKey\":{\"type\":\"string\"},\
     \"MetadataValue\":{\"type\":\"string\"},\
+    \"MetricsAndOperator\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"The prefix used when evaluating an AND predicate.\"\
+        },\
+        \"Tags\":{\
+          \"shape\":\"TagSet\",\
+          \"documentation\":\"The list of tags used when evaluating an AND predicate.\",\
+          \"flattened\":true,\
+          \"locationName\":\"Tag\"\
+        }\
+      }\
+    },\
+    \"MetricsConfiguration\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Id\"],\
+      \"members\":{\
+        \"Id\":{\
+          \"shape\":\"MetricsId\",\
+          \"documentation\":\"The ID used to identify the metrics configuration.\"\
+        },\
+        \"Filter\":{\
+          \"shape\":\"MetricsFilter\",\
+          \"documentation\":\"Specifies a metrics configuration filter. The metrics configuration will only include objects that meet the filter's criteria. A filter must be a prefix, a tag, or a conjunction (MetricsAndOperator).\"\
+        }\
+      }\
+    },\
+    \"MetricsConfigurationList\":{\
+      \"type\":\"list\",\
+      \"member\":{\"shape\":\"MetricsConfiguration\"},\
+      \"flattened\":true\
+    },\
+    \"MetricsFilter\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Prefix\":{\
+          \"shape\":\"Prefix\",\
+          \"documentation\":\"The prefix used when evaluating a metrics filter.\"\
+        },\
+        \"Tag\":{\
+          \"shape\":\"Tag\",\
+          \"documentation\":\"The tag used when evaluating a metrics filter.\"\
+        },\
+        \"And\":{\
+          \"shape\":\"MetricsAndOperator\",\
+          \"documentation\":\"A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.\"\
+        }\
+      }\
+    },\
+    \"MetricsId\":{\"type\":\"string\"},\
     \"MissingMeta\":{\"type\":\"integer\"},\
     \"MultipartUpload\":{\
       \"type\":\"structure\",\
@@ -3711,7 +4860,7 @@
           \"documentation\":\"The class of storage used to store the object.\"\
         }\
       },\
-      \"documentation\":\"Container for the transition rule that describes when noncurrent objects transition to the STANDARD_IA or GLACIER storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the STANDARD_IA or GLACIER storage class at a specific period in the object's lifetime.\"\
+      \"documentation\":\"Container for the transition rule that describes when noncurrent objects transition to the STANDARD_IA, ONEZONE_IA or GLACIER storage class. If your bucket is versioning-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the STANDARD_IA, ONEZONE_IA or GLACIER storage class at a specific period in the object's lifetime.\"\
     },\
     \"NoncurrentVersionTransitionList\":{\
       \"type\":\"list\",\
@@ -3831,7 +4980,9 @@
       \"enum\":[\
         \"STANDARD\",\
         \"REDUCED_REDUNDANCY\",\
-        \"GLACIER\"\
+        \"GLACIER\",\
+        \"STANDARD_IA\",\
+        \"ONEZONE_IA\"\
       ]\
     },\
     \"ObjectVersion\":{\
@@ -3875,12 +5026,40 @@
       \"type\":\"string\",\
       \"enum\":[\"STANDARD\"]\
     },\
+    \"OutputLocation\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"S3\":{\
+          \"shape\":\"S3Location\",\
+          \"documentation\":\"Describes an S3 location that will receive the results of the restore request.\"\
+        }\
+      },\
+      \"documentation\":\"Describes the location where the restore job's output is stored.\"\
+    },\
+    \"OutputSerialization\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"CSV\":{\
+          \"shape\":\"CSVOutput\",\
+          \"documentation\":\"Describes the serialization of CSV-encoded Select results.\"\
+        },\
+        \"JSON\":{\
+          \"shape\":\"JSONOutput\",\
+          \"documentation\":\"Specifies JSON as request's output serialization format.\"\
+        }\
+      },\
+      \"documentation\":\"Describes how results of the Select job are serialized.\"\
+    },\
     \"Owner\":{\
       \"type\":\"structure\",\
       \"members\":{\
         \"DisplayName\":{\"shape\":\"DisplayName\"},\
         \"ID\":{\"shape\":\"ID\"}\
       }\
+    },\
+    \"OwnerOverride\":{\
+      \"type\":\"string\",\
+      \"enum\":[\"Destination\"]\
     },\
     \"Part\":{\
       \"type\":\"structure\",\
@@ -3930,6 +5109,30 @@
     },\
     \"Policy\":{\"type\":\"string\"},\
     \"Prefix\":{\"type\":\"string\"},\
+    \"Progress\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"BytesScanned\":{\
+          \"shape\":\"BytesScanned\",\
+          \"documentation\":\"Current number of object bytes scanned.\"\
+        },\
+        \"BytesProcessed\":{\
+          \"shape\":\"BytesProcessed\",\
+          \"documentation\":\"Current number of uncompressed object bytes processed.\"\
+        }\
+      }\
+    },\
+    \"ProgressEvent\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Details\":{\
+          \"shape\":\"Progress\",\
+          \"documentation\":\"The Progress event details.\",\
+          \"eventpayload\":true\
+        }\
+      },\
+      \"event\":true\
+    },\
     \"Protocol\":{\
       \"type\":\"string\",\
       \"enum\":[\
@@ -4017,6 +5220,35 @@
       },\
       \"payload\":\"AccessControlPolicy\"\
     },\
+    \"PutBucketAnalyticsConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\",\
+        \"AnalyticsConfiguration\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket to which an analytics configuration is stored.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"AnalyticsId\",\
+          \"documentation\":\"The identifier used to represent an analytics configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
+        },\
+        \"AnalyticsConfiguration\":{\
+          \"shape\":\"AnalyticsConfiguration\",\
+          \"documentation\":\"The configuration and any analyses for the analytics filter.\",\
+          \"locationName\":\"AnalyticsConfiguration\",\
+          \"xmlNamespace\":{\"uri\":\"http://s3.amazonaws.com/doc/2006-03-01/\"}\
+        }\
+      },\
+      \"payload\":\"AnalyticsConfiguration\"\
+    },\
     \"PutBucketCorsRequest\":{\
       \"type\":\"structure\",\
       \"required\":[\
@@ -4041,6 +5273,62 @@
         }\
       },\
       \"payload\":\"CORSConfiguration\"\
+    },\
+    \"PutBucketEncryptionRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"ServerSideEncryptionConfiguration\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket for which the server-side encryption configuration is set.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"ContentMD5\":{\
+          \"shape\":\"ContentMD5\",\
+          \"documentation\":\"The base64-encoded 128-bit MD5 digest of the server-side encryption configuration.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"Content-MD5\"\
+        },\
+        \"ServerSideEncryptionConfiguration\":{\
+          \"shape\":\"ServerSideEncryptionConfiguration\",\
+          \"locationName\":\"ServerSideEncryptionConfiguration\",\
+          \"xmlNamespace\":{\"uri\":\"http://s3.amazonaws.com/doc/2006-03-01/\"}\
+        }\
+      },\
+      \"payload\":\"ServerSideEncryptionConfiguration\"\
+    },\
+    \"PutBucketInventoryConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\",\
+        \"InventoryConfiguration\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket where the inventory configuration will be stored.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"InventoryId\",\
+          \"documentation\":\"The ID used to identify the inventory configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
+        },\
+        \"InventoryConfiguration\":{\
+          \"shape\":\"InventoryConfiguration\",\
+          \"documentation\":\"Specifies the inventory configuration.\",\
+          \"locationName\":\"InventoryConfiguration\",\
+          \"xmlNamespace\":{\"uri\":\"http://s3.amazonaws.com/doc/2006-03-01/\"}\
+        }\
+      },\
+      \"payload\":\"InventoryConfiguration\"\
     },\
     \"PutBucketLifecycleConfigurationRequest\":{\
       \"type\":\"structure\",\
@@ -4106,6 +5394,35 @@
       },\
       \"payload\":\"BucketLoggingStatus\"\
     },\
+    \"PutBucketMetricsConfigurationRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Id\",\
+        \"MetricsConfiguration\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket for which the metrics configuration is set.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Id\":{\
+          \"shape\":\"MetricsId\",\
+          \"documentation\":\"The ID used to identify the metrics configuration.\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"id\"\
+        },\
+        \"MetricsConfiguration\":{\
+          \"shape\":\"MetricsConfiguration\",\
+          \"documentation\":\"Specifies the metrics configuration.\",\
+          \"locationName\":\"MetricsConfiguration\",\
+          \"xmlNamespace\":{\"uri\":\"http://s3.amazonaws.com/doc/2006-03-01/\"}\
+        }\
+      },\
+      \"payload\":\"MetricsConfiguration\"\
+    },\
     \"PutBucketNotificationConfigurationRequest\":{\
       \"type\":\"structure\",\
       \"required\":[\
@@ -4167,6 +5484,12 @@
           \"shape\":\"ContentMD5\",\
           \"location\":\"header\",\
           \"locationName\":\"Content-MD5\"\
+        },\
+        \"ConfirmRemoveSelfBucketAccess\":{\
+          \"shape\":\"ConfirmRemoveSelfBucketAccess\",\
+          \"documentation\":\"Set this parameter to true to confirm that you want to remove your permissions to change this bucket policy in the future.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-confirm-remove-self-bucket-access\"\
         },\
         \"Policy\":{\
           \"shape\":\"Policy\",\
@@ -4599,9 +5922,61 @@
           \"shape\":\"RequestPayer\",\
           \"location\":\"header\",\
           \"locationName\":\"x-amz-request-payer\"\
+        },\
+        \"Tagging\":{\
+          \"shape\":\"TaggingHeader\",\
+          \"documentation\":\"The tag-set for the object. The tag-set must be encoded as URL Query parameters\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-tagging\"\
         }\
       },\
       \"payload\":\"Body\"\
+    },\
+    \"PutObjectTaggingOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"VersionId\":{\
+          \"shape\":\"ObjectVersionId\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-version-id\"\
+        }\
+      }\
+    },\
+    \"PutObjectTaggingRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Key\",\
+        \"Tagging\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Key\":{\
+          \"shape\":\"ObjectKey\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Key\"\
+        },\
+        \"VersionId\":{\
+          \"shape\":\"ObjectVersionId\",\
+          \"location\":\"querystring\",\
+          \"locationName\":\"versionId\"\
+        },\
+        \"ContentMD5\":{\
+          \"shape\":\"ContentMD5\",\
+          \"location\":\"header\",\
+          \"locationName\":\"Content-MD5\"\
+        },\
+        \"Tagging\":{\
+          \"shape\":\"Tagging\",\
+          \"locationName\":\"Tagging\",\
+          \"xmlNamespace\":{\"uri\":\"http://s3.amazonaws.com/doc/2006-03-01/\"}\
+        }\
+      },\
+      \"payload\":\"Tagging\"\
     },\
     \"QueueArn\":{\"type\":\"string\"},\
     \"QueueConfiguration\":{\
@@ -4646,7 +6021,28 @@
       \"flattened\":true\
     },\
     \"Quiet\":{\"type\":\"boolean\"},\
+    \"QuoteCharacter\":{\"type\":\"string\"},\
+    \"QuoteEscapeCharacter\":{\"type\":\"string\"},\
+    \"QuoteFields\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"ALWAYS\",\
+        \"ASNEEDED\"\
+      ]\
+    },\
     \"Range\":{\"type\":\"string\"},\
+    \"RecordDelimiter\":{\"type\":\"string\"},\
+    \"RecordsEvent\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Payload\":{\
+          \"shape\":\"Body\",\
+          \"documentation\":\"The byte array of partial, one or more result records.\",\
+          \"eventpayload\":true\
+        }\
+      },\
+      \"event\":true\
+    },\
     \"Redirect\":{\
       \"type\":\"structure\",\
       \"members\":{\
@@ -4688,6 +6084,7 @@
     },\
     \"ReplaceKeyPrefixWith\":{\"type\":\"string\"},\
     \"ReplaceKeyWith\":{\"type\":\"string\"},\
+    \"ReplicaKmsKeyID\":{\"type\":\"string\"},\
     \"ReplicationConfiguration\":{\
       \"type\":\"structure\",\
       \"required\":[\
@@ -4727,8 +6124,16 @@
           \"shape\":\"ReplicationRuleStatus\",\
           \"documentation\":\"The rule is ignored if status is not Enabled.\"\
         },\
-        \"Destination\":{\"shape\":\"Destination\"}\
-      }\
+        \"SourceSelectionCriteria\":{\
+          \"shape\":\"SourceSelectionCriteria\",\
+          \"documentation\":\"Container for filters that define which source objects should be replicated.\"\
+        },\
+        \"Destination\":{\
+          \"shape\":\"Destination\",\
+          \"documentation\":\"Container for replication destination information.\"\
+        }\
+      },\
+      \"documentation\":\"Container for information about a particular replication rule.\"\
     },\
     \"ReplicationRuleStatus\":{\
       \"type\":\"string\",\
@@ -4771,6 +6176,15 @@
         }\
       }\
     },\
+    \"RequestProgress\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Enabled\":{\
+          \"shape\":\"EnableRequestProgress\",\
+          \"documentation\":\"Specifies whether periodic QueryProgress frames should be sent. Valid values: TRUE, FALSE. Default value: FALSE.\"\
+        }\
+      }\
+    },\
     \"ResponseCacheControl\":{\"type\":\"string\"},\
     \"ResponseContentDisposition\":{\"type\":\"string\"},\
     \"ResponseContentEncoding\":{\"type\":\"string\"},\
@@ -4785,6 +6199,12 @@
           \"shape\":\"RequestCharged\",\
           \"location\":\"header\",\
           \"locationName\":\"x-amz-request-charged\"\
+        },\
+        \"RestoreOutputPath\":{\
+          \"shape\":\"RestoreOutputPath\",\
+          \"documentation\":\"Indicates the path in the provided S3 output location where Select results will be restored to.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-restore-output-path\"\
         }\
       }\
     },\
@@ -4823,15 +6243,44 @@
       },\
       \"payload\":\"RestoreRequest\"\
     },\
+    \"RestoreOutputPath\":{\"type\":\"string\"},\
     \"RestoreRequest\":{\
       \"type\":\"structure\",\
-      \"required\":[\"Days\"],\
       \"members\":{\
         \"Days\":{\
           \"shape\":\"Days\",\
-          \"documentation\":\"Lifetime of the active copy in days\"\
+          \"documentation\":\"Lifetime of the active copy in days. Do not use with restores that specify OutputLocation.\"\
+        },\
+        \"GlacierJobParameters\":{\
+          \"shape\":\"GlacierJobParameters\",\
+          \"documentation\":\"Glacier related parameters pertaining to this job. Do not use with restores that specify OutputLocation.\"\
+        },\
+        \"Type\":{\
+          \"shape\":\"RestoreRequestType\",\
+          \"documentation\":\"Type of restore request.\"\
+        },\
+        \"Tier\":{\
+          \"shape\":\"Tier\",\
+          \"documentation\":\"Glacier retrieval tier at which the restore will be processed.\"\
+        },\
+        \"Description\":{\
+          \"shape\":\"Description\",\
+          \"documentation\":\"The optional description for the job.\"\
+        },\
+        \"SelectParameters\":{\
+          \"shape\":\"SelectParameters\",\
+          \"documentation\":\"Describes the parameters for Select job types.\"\
+        },\
+        \"OutputLocation\":{\
+          \"shape\":\"OutputLocation\",\
+          \"documentation\":\"Describes the location where the restore job's output is stored.\"\
         }\
-      }\
+      },\
+      \"documentation\":\"Container for restore job parameters.\"\
+    },\
+    \"RestoreRequestType\":{\
+      \"type\":\"string\",\
+      \"enum\":[\"SELECT\"]\
     },\
     \"Role\":{\"type\":\"string\"},\
     \"RoutingRule\":{\
@@ -4896,15 +6345,198 @@
       },\
       \"documentation\":\"Container for object key name prefix and suffix filtering rules.\"\
     },\
+    \"S3Location\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"BucketName\",\
+        \"Prefix\"\
+      ],\
+      \"members\":{\
+        \"BucketName\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The name of the bucket where the restore results will be placed.\"\
+        },\
+        \"Prefix\":{\
+          \"shape\":\"LocationPrefix\",\
+          \"documentation\":\"The prefix that is prepended to the restore results for this request.\"\
+        },\
+        \"Encryption\":{\"shape\":\"Encryption\"},\
+        \"CannedACL\":{\
+          \"shape\":\"ObjectCannedACL\",\
+          \"documentation\":\"The canned ACL to apply to the restore results.\"\
+        },\
+        \"AccessControlList\":{\
+          \"shape\":\"Grants\",\
+          \"documentation\":\"A list of grants that control access to the staged results.\"\
+        },\
+        \"Tagging\":{\
+          \"shape\":\"Tagging\",\
+          \"documentation\":\"The tag-set that is applied to the restore results.\"\
+        },\
+        \"UserMetadata\":{\
+          \"shape\":\"UserMetadata\",\
+          \"documentation\":\"A list of metadata to store with the restore results in S3.\"\
+        },\
+        \"StorageClass\":{\
+          \"shape\":\"StorageClass\",\
+          \"documentation\":\"The class of storage used to store the restore results.\"\
+        }\
+      },\
+      \"documentation\":\"Describes an S3 location that will receive the results of the restore request.\"\
+    },\
     \"SSECustomerAlgorithm\":{\"type\":\"string\"},\
     \"SSECustomerKey\":{\
       \"type\":\"string\",\
       \"sensitive\":true\
     },\
     \"SSECustomerKeyMD5\":{\"type\":\"string\"},\
+    \"SSEKMS\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"KeyId\"],\
+      \"members\":{\
+        \"KeyId\":{\
+          \"shape\":\"SSEKMSKeyId\",\
+          \"documentation\":\"Specifies the ID of the AWS Key Management Service (KMS) master encryption key to use for encrypting Inventory reports.\"\
+        }\
+      },\
+      \"documentation\":\"Specifies the use of SSE-KMS to encrypt delievered Inventory reports.\",\
+      \"locationName\":\"SSE-KMS\"\
+    },\
     \"SSEKMSKeyId\":{\
       \"type\":\"string\",\
       \"sensitive\":true\
+    },\
+    \"SSES3\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+      },\
+      \"documentation\":\"Specifies the use of SSE-S3 to encrypt delievered Inventory reports.\",\
+      \"locationName\":\"SSE-S3\"\
+    },\
+    \"SelectObjectContentEventStream\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Records\":{\
+          \"shape\":\"RecordsEvent\",\
+          \"documentation\":\"The Records Event.\"\
+        },\
+        \"Stats\":{\
+          \"shape\":\"StatsEvent\",\
+          \"documentation\":\"The Stats Event.\"\
+        },\
+        \"Progress\":{\
+          \"shape\":\"ProgressEvent\",\
+          \"documentation\":\"The Progress Event.\"\
+        },\
+        \"Cont\":{\
+          \"shape\":\"ContinuationEvent\",\
+          \"documentation\":\"The Continuation Event.\"\
+        },\
+        \"End\":{\
+          \"shape\":\"EndEvent\",\
+          \"documentation\":\"The End Event.\"\
+        }\
+      },\
+      \"eventstream\":true\
+    },\
+    \"SelectObjectContentOutput\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Payload\":{\"shape\":\"SelectObjectContentEventStream\"}\
+      },\
+      \"payload\":\"Payload\"\
+    },\
+    \"SelectObjectContentRequest\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"Bucket\",\
+        \"Key\",\
+        \"Expression\",\
+        \"ExpressionType\",\
+        \"InputSerialization\",\
+        \"OutputSerialization\"\
+      ],\
+      \"members\":{\
+        \"Bucket\":{\
+          \"shape\":\"BucketName\",\
+          \"documentation\":\"The S3 Bucket.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Bucket\"\
+        },\
+        \"Key\":{\
+          \"shape\":\"ObjectKey\",\
+          \"documentation\":\"The Object Key.\",\
+          \"location\":\"uri\",\
+          \"locationName\":\"Key\"\
+        },\
+        \"SSECustomerAlgorithm\":{\
+          \"shape\":\"SSECustomerAlgorithm\",\
+          \"documentation\":\"The SSE Algorithm used to encrypt the object. For more information, go to <a href=\\\"https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html\\\"> Server-Side Encryption (Using Customer-Provided Encryption Keys</a>.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-server-side-encryption-customer-algorithm\"\
+        },\
+        \"SSECustomerKey\":{\
+          \"shape\":\"SSECustomerKey\",\
+          \"documentation\":\"The SSE Customer Key. For more information, go to <a href=\\\"https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html\\\"> Server-Side Encryption (Using Customer-Provided Encryption Keys</a>.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-server-side-encryption-customer-key\"\
+        },\
+        \"SSECustomerKeyMD5\":{\
+          \"shape\":\"SSECustomerKeyMD5\",\
+          \"documentation\":\"The SSE Customer Key MD5. For more information, go to <a href=\\\"https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerSideEncryptionCustomerKeys.html\\\"> Server-Side Encryption (Using Customer-Provided Encryption Keys</a>.\",\
+          \"location\":\"header\",\
+          \"locationName\":\"x-amz-server-side-encryption-customer-key-MD5\"\
+        },\
+        \"Expression\":{\
+          \"shape\":\"Expression\",\
+          \"documentation\":\"The expression that is used to query the object.\"\
+        },\
+        \"ExpressionType\":{\
+          \"shape\":\"ExpressionType\",\
+          \"documentation\":\"The type of the provided expression (e.g., SQL).\"\
+        },\
+        \"RequestProgress\":{\
+          \"shape\":\"RequestProgress\",\
+          \"documentation\":\"Specifies if periodic request progress information should be enabled.\"\
+        },\
+        \"InputSerialization\":{\
+          \"shape\":\"InputSerialization\",\
+          \"documentation\":\"Describes the format of the data in the object that is being queried.\"\
+        },\
+        \"OutputSerialization\":{\
+          \"shape\":\"OutputSerialization\",\
+          \"documentation\":\"Describes the format of the data that you want Amazon S3 to return in response.\"\
+        }\
+      },\
+      \"documentation\":\"Request to filter the contents of an Amazon S3 object based on a simple Structured Query Language (SQL) statement. In the request, along with the SQL expression, you must also specify a data serialization format (JSON or CSV) of the object. Amazon S3 uses this to parse object data into records, and returns only records that match the specified SQL expression. You must also specify the data serialization format for the response. For more information, go to <a href=\\\"https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectSELECTContent.html\\\">S3Select API Documentation</a>.\"\
+    },\
+    \"SelectParameters\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"InputSerialization\",\
+        \"ExpressionType\",\
+        \"Expression\",\
+        \"OutputSerialization\"\
+      ],\
+      \"members\":{\
+        \"InputSerialization\":{\
+          \"shape\":\"InputSerialization\",\
+          \"documentation\":\"Describes the serialization format of the object.\"\
+        },\
+        \"ExpressionType\":{\
+          \"shape\":\"ExpressionType\",\
+          \"documentation\":\"The type of the provided expression (e.g., SQL).\"\
+        },\
+        \"Expression\":{\
+          \"shape\":\"Expression\",\
+          \"documentation\":\"The expression that is used to query the object.\"\
+        },\
+        \"OutputSerialization\":{\
+          \"shape\":\"OutputSerialization\",\
+          \"documentation\":\"Describes how the results of the Select job are serialized.\"\
+        }\
+      },\
+      \"documentation\":\"Describes the parameters for Select job types.\"\
     },\
     \"ServerSideEncryption\":{\
       \"type\":\"string\",\
@@ -4913,15 +6545,140 @@
         \"aws:kms\"\
       ]\
     },\
+    \"ServerSideEncryptionByDefault\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"SSEAlgorithm\"],\
+      \"members\":{\
+        \"SSEAlgorithm\":{\
+          \"shape\":\"ServerSideEncryption\",\
+          \"documentation\":\"Server-side encryption algorithm to use for the default encryption.\"\
+        },\
+        \"KMSMasterKeyID\":{\
+          \"shape\":\"SSEKMSKeyId\",\
+          \"documentation\":\"KMS master key ID to use for the default encryption. This parameter is allowed if SSEAlgorithm is aws:kms.\"\
+        }\
+      },\
+      \"documentation\":\"Describes the default server-side encryption to apply to new objects in the bucket. If Put Object request does not specify any server-side encryption, this default encryption will be applied.\"\
+    },\
+    \"ServerSideEncryptionConfiguration\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Rules\"],\
+      \"members\":{\
+        \"Rules\":{\
+          \"shape\":\"ServerSideEncryptionRules\",\
+          \"documentation\":\"Container for information about a particular server-side encryption configuration rule.\",\
+          \"locationName\":\"Rule\"\
+        }\
+      },\
+      \"documentation\":\"Container for server-side encryption configuration rules. Currently S3 supports one rule only.\"\
+    },\
+    \"ServerSideEncryptionRule\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"ApplyServerSideEncryptionByDefault\":{\
+          \"shape\":\"ServerSideEncryptionByDefault\",\
+          \"documentation\":\"Describes the default server-side encryption to apply to new objects in the bucket. If Put Object request does not specify any server-side encryption, this default encryption will be applied.\"\
+        }\
+      },\
+      \"documentation\":\"Container for information about a particular server-side encryption configuration rule.\"\
+    },\
+    \"ServerSideEncryptionRules\":{\
+      \"type\":\"list\",\
+      \"member\":{\"shape\":\"ServerSideEncryptionRule\"},\
+      \"flattened\":true\
+    },\
     \"Size\":{\"type\":\"integer\"},\
+    \"SourceSelectionCriteria\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"SseKmsEncryptedObjects\":{\
+          \"shape\":\"SseKmsEncryptedObjects\",\
+          \"documentation\":\"Container for filter information of selection of KMS Encrypted S3 objects.\"\
+        }\
+      },\
+      \"documentation\":\"Container for filters that define which source objects should be replicated.\"\
+    },\
+    \"SseKmsEncryptedObjects\":{\
+      \"type\":\"structure\",\
+      \"required\":[\"Status\"],\
+      \"members\":{\
+        \"Status\":{\
+          \"shape\":\"SseKmsEncryptedObjectsStatus\",\
+          \"documentation\":\"The replication for KMS encrypted S3 objects is disabled if status is not Enabled.\"\
+        }\
+      },\
+      \"documentation\":\"Container for filter information of selection of KMS Encrypted S3 objects.\"\
+    },\
+    \"SseKmsEncryptedObjectsStatus\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"Enabled\",\
+        \"Disabled\"\
+      ]\
+    },\
     \"StartAfter\":{\"type\":\"string\"},\
+    \"Stats\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"BytesScanned\":{\
+          \"shape\":\"BytesScanned\",\
+          \"documentation\":\"Total number of object bytes scanned.\"\
+        },\
+        \"BytesProcessed\":{\
+          \"shape\":\"BytesProcessed\",\
+          \"documentation\":\"Total number of uncompressed object bytes processed.\"\
+        }\
+      }\
+    },\
+    \"StatsEvent\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"Details\":{\
+          \"shape\":\"Stats\",\
+          \"documentation\":\"The Stats event details.\",\
+          \"eventpayload\":true\
+        }\
+      },\
+      \"event\":true\
+    },\
     \"StorageClass\":{\
       \"type\":\"string\",\
       \"enum\":[\
         \"STANDARD\",\
         \"REDUCED_REDUNDANCY\",\
-        \"STANDARD_IA\"\
+        \"STANDARD_IA\",\
+        \"ONEZONE_IA\"\
       ]\
+    },\
+    \"StorageClassAnalysis\":{\
+      \"type\":\"structure\",\
+      \"members\":{\
+        \"DataExport\":{\
+          \"shape\":\"StorageClassAnalysisDataExport\",\
+          \"documentation\":\"A container used to describe how data related to the storage class analysis should be exported.\"\
+        }\
+      }\
+    },\
+    \"StorageClassAnalysisDataExport\":{\
+      \"type\":\"structure\",\
+      \"required\":[\
+        \"OutputSchemaVersion\",\
+        \"Destination\"\
+      ],\
+      \"members\":{\
+        \"OutputSchemaVersion\":{\
+          \"shape\":\"StorageClassAnalysisSchemaVersion\",\
+          \"documentation\":\"The version of the output schema to use when exporting data. Must be V_1.\"\
+        },\
+        \"Destination\":{\
+          \"shape\":\"AnalyticsExportDestination\",\
+          \"documentation\":\"The place to store the data for an analysis.\"\
+        }\
+      }\
+    },\
+    \"StorageClassAnalysisSchemaVersion\":{\
+      \"type\":\"string\",\
+      \"enum\":[\"V_1\"]\
     },\
     \"Suffix\":{\"type\":\"string\"},\
     \"Tag\":{\
@@ -4941,6 +6698,7 @@
         }\
       }\
     },\
+    \"TagCount\":{\"type\":\"integer\"},\
     \"TagSet\":{\
       \"type\":\"list\",\
       \"member\":{\
@@ -4955,6 +6713,14 @@
         \"TagSet\":{\"shape\":\"TagSet\"}\
       }\
     },\
+    \"TaggingDirective\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"COPY\",\
+        \"REPLACE\"\
+      ]\
+    },\
+    \"TaggingHeader\":{\"type\":\"string\"},\
     \"TargetBucket\":{\"type\":\"string\"},\
     \"TargetGrant\":{\
       \"type\":\"structure\",\
@@ -4974,6 +6740,14 @@
       }\
     },\
     \"TargetPrefix\":{\"type\":\"string\"},\
+    \"Tier\":{\
+      \"type\":\"string\",\
+      \"enum\":[\
+        \"Standard\",\
+        \"Bulk\",\
+        \"Expedited\"\
+      ]\
+    },\
     \"Token\":{\"type\":\"string\"},\
     \"TopicArn\":{\"type\":\"string\"},\
     \"TopicConfiguration\":{\
@@ -5047,7 +6821,8 @@
       \"type\":\"string\",\
       \"enum\":[\
         \"GLACIER\",\
-        \"STANDARD_IA\"\
+        \"STANDARD_IA\",\
+        \"ONEZONE_IA\"\
       ]\
     },\
     \"Type\":{\
@@ -5328,6 +7103,13 @@
         }\
       },\
       \"payload\":\"Body\"\
+    },\
+    \"UserMetadata\":{\
+      \"type\":\"list\",\
+      \"member\":{\
+        \"shape\":\"MetadataEntry\",\
+        \"locationName\":\"MetadataEntry\"\
+      }\
     },\
     \"Value\":{\"type\":\"string\"},\
     \"VersionIdMarker\":{\"type\":\"string\"},\

@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@
 #import <AWSCore/AWSURLRequestRetryHandler.h>
 #import <AWSCore/AWSSynchronizedMutableDictionary.h>
 #import "AWSLambdaResources.h"
+#import "AWSLambdaRequestRetryHandler.h"
 
 static NSString *const AWSInfoLambda = @"Lambda";
-static NSString *const AWSLambdaSDKVersion = @"2.5.0";
+static NSString *const AWSLambdaSDKVersion = @"2.6.22";
 
 
 @interface AWSLambdaResponseSerializer : AWSJSONResponseSerializer
@@ -47,10 +48,16 @@ static NSDictionary *errorCodeDictionary = nil;
                             @"ENILimitReachedException" : @(AWSLambdaErrorENILimitReached),
                             @"InvalidParameterValueException" : @(AWSLambdaErrorInvalidParameterValue),
                             @"InvalidRequestContentException" : @(AWSLambdaErrorInvalidRequestContent),
+                            @"InvalidRuntimeException" : @(AWSLambdaErrorInvalidRuntime),
                             @"InvalidSecurityGroupIDException" : @(AWSLambdaErrorInvalidSecurityGroupID),
                             @"InvalidSubnetIDException" : @(AWSLambdaErrorInvalidSubnetID),
                             @"InvalidZipFileException" : @(AWSLambdaErrorInvalidZipFile),
+                            @"KMSAccessDeniedException" : @(AWSLambdaErrorKMSAccessDenied),
+                            @"KMSDisabledException" : @(AWSLambdaErrorKMSDisabled),
+                            @"KMSInvalidStateException" : @(AWSLambdaErrorKMSInvalidState),
+                            @"KMSNotFoundException" : @(AWSLambdaErrorKMSNotFound),
                             @"PolicyLengthExceededException" : @(AWSLambdaErrorPolicyLengthExceeded),
+                            @"PreconditionFailedException" : @(AWSLambdaErrorPreconditionFailed),
                             @"RequestTooLargeException" : @(AWSLambdaErrorRequestTooLarge),
                             @"ResourceConflictException" : @(AWSLambdaErrorResourceConflict),
                             @"ResourceNotFoundException" : @(AWSLambdaErrorResourceNotFound),
@@ -127,7 +134,7 @@ static NSDictionary *errorCodeDictionary = nil;
                 *error = [NSError errorWithDomain:AWSLambdaErrorDomain
                                              code:AWSLambdaErrorUnknown
                                          userInfo:responseObject];
-            }
+            } 
             return responseObject;
         }
         
@@ -146,18 +153,12 @@ static NSDictionary *errorCodeDictionary = nil;
                  @"responseDataSize" : @(data?[data length]:0),
                  };
     }
+	
     return responseObject;
 }
 
 @end
 
-@interface AWSLambdaRequestRetryHandler : AWSURLRequestRetryHandler
-
-@end
-
-@implementation AWSLambdaRequestRetryHandler
-
-@end
 
 @interface AWSRequest()
 
@@ -217,7 +218,7 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 
         if (!serviceConfiguration) {
             @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                           reason:@"The service configuration is `nil`. You need to configure `Info.plist` or set `defaultServiceConfiguration` before using this method."
+                                           reason:@"The service configuration is `nil`. You need to configure `awsconfiguration.json`, `Info.plist` or set `defaultServiceConfiguration` before using this method."
                                          userInfo:nil];
         }
         _defaultLambda = [[AWSLambda alloc] initWithConfiguration:serviceConfiguration];
@@ -487,6 +488,51 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask *)deleteFunctionConcurrency:(AWSLambdaDeleteFunctionConcurrencyRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodDELETE
+                     URLString:@"/2017-10-31/functions/{FunctionName}/concurrency"
+                  targetPrefix:@""
+                 operationName:@"DeleteFunctionConcurrency"
+                   outputClass:nil];
+}
+
+- (void)deleteFunctionConcurrency:(AWSLambdaDeleteFunctionConcurrencyRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self deleteFunctionConcurrency:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask<AWSLambdaGetAccountSettingsResponse *> *)getAccountSettings:(AWSLambdaGetAccountSettingsRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/2016-08-19/account-settings/"
+                  targetPrefix:@""
+                 operationName:@"GetAccountSettings"
+                   outputClass:[AWSLambdaGetAccountSettingsResponse class]];
+}
+
+- (void)getAccountSettings:(AWSLambdaGetAccountSettingsRequest *)request
+     completionHandler:(void (^)(AWSLambdaGetAccountSettingsResponse *response, NSError *error))completionHandler {
+    [[self getAccountSettings:request] continueWithBlock:^id _Nullable(AWSTask<AWSLambdaGetAccountSettingsResponse *> * _Nonnull task) {
+        AWSLambdaGetAccountSettingsResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask<AWSLambdaAliasConfiguration *> *)getAlias:(AWSLambdaGetAliasRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodGET
@@ -717,6 +763,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask<AWSLambdaListTagsResponse *> *)listTags:(AWSLambdaListTagsRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodGET
+                     URLString:@"/2017-03-31/tags/{ARN}"
+                  targetPrefix:@""
+                 operationName:@"ListTags"
+                   outputClass:[AWSLambdaListTagsResponse class]];
+}
+
+- (void)listTags:(AWSLambdaListTagsRequest *)request
+     completionHandler:(void (^)(AWSLambdaListTagsResponse *response, NSError *error))completionHandler {
+    [[self listTags:request] continueWithBlock:^id _Nullable(AWSTask<AWSLambdaListTagsResponse *> * _Nonnull task) {
+        AWSLambdaListTagsResponse *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask<AWSLambdaListVersionsByFunctionResponse *> *)listVersionsByFunction:(AWSLambdaListVersionsByFunctionRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodGET
@@ -763,6 +832,29 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     }];
 }
 
+- (AWSTask<AWSLambdaConcurrency *> *)putFunctionConcurrency:(AWSLambdaPutFunctionConcurrencyRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPUT
+                     URLString:@"/2017-10-31/functions/{FunctionName}/concurrency"
+                  targetPrefix:@""
+                 operationName:@"PutFunctionConcurrency"
+                   outputClass:[AWSLambdaConcurrency class]];
+}
+
+- (void)putFunctionConcurrency:(AWSLambdaPutFunctionConcurrencyRequest *)request
+     completionHandler:(void (^)(AWSLambdaConcurrency *response, NSError *error))completionHandler {
+    [[self putFunctionConcurrency:request] continueWithBlock:^id _Nullable(AWSTask<AWSLambdaConcurrency *> * _Nonnull task) {
+        AWSLambdaConcurrency *result = task.result;
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(result, error);
+        }
+
+        return nil;
+    }];
+}
+
 - (AWSTask *)removePermission:(AWSLambdaRemovePermissionRequest *)request {
     return [self invokeRequest:request
                     HTTPMethod:AWSHTTPMethodDELETE
@@ -775,6 +867,50 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 - (void)removePermission:(AWSLambdaRemovePermissionRequest *)request
      completionHandler:(void (^)(NSError *error))completionHandler {
     [[self removePermission:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)tagResource:(AWSLambdaTagResourceRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodPOST
+                     URLString:@"/2017-03-31/tags/{ARN}"
+                  targetPrefix:@""
+                 operationName:@"TagResource"
+                   outputClass:nil];
+}
+
+- (void)tagResource:(AWSLambdaTagResourceRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self tagResource:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+        NSError *error = task.error;
+
+        if (completionHandler) {
+            completionHandler(error);
+        }
+
+        return nil;
+    }];
+}
+
+- (AWSTask *)untagResource:(AWSLambdaUntagResourceRequest *)request {
+    return [self invokeRequest:request
+                    HTTPMethod:AWSHTTPMethodDELETE
+                     URLString:@"/2017-03-31/tags/{ARN}"
+                  targetPrefix:@""
+                 operationName:@"UntagResource"
+                   outputClass:nil];
+}
+
+- (void)untagResource:(AWSLambdaUntagResourceRequest *)request
+     completionHandler:(void (^)(NSError *error))completionHandler {
+    [[self untagResource:request] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
         NSError *error = task.error;
 
         if (completionHandler) {

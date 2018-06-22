@@ -24,7 +24,9 @@
 
 NSString *const AWSPinpointEndpointAttributesKey = @"AWSPinpointEndpointAttributesKey";
 NSString *const AWSPinpointEndpointMetricsKey = @"AWSPinpointEndpointMetricsKey";
+NSString *const AWSPinpointEndpointProfileKey = @"AWSPinpointEndpointProfileKey";
 NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpointAnalyticsClientErrorDomain";
+NSString *const APNS_CHANNEL_TYPE = @"APNS";
 
 @interface AWSPinpointTargetingClient()
 
@@ -32,7 +34,19 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
 @property (nonatomic) NSMutableArray* endpointObservers;
 @property (nonatomic) NSMutableDictionary* globalAttributes;
 @property (nonatomic) NSMutableDictionary* globalMetrics;
+@property (nonatomic) AWSPinpointEndpointProfile *endpointProfile;
 
+@end
+
+@interface AWSPinpointConfiguration()
+@property (nonnull, strong) NSUserDefaults *userDefaults;
+@end
+
+@interface AWSPinpointEndpointProfile()
+- (void) removeAllAttributes;
+- (void) removeAllMetrics;
+- (BOOL) isApplicationLevelOptOut:(AWSPinpointContext *) context;
+- (void) updateEndpointProfileWithContext:(AWSPinpointContext *) context;
 @end
 
 @implementation AWSPinpointTargetingClient
@@ -46,9 +60,9 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
 - (instancetype)initWithContext:(AWSPinpointContext *) context {
     if (self = [super init]) {
         _context = context;
-        NSDictionary *customAttributes = [[NSUserDefaults standardUserDefaults] objectForKey:AWSPinpointEndpointAttributesKey];
+        NSDictionary *customAttributes = [context.configuration.userDefaults objectForKey:AWSPinpointEndpointAttributesKey];
         _globalAttributes = [[NSMutableDictionary alloc] initWithDictionary:customAttributes];
-        NSDictionary *customMetrics = [[NSUserDefaults standardUserDefaults] objectForKey:AWSPinpointEndpointMetricsKey];
+        NSDictionary *customMetrics = [context.configuration.userDefaults objectForKey:AWSPinpointEndpointMetricsKey];
         _globalMetrics = [[NSMutableDictionary alloc] initWithDictionary:customMetrics];
     }
     
@@ -56,24 +70,50 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
 }
 
 - (AWSPinpointEndpointProfile *) currentEndpointProfile {
-    AWSPinpointEndpointProfile *endpointProfile = [[AWSPinpointEndpointProfile alloc] initWithApplicationId:self.context.configuration.appId
-                                                                                                 endpointId:self.context.uniqueId];
+    if (!_endpointProfile) {
+        if ([_context.configuration.userDefaults objectForKey:AWSPinpointEndpointProfileKey] != nil) {
+            NSData *endpointProfileData = [_context.configuration.userDefaults objectForKey:AWSPinpointEndpointProfileKey];
+            AWSPinpointEndpointProfile *endpointProfile = [NSKeyedUnarchiver unarchiveObjectWithData:endpointProfileData];
+            if ([endpointProfile.applicationId isEqualToString:self.context.configuration.appId]) {
+                // This is to verify that same appId is being used. Anyone can modify the plist and test with a different app id
+                self.endpointProfile = endpointProfile;
+            } else {
+                self.endpointProfile = [[AWSPinpointEndpointProfile alloc] initWithContext: self.context];
+                @synchronized (self) {
+                    [self.context.configuration.userDefaults removeObjectForKey:AWSPinpointEndpointProfileKey];
+                    [self.context.configuration.userDefaults synchronize];
+                }
+            }
+        } else {
+            self.endpointProfile = [[AWSPinpointEndpointProfile alloc] initWithContext: self.context];
+        }
+    }
+    [self.endpointProfile removeAllMetrics];
+    [self.endpointProfile removeAllAttributes];
+    //This updates endpoint id, address and debug mode and app id
+    [self.endpointProfile updateEndpointProfileWithContext:self.context];
+    //update opt outs
+    BOOL applicationLevelOptOut = [self.endpointProfile isApplicationLevelOptOut:self.context];
+    [self.endpointProfile performSelectorOnMainThread:@selector(setEndpointOptOut:) withObject:[NSNumber numberWithBool:applicationLevelOptOut] waitUntilDone:YES];
+    
+    
+    
     //Add attributes
     if (self.globalAttributes.count > 0) {
-        AWSLogVerbose(@"Applying Global Endpoint Attributes: %@", self.globalAttributes);
+        AWSDDLogVerbose(@"Applying Global Endpoint Attributes: %@", self.globalAttributes);
         for (NSString *key in [self.globalAttributes allKeys]) {
-            [endpointProfile addAttribute:[self.globalAttributes objectForKey:key] forKey:key];
+            [self.endpointProfile addAttribute:[self.globalAttributes objectForKey:key] forKey:key];
         }
     }
     
     if (self.globalMetrics.count > 0) {
-        AWSLogVerbose(@"Applying Global Endpoint Metrics: %@", self.globalMetrics);
+        AWSDDLogVerbose(@"Applying Global Endpoint Metrics: %@", self.globalMetrics);
         for (NSString *key in [self.globalMetrics allKeys]) {
-            [endpointProfile addMetric:[self.globalMetrics objectForKey:key] forKey:key];
+            [self.endpointProfile addMetric:[self.globalMetrics objectForKey:key] forKey:key];
         }
     }
     
-    return endpointProfile;
+    return self.endpointProfile;
 }
 
 #pragma mark - Endpoint Client -
@@ -81,19 +121,18 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
     
     //Add attributes
     if (self.globalAttributes.count > 0) {
-        AWSLogVerbose(@"Applying Global Endpoint Attributes: %@", self.globalAttributes);
+        AWSDDLogVerbose(@"Applying Global Endpoint Attributes: %@", self.globalAttributes);
         for (NSString *key in [self.globalAttributes allKeys]) {
             [endpointProfile addAttribute:[self.globalAttributes objectForKey:key] forKey:key];
         }
     }
     
     if (self.globalMetrics.count > 0) {
-        AWSLogVerbose(@"Applying Global Endpoint Metrics: %@", self.globalMetrics);
+        AWSDDLogVerbose(@"Applying Global Endpoint Metrics: %@", self.globalMetrics);
         for (NSString *key in [self.globalMetrics allKeys]) {
             [endpointProfile addMetric:[self.globalMetrics objectForKey:key] forKey:key];
         }
     }
-    
     return [self executeUpdate:endpointProfile];
 }
 
@@ -102,12 +141,18 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
 }
 
 - (AWSTask *)executeUpdate:(AWSPinpointEndpointProfile *) endpointProfile {
-    return [[self.context.targetingService updateEndpoint:[self updateEndpointRequestForEndpoint:endpointProfile]] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
+    self.endpointProfile = endpointProfile;
+    @synchronized (self) {
+        NSData *endpointProfileData = [NSKeyedArchiver archivedDataWithRootObject:endpointProfile];
+        [self.context.configuration.userDefaults setObject:endpointProfileData forKey:AWSPinpointEndpointProfileKey];
+        [self.context.configuration.userDefaults synchronize];
+    }
+    return [[self.context.targetingService updateEndpoint:[self updateEndpointRequestForEndpoint:self.endpointProfile]] continueWithBlock:^id _Nullable(AWSTask * _Nonnull task) {
         if (task.error) {
-            AWSLogError(@"Unable to successfully update endpoint. Error Message:%@", task.error);
+            AWSDDLogError(@"Unable to successfully update endpoint. Error Message:%@", task.error);
             return task;
         } else {
-            AWSLogVerbose(@"Endpoint Updated Successfully! %@", task.result);
+            AWSDDLogVerbose(@"Endpoint Updated Successfully! %@", task.result);
             return task;
         }
     }];
@@ -139,9 +184,8 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
     @synchronized(self) {
         //Save value to disk
         [self.globalAttributes setValue:theValue forKey:theKey];
-        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-        [userDefaults setObject:self.globalAttributes forKey:AWSPinpointEndpointAttributesKey];
-        [userDefaults synchronize];
+        [self.context.configuration.userDefaults setObject:self.globalAttributes forKey:AWSPinpointEndpointAttributesKey];
+        [self.context.configuration.userDefaults synchronize];
     }
 }
 
@@ -154,9 +198,8 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
     
     @synchronized(self) {
         [self.globalAttributes removeObjectForKey:theKey];
-        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-        [userDefaults setObject:self.globalAttributes forKey:AWSPinpointEndpointAttributesKey];
-        [userDefaults synchronize];
+        [self.context.configuration.userDefaults setObject:self.globalAttributes forKey:AWSPinpointEndpointAttributesKey];
+        [self.context.configuration.userDefaults synchronize];
     }
 }
 
@@ -177,9 +220,8 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
     
     @synchronized(self) {
         [self.globalMetrics setValue:theValue forKey:theKey];
-        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-        [userDefaults setObject:self.globalMetrics forKey:AWSPinpointEndpointMetricsKey];
-        [userDefaults synchronize];
+        [self.context.configuration.userDefaults setObject:self.globalMetrics forKey:AWSPinpointEndpointMetricsKey];
+        [self.context.configuration.userDefaults synchronize];
     }
 }
 
@@ -192,9 +234,8 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
     
     @synchronized(self) {
         [self.globalMetrics removeObjectForKey:theKey];
-        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-        [userDefaults setObject:self.globalMetrics forKey:AWSPinpointEndpointMetricsKey];
-        [userDefaults synchronize];
+        [self.context.configuration.userDefaults setObject:self.globalMetrics forKey:AWSPinpointEndpointMetricsKey];
+        [self.context.configuration.userDefaults synchronize];
     }
 }
 
@@ -234,7 +275,7 @@ NSString *const AWSPinpointTargetingClientErrorDomain = @"com.amazonaws.AWSPinpo
     updateEndpointRequest.applicationId = endpoint.applicationId;
     
     AWSPinpointTargetingEndpointRequest *endpointRequest =  [AWSPinpointTargetingEndpointRequest new];
-    endpointRequest.channelType = AWSPinpointTargetingChannelTypeApns;
+    endpointRequest.channelType = [endpoint.channelType isEqualToString:APNS_CHANNEL_TYPE] ? AWSPinpointTargetingChannelTypeApns : AWSPinpointTargetingChannelTypeApnsSandbox;
     endpointRequest.address = endpoint.address;
     endpointRequest.location = [self locationModelForLocation:endpoint.location];
     endpointRequest.demographic = [self endpointDemographicModelForDemographic:endpoint.demographic];

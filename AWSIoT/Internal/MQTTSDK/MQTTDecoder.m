@@ -1,27 +1,23 @@
 //
-// MQTTDecoder.m
-// MQtt Client
-// 
-// Copyright (c) 2011, 2013, 2lemetry LLC
-// 
-// All rights reserved. This program and the accompanying materials
-// are made available under the terms of the Eclipse Public License v1.0
-// and Eclipse Distribution License v. 1.0 which accompanies this distribution.
-// The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
-// and the Eclipse Distribution License is available at
-// http://www.eclipse.org/org/documents/edl-v10.php.
-// 
-// Contributors:
-//    Kyle Roche - initial API and implementation and/or initial documentation
-// 
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+//
 
-#import "AWSLogging.h"
+#import "AWSCocoaLumberjack.h"
 #import "MQTTDecoder.h"
 
 @interface MQTTDecoder() {
         NSInputStream*  stream;
-        NSRunLoop*      runLoop;
-        NSString*       runLoopMode;
         UInt8           header;
         UInt32          length;
         UInt32          lengthMultiplier;
@@ -34,30 +30,30 @@
 @implementation MQTTDecoder
 
 - (id)initWithStream:(NSInputStream*)aStream
-             runLoop:(NSRunLoop*)aRunLoop
-         runLoopMode:(NSString*)aMode {
+{
     _status = MQTTDecoderStatusInitializing;
     stream = aStream;
     [stream setDelegate:self];
-    runLoop = aRunLoop;
-    runLoopMode = aMode;
     return self;
 }
 
 - (void)open {
+    AWSDDLogDebug(@"opening decoder stream.");
     [stream setDelegate:self];
-    [stream scheduleInRunLoop:runLoop forMode:runLoopMode];
+    [stream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [stream open];
 }
 
 - (void)close {
+    AWSDDLogDebug(@"closing decoder stream.");
     [stream setDelegate:nil];
     [stream close];
-    [stream removeFromRunLoop:runLoop forMode:runLoopMode];
     stream = nil;
 }
 
 - (void)stream:(NSStream*)sender handleEvent:(NSStreamEvent)eventCode {
+    AWSDDLogVerbose(@"%s [Line %d] EventCode:%lu, stream: %@, Thread: %@", __PRETTY_FUNCTION__, __LINE__, (unsigned long)eventCode, sender, [NSThread currentThread]);
+
     if(stream == nil)
         return;
     switch (eventCode) {
@@ -135,7 +131,7 @@
                                                     dupFlag:isDuplicate
                                                        data:dataBuffer];
                     [_delegate decoder:self newMessage:msg];
-                    dataBuffer = NULL;
+                    dataBuffer = nil;
                     _status = MQTTDecoderStatusDecodingHeader;
                 }
             }
@@ -149,7 +145,7 @@
             [_delegate decoder:self handleEvent:MQTTDecoderEventConnectionError];
             break;
         default:
-            AWSLogDebug(@"unhandled event code");
+            AWSDDLogDebug(@"unhandled event code");
             break;
     }
 }
