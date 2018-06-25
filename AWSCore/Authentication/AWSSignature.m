@@ -160,13 +160,21 @@ NSString *const AWSSignatureV4Terminator = @"aws4_request";
             NSArray *hostArray  = [[[request URL] host] componentsSeparatedByString:@"."];
 
             [request setValue:credentials.sessionKey forHTTPHeaderField:@"X-Amz-Security-Token"];
-            if ([hostArray firstObject] && [[hostArray firstObject] rangeOfString:@"s3"].location != NSNotFound) {
-                //If it is a S3 Request
-                authorization = [self signS3RequestV4:request
-                                         credentials:credentials];
-            } else {
+            
+            BOOL s3Signed = NO;
+            for (NSString *hostPart in hostArray) {
+                if ([hostPart rangeOfString:@"s3"].location == 0) {
+                    //If it is a S3 Request
+                    authorization = [self signS3RequestV4:request
+                                              credentials:credentials];
+                    s3Signed = YES;
+                    break;
+                }
+            }
+            
+            if (s3Signed == NO) {
                 authorization = [self signRequestV4:request
-                                       credentials:credentials];
+                                        credentials:credentials];
             }
 
             if (authorization) {

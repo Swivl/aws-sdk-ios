@@ -154,12 +154,17 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
             [_configuration.endpoint setRegion:_configuration.regionType
                                       service:AWSServiceS3];
         }
-       	
-                                                                         
+       	                                                
         AWSSignatureV4Signer *signer = [[AWSSignatureV4Signer alloc] initWithCredentialsProvider:_configuration.credentialsProvider
                                                                                         endpoint:_configuration.endpoint];
         AWSNetworkingRequestInterceptor *baseInterceptor = [[AWSNetworkingRequestInterceptor alloc] initWithUserAgent:_configuration.userAgent];
-        _configuration.requestInterceptors = @[baseInterceptor, signer];
+        
+        NSArray *requestInterceptors = @[baseInterceptor, signer];
+        if (_configuration.requestInterceptors != nil) {
+            requestInterceptors = [_configuration.requestInterceptors arrayByAddingObjectsFromArray:requestInterceptors];
+        }
+
+        _configuration.requestInterceptors = requestInterceptors;
 
         _configuration.baseURL = _configuration.endpoint.URL;
         _configuration.retryHandler = [[AWSS3RequestRetryHandler alloc] initWithMaximumRetryCount:_configuration.maxRetryCount];
