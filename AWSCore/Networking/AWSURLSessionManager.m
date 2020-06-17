@@ -181,12 +181,15 @@ typedef NS_ENUM(NSInteger, AWSURLSessionTaskType) {
         }
 
         if (delegate.request.task) {
-            [self.sessionManagerDelegates setObject:delegate
-                                             forKey:@(((NSURLSessionTask *)delegate.request.task).taskIdentifier)];
+            
+            // >>>>>>>>>>>>>>
 
-            [self printHTTPHeadersAndBodyForRequest:delegate.request.task.originalRequest];
-
-            [delegate.request.task resume];
+            id result = mutableRequest;
+            delegate.taskCompletionSource.result = result;
+            
+            // <<<<<<<<<<<<<<<<<
+            
+            return nil;
         } else {
             AWSDDLogError(@"Invalid AWSURLSessionTaskType.");
             return [AWSTask taskWithError:[NSError errorWithDomain:AWSNetworkingErrorDomain

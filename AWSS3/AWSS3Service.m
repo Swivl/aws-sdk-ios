@@ -154,12 +154,17 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
             [_configuration.endpoint setRegion:_configuration.regionType
                                       service:AWSServiceS3];
         }
-       	
-                                                                         
+       	                                                
         AWSSignatureV4Signer *signer = [[AWSSignatureV4Signer alloc] initWithCredentialsProvider:_configuration.credentialsProvider
                                                                                         endpoint:_configuration.endpoint];
         AWSNetworkingRequestInterceptor *baseInterceptor = [[AWSNetworkingRequestInterceptor alloc] initWithUserAgent:_configuration.userAgent];
-        _configuration.requestInterceptors = @[baseInterceptor, signer];
+        
+        NSArray *requestInterceptors = @[baseInterceptor, signer];
+        if (_configuration.requestInterceptors != nil) {
+            requestInterceptors = [_configuration.requestInterceptors arrayByAddingObjectsFromArray:requestInterceptors];
+        }
+
+        _configuration.requestInterceptors = requestInterceptors;
 
         _configuration.baseURL = _configuration.endpoint.URL;
         _configuration.retryHandler = [[AWSS3RequestRetryHandler alloc] initWithMaximumRetryCount:_configuration.maxRetryCount];
@@ -196,10 +201,17 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
 		networkingRequest.requestSerializer = [[AWSS3RequestSerializer alloc] initWithJSONDefinition:[[AWSS3Resources sharedInstance] JSONObject]
 		 															     actionName:operationName];
         networkingRequest.responseSerializer = [[AWSS3ResponseSerializer alloc] initWithJSONDefinition:[[AWSS3Resources sharedInstance] JSONObject]
-                                                                                             actionName:operationName
-                                                                                            outputClass:outputClass];
-        
-        return [self.networking sendRequest:networkingRequest];
+                                                                                            actionName:operationName
+                                                                                           outputClass:outputClass];
+        return [[self.networking sendRequest:networkingRequest] continueWithBlock:^id(AWSTask *task) {
+            
+            //>>>>>>
+            // internalRequest will be nilled in a user code on later stage
+            //request.internalRequest = nil;
+            //<<<<<<
+            
+            return task;
+        }];
     }
 }
 
